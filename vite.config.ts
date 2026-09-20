@@ -10,7 +10,7 @@ import remarkFrontmatter from "remark-frontmatter"
 import remarkGfm from "remark-gfm"
 import { defineConfig, type Plugin } from "vite"
 
-import { getPostMetadata } from "./build/remark-post-metadata.ts"
+import { getPostMetadata } from "./vite-plugins/remark-post-metadata.ts"
 
 const POST_METADATA_MODULE_ID = "virtual:post-metadata"
 const RESOLVED_POST_METADATA_MODULE_ID = `\0${POST_METADATA_MODULE_ID}`
