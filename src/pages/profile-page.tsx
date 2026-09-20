@@ -1,16 +1,10 @@
-import {
-  BookOpenIcon,
-  CodeXmlIcon,
-  MapPinIcon,
-  UserRoundIcon,
-} from "lucide-react"
+import { BookOpenIcon, CodeXmlIcon, MapPinIcon } from "lucide-react"
 
 import { ArticleCard } from "@/components/article/article-card"
 import { CalendarCard } from "@/components/sidebar/calendar-card"
 import { MusicPlayerCard } from "@/components/sidebar/music-player-card"
 import { WeatherCard } from "@/components/sidebar/weather-card"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -41,6 +35,10 @@ export function ProfilePage() {
           <Card>
             <CardHeader>
               <Avatar className="size-20">
+                <AvatarImage
+                  alt={siteContent.person.name}
+                  src={siteContent.person.avatarUrl}
+                />
                 <AvatarFallback className="text-2xl">
                   {siteContent.person.avatarInitial}
                 </AvatarFallback>
@@ -111,41 +109,6 @@ export function ProfilePage() {
             </Carousel>
           </section>
 
-          <Card>
-            <CardHeader className="gap-4">
-              <Badge className="w-fit" variant="outline">
-                <UserRoundIcon data-icon="inline-start" />
-                {siteContent.ui.profile.about}
-              </Badge>
-              <CardTitle className="text-3xl leading-tight sm:text-4xl">
-                你好，我是{siteContent.person.name}。
-              </CardTitle>
-              <CardDescription className="max-w-2xl text-base leading-8">
-                {siteContent.blog.about}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 border-t pt-6 sm:grid-cols-2">
-                <div>
-                  <h2 className="font-medium">
-                    {siteContent.ui.profile.currentDirection}
-                  </h2>
-                  <p className="mt-2 text-sm leading-7 text-muted-foreground">
-                    {siteContent.blog.focus}
-                  </p>
-                </div>
-                <div>
-                  <h2 className="font-medium">
-                    {siteContent.ui.profile.thisBlog}
-                  </h2>
-                  <p className="mt-2 text-sm leading-7 text-muted-foreground">
-                    {siteContent.blog.purpose}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
           <section aria-labelledby="profile-latest-resources">
             <div className="mb-6">
               <p className="text-sm font-medium text-primary">
@@ -183,7 +146,7 @@ export function ProfilePage() {
           </section>
         </main>
 
-        <aside className="grid gap-4 sm:grid-cols-2 lg:sticky lg:top-24 lg:block lg:space-y-4">
+        <aside className="grid gap-4 self-start sm:grid-cols-2 lg:block lg:space-y-4">
           <WeatherCard />
           <CalendarCard />
         </aside>

@@ -123,6 +123,7 @@
   }
   html {
     @apply scroll-smooth font-sans;
+    scrollbar-gutter: stable;
   }
   body {
     @apply min-w-80 bg-background text-foreground antialiased;

@@ -1,6 +1,6 @@
 import { Link } from "react-router"
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { siteContent } from "@/config/site"
 import { useDocumentTitle } from "@/hooks/use-document-title"
@@ -15,6 +15,10 @@ export function HomePage() {
           <Button asChild className="h-auto rounded-full p-0" variant="ghost">
             <Link aria-label="进入博客" to="/profile">
               <Avatar className="size-32 border sm:size-40">
+                <AvatarImage
+                  alt={siteContent.person.name}
+                  src={siteContent.person.avatarUrl}
+                />
                 <AvatarFallback className="text-5xl sm:text-6xl">
                   {siteContent.person.avatarInitial}
                 </AvatarFallback>

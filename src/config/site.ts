@@ -25,6 +25,7 @@ export const siteContent = {
   person: {
     name: "旺仔小冰子",
     avatarInitial: "旺",
+    avatarUrl: "/avatar.jpg",
     introduction: "泪水打湿猪脚饭，发誓要挣100万",
     location: "济南",
   },
