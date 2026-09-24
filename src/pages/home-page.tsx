@@ -8,7 +8,6 @@ import {
 import { Link } from "react-router"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
 import {
   Card,
   CardDescription,
@@ -167,7 +166,7 @@ export function HomePage() {
      否则会永远停在隐藏态 */
   const [heroRevealed, setHeroRevealed] = useState(() => !showIntro)
   const [revealed, setRevealed] = useState<number[]>(() =>
-    prefersReducedMotion() ? [1, 2, 3, 4] : []
+    prefersReducedMotion() ? [1, 2, 3] : []
   )
 
   const rootRef = useRef<HTMLDivElement>(null)
@@ -183,7 +182,7 @@ export function HomePage() {
 
   /* 整屏吸附设在滚动容器（<html>）上，卸载时还原。
      滚动条的隐藏已由 index.css 全局处理，这里不再重复。
-     首页不渲染页脚，所以 5 屏正好铺满文档高度，最后一个吸附点就是页面底部。 */
+     首页不渲染页脚，所以 4 屏正好铺满文档高度，最后一个吸附点就是页面底部。 */
   useEffect(() => {
     const html = document.documentElement
     const previousSnap = html.style.scrollSnapType
@@ -305,6 +304,13 @@ export function HomePage() {
             >
               济南人，死磕 Python 和 AI，白天写代码晚上吃猪脚饭。
             </p>
+            <Link
+              className="home-motion mt-8 inline-flex items-center rounded-full bg-foreground px-6 py-2.5 text-sm text-background"
+              style={riseIn(isRevealed(1), 400)}
+              to="/profile"
+            >
+              进入博客
+            </Link>
           </div>
         </section>
 
@@ -348,6 +354,13 @@ export function HomePage() {
                 </Card>
               ))}
             </div>
+            <Link
+              className="home-motion mt-8 inline-flex items-center rounded-full bg-foreground px-6 py-2.5 text-sm text-background"
+              style={riseIn(isRevealed(2), 600)}
+              to="/works"
+            >
+              进入作品
+            </Link>
           </div>
         </section>
 
@@ -380,28 +393,13 @@ export function HomePage() {
                 </CardDescription>
               </CardHeader>
             </Card>
-          </div>
-        </section>
-
-        <section
-          className="flex min-h-svh snap-start flex-col items-center justify-center px-4 pt-24 pb-16 text-center"
-          data-screen="4"
-        >
-          <div className="mx-auto w-full max-w-3xl">
-            <h2
-              className="home-motion text-4xl font-semibold tracking-tight sm:text-6xl"
-              style={riseIn(isRevealed(4), 0)}
+            <Link
+              className="home-motion mt-8 inline-flex items-center rounded-full bg-foreground px-6 py-2.5 text-sm text-background"
+              style={riseIn(isRevealed(3), 400)}
+              to="/resources"
             >
-              准备好进入我的博客了吗？
-            </h2>
-            <Button
-              asChild
-              className="home-motion mt-10"
-              size="lg"
-              style={riseIn(isRevealed(4), 120)}
-            >
-              <Link to="/profile">进入博客</Link>
-            </Button>
+              进入资料
+            </Link>
           </div>
         </section>
       </div>
