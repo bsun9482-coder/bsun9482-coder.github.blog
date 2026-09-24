@@ -120,10 +120,20 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    /* Firefox：scrollbar-width 不继承，必须落在每个元素上，
+       才能连文章宽表格、目录这类内部滚动容器一起藏掉 */
+    scrollbar-width: none;
   }
   html {
     @apply scroll-smooth font-sans;
     scrollbar-gutter: stable;
+    /* 全局隐藏滚动条：只影响视觉，滚轮 / 触摸 / 键盘 / 代码滚动全部照常。
+       写在 base 层且不加容器限定，首页与内容页统一生效。 */
+    scrollbar-width: none;
+  }
+  /* 无前缀写法覆盖页面与所有内部滚动容器（Chrome / Edge / Safari） */
+  ::-webkit-scrollbar {
+    display: none;
   }
   body {
     @apply min-w-80 bg-background text-foreground antialiased;
