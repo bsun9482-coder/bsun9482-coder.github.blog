@@ -1,6 +1,7 @@
 import { BookOpenIcon, CodeXmlIcon } from "lucide-react"
 
 import { ArticleCard } from "@/components/article/article-card"
+import { PersonName } from "@/components/person-name"
 import { CalendarCard } from "@/components/sidebar/calendar-card"
 import { MusicPlayerCard } from "@/components/sidebar/music-player-card"
 import { WeatherCard } from "@/components/sidebar/weather-card"
@@ -55,7 +56,9 @@ export function ProfilePage() {
                   {siteContent.person.avatarInitial}
                 </AvatarFallback>
               </Avatar>
-              <CardTitle className="mt-3">{siteContent.person.name}</CardTitle>
+              <CardTitle className="mt-3">
+                <PersonName />
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-sm leading-7 text-muted-foreground">

@@ -7,6 +7,7 @@ import {
 } from "lucide-react"
 import { Link } from "react-router"
 
+import { PersonName } from "@/components/person-name"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   Card,
@@ -17,6 +18,7 @@ import {
 import { siteContent } from "@/config/site"
 import { useDocumentTitle } from "@/hooks/use-document-title"
 
+/* 「正在进行」屏的两张卡 */
 const FOCUS_ITEMS = [
   {
     icon: TerminalIcon,
@@ -28,12 +30,14 @@ const FOCUS_ITEMS = [
     title: "玩 AI",
     description: "把模型接进能用的小应用，边做边学。",
   },
-  {
-    icon: PenLineIcon,
-    title: "写博客",
-    description: "把踩过的坑整理成可以回看的资料。",
-  },
 ]
+
+/* 「最近在写」屏和「第一篇在路上」并排的那张卡 */
+const WRITING_CARD = {
+  icon: PenLineIcon,
+  title: "写博客",
+  description: "把踩过的坑整理成可以回看的资料。",
+}
 
 /* Preloader 黑屏总时长 = 计数 + 停留 + 滑出 = 1200 + 100 + 700 = 2000ms */
 const INTRO_COUNT_DURATION = 1200
@@ -51,7 +55,7 @@ const HERO_NAME_DELAY = 400
 const HERO_NAME_DURATION = 800
 const HERO_TAGLINE_DELAY = 700
 
-/* 「正在进行」三张卡依次弹入 */
+/* 「正在进行」两张卡依次弹入 */
 const CARD_BASE_DELAY = 180
 const CARD_STAGGER = 250
 
@@ -265,7 +269,7 @@ export function HomePage() {
             className="home-motion mt-8 text-4xl font-semibold tracking-tight sm:text-5xl"
             style={riseIn(heroRevealed, HERO_NAME_DELAY, 40, HERO_NAME_DURATION)}
           >
-            {siteContent.person.name}
+            <PersonName />
           </h1>
 
           <p
@@ -302,7 +306,7 @@ export function HomePage() {
               className="home-motion mt-8 max-w-2xl text-lg leading-9 text-muted-foreground"
               style={riseIn(isRevealed(1), 180)}
             >
-              济南人，死磕 Python 和 AI，白天写代码晚上吃猪脚饭。
+              死磕 Python 和 AI，出身寒微不是耻辱。
             </p>
             <Link
               className="home-motion mt-8 inline-flex items-center rounded-full bg-foreground px-6 py-2.5 text-sm text-background"
@@ -332,7 +336,7 @@ export function HomePage() {
               正在进行
             </h2>
 
-            <div className="mt-10 grid gap-4 sm:grid-cols-3">
+            <div className="mt-10 grid gap-4 sm:grid-cols-2">
               {FOCUS_ITEMS.map((item, index) => (
                 <Card
                   key={item.title}
@@ -382,17 +386,34 @@ export function HomePage() {
               最近在写
             </h2>
 
-            <Card
-              className="home-motion mt-10"
-              style={riseIn(isRevealed(3), 180)}
-            >
-              <CardHeader>
-                <CardTitle>{siteContent.blog.publicResources}</CardTitle>
-                <CardDescription>
-                  {siteContent.blog.latestResources}
-                </CardDescription>
-              </CardHeader>
-            </Card>
+            <div className="mt-10 grid gap-4 sm:grid-cols-2">
+              <Card
+                className="home-motion"
+                size="sm"
+                style={riseIn(isRevealed(3), CARD_BASE_DELAY)}
+              >
+                <CardHeader>
+                  <WRITING_CARD.icon
+                    aria-hidden="true"
+                    className="mb-1 size-5 text-muted-foreground"
+                  />
+                  <CardTitle>{WRITING_CARD.title}</CardTitle>
+                  <CardDescription>{WRITING_CARD.description}</CardDescription>
+                </CardHeader>
+              </Card>
+              <Card
+                className="home-motion"
+                size="sm"
+                style={riseIn(isRevealed(3), CARD_BASE_DELAY + CARD_STAGGER)}
+              >
+                <CardHeader>
+                  <CardTitle>{siteContent.blog.publicResources}</CardTitle>
+                  <CardDescription>
+                    {siteContent.blog.latestResources}
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            </div>
             <Link
               className="home-motion mt-8 inline-flex items-center rounded-full bg-foreground px-6 py-2.5 text-sm text-background"
               style={riseIn(isRevealed(3), 400)}

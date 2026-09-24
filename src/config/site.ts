@@ -23,7 +23,8 @@ export const siteContent = {
     titleSuffix: "学习日志",
   },
   person: {
-    name: "旺仔小冰子",
+    // 全站名字的唯一来源：主名字 + 尾部「（……）」敬称，展示时会自动把敬称降级处理
+    name: "旺仔冰子（恩师萧氏）",
     avatarInitial: "旺",
     avatarUrl: "/avatar.jpg",
     introduction: "泪水打湿猪脚饭，发誓要挣100万",
