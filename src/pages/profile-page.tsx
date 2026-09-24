@@ -1,4 +1,4 @@
-import { BookOpenIcon, CodeXmlIcon, MapPinIcon } from "lucide-react"
+import { BookOpenIcon, CodeXmlIcon } from "lucide-react"
 
 import { ArticleCard } from "@/components/article/article-card"
 import { CalendarCard } from "@/components/sidebar/calendar-card"
@@ -30,8 +30,20 @@ export function ProfilePage() {
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-16">
+      <section className="mb-8">
+        <p className="text-xs font-medium uppercase tracking-[0.2em] text-primary">
+          {siteContent.ui.profile.heroEyebrow}
+        </p>
+        <h1 className="mt-3 text-5xl font-bold tracking-tight sm:text-6xl">
+          {siteContent.ui.profile.heroTitle}
+        </h1>
+        <p className="mt-4 text-base text-muted-foreground">
+          {siteContent.ui.profile.heroSubtitle}
+        </p>
+      </section>
+
       <div className="grid items-start gap-8 lg:grid-cols-[18rem_minmax(0,1fr)_15rem]">
-        <aside className="space-y-4 lg:sticky lg:top-24">
+        <aside className="space-y-4">
           <Card>
             <CardHeader>
               <Avatar className="size-20">
@@ -50,10 +62,6 @@ export function ProfilePage() {
                 {siteContent.person.introduction}
               </p>
               <Separator />
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <MapPinIcon className="size-4" />
-                {siteContent.person.location}
-              </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <BookOpenIcon className="size-4" />
                 {siteContent.blog.publicResources}

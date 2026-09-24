@@ -1,28 +1,41 @@
 import { useDeferredValue, useMemo, useState } from "react"
-import { BookOpenIcon, SearchIcon, SparklesIcon, XIcon } from "lucide-react"
+import { SearchIcon, SparklesIcon, XIcon } from "lucide-react"
 
 import { ArticleCard } from "@/components/article/article-card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { siteContent } from "@/config/site"
 import { useDocumentTitle } from "@/hooks/use-document-title"
 import { posts } from "@/lib/posts"
 
+const ALL_CATEGORIES = "全部"
+
 export function ResourcesPage() {
   const [query, setQuery] = useState("")
+  const [activeCategory, setActiveCategory] = useState(ALL_CATEGORIES)
   const deferredQuery = useDeferredValue(query.trim().toLocaleLowerCase())
 
   useDocumentTitle("资料")
+
+  const categories = useMemo(() => {
+    const counts = new Map<string, number>()
+    posts.forEach((post) => {
+      counts.set(post.category, (counts.get(post.category) ?? 0) + 1)
+    })
+    return [ALL_CATEGORIES, ...counts.keys()]
+  }, [])
 
   const filteredPosts = useMemo(
     () =>
       posts.filter(
         (post) =>
-          deferredQuery.length === 0 || post.searchText.includes(deferredQuery)
+          (activeCategory === ALL_CATEGORIES ||
+            post.category === activeCategory) &&
+          (deferredQuery.length === 0 || post.searchText.includes(deferredQuery))
       ),
-    [deferredQuery]
+    [activeCategory, deferredQuery]
   )
 
   return (
@@ -42,40 +55,46 @@ export function ResourcesPage() {
         </div>
       </section>
 
-      <section
-        aria-labelledby="knowledge-overview"
-        className="mt-6 grid gap-3 sm:grid-cols-2"
-      >
-        <h2 className="sr-only" id="knowledge-overview">
-          资料库概览
-        </h2>
-        <Card size="sm">
-          <CardHeader className="flex-row items-center gap-2">
-            <BookOpenIcon className="size-4 text-muted-foreground" />
-            <CardTitle>{posts.length} 份资料</CardTitle>
-          </CardHeader>
-        </Card>
-        <Card size="sm">
-          <CardHeader className="flex-row items-center gap-2">
-            <SparklesIcon className="size-4 text-muted-foreground" />
-            <CardTitle>持续更新</CardTitle>
-          </CardHeader>
-        </Card>
-      </section>
-
       <section className="pt-16">
         <div className="flex flex-col gap-5 border-b pb-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-sm font-medium text-primary">RESOURCES</p>
+            <p className="text-xs font-medium tracking-[0.2em] text-primary">
+              RESOURCES
+            </p>
             <h2 className="mt-2 text-3xl font-semibold tracking-tight">
               最近资料
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              按发布时间倒序排列，共 {filteredPosts.length} 份结果。
+              按发布时间倒序排列，持续更新。
             </p>
           </div>
 
-          <div className="relative w-full sm:max-w-sm">
+          <p className="text-xs text-primary tabular-nums sm:pb-1">
+            {posts.length} 份资料
+          </p>
+        </div>
+
+        <div className="mt-6 flex flex-col gap-3 rounded-xl border bg-card p-2.5 sm:flex-row sm:items-center">
+          <div
+            aria-label="按分类筛选"
+            className="flex flex-wrap gap-1.5"
+            role="group"
+          >
+            {categories.map((category) => (
+              <Button
+                key={category}
+                aria-pressed={activeCategory === category}
+                onClick={() => setActiveCategory(category)}
+                size="sm"
+                type="button"
+                variant={activeCategory === category ? "default" : "ghost"}
+              >
+                {category}
+              </Button>
+            ))}
+          </div>
+
+          <div className="relative w-full sm:ml-auto sm:w-64">
             <SearchIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               aria-label="搜索资料"
@@ -100,14 +119,20 @@ export function ResourcesPage() {
           </div>
         </div>
 
+        <p className="mt-4 text-xs text-muted-foreground tabular-nums">
+          {deferredQuery.length > 0
+            ? `“${query.trim()}” 匹配到 ${filteredPosts.length} 份`
+            : `共 ${filteredPosts.length} 份`}
+        </p>
+
         {filteredPosts.length > 0 ? (
-          <div className="mt-6 grid gap-4 lg:grid-cols-2">
+          <div className="mt-4 grid gap-4 lg:grid-cols-2">
             {filteredPosts.map((post) => (
               <ArticleCard key={post.slug} post={post} />
             ))}
           </div>
         ) : (
-          <Card className="mt-6 py-12 text-center">
+          <Card className="mt-4 py-12 text-center">
             <CardContent>
               <SearchIcon className="mx-auto mb-4 size-8 text-muted-foreground" />
               <h3 className="text-lg font-medium">
@@ -123,10 +148,13 @@ export function ResourcesPage() {
               {posts.length > 0 && (
                 <Button
                   className="mt-5"
-                  onClick={() => setQuery("")}
+                  onClick={() => {
+                    setQuery("")
+                    setActiveCategory(ALL_CATEGORIES)
+                  }}
                   variant="outline"
                 >
-                  清除搜索
+                  清除筛选条件
                 </Button>
               )}
             </CardContent>

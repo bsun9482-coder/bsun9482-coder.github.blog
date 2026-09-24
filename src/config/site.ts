@@ -30,10 +30,6 @@ export const siteContent = {
     location: "济南",
   },
   blog: {
-    about:
-      "我主要学习 Python 和 AI 应用，在这里记录学习过程，把零散知识整理成可反复查阅的资料。",
-    focus: "Python、AI 应用。",
-    purpose: "记录学习过程，并把零散知识整理成可反复查阅的资料。",
     publicResources: "第一篇在路上",
     latestResources: "还在写第一篇，很快见。",
   },
@@ -75,7 +71,31 @@ export const siteContent = {
       menuTitle: "导航菜单",
       menuDescription: "选择要访问的页面",
     },
+    footer: {
+      tagline: "学习日志 · Python 与 AI 知识库",
+      subtitle: "内容持续更新",
+    },
+    works: {
+      badge: "PORTFOLIO",
+      title: "作品",
+      description:
+        "用来展示完成的项目、实验和其他创作。当前先保留页面结构，作品内容稍后添加。",
+      emptyTitle: "暂无作品",
+      emptyDescription:
+        "后续添加作品时，这里会展示作品名称、简介、状态和访问入口。",
+    },
+    community: {
+      badge: "COMMUNITY",
+      title: "社区交流",
+      description:
+        "用来发布讨论、分享经验和交流问题。当前先保留页面入口和内容结构。",
+      emptyTitle: "社区暂未开放",
+      emptyDescription: "后续可以在这里加入话题列表、发布入口和评论功能。",
+    },
     profile: {
+      heroEyebrow: "BLOG / NOTES",
+      heroTitle: "博客 · 记录与发现",
+      heroSubtitle: "把学习、创作和建设过程整理成可以回看的片段。",
       about: "关于我",
       currentDirection: "当前方向",
       thisBlog: "这个博客",
