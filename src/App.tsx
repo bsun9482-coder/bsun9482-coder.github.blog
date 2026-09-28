@@ -35,6 +35,21 @@ function EscapeToHome() {
   return null
 }
 
+/* 暗色赛博 AI 风格的固定背景，全部塞在这一层里（fixed / z-0 / pointer-events-none），
+   前景内容由 SiteLayout 的 z-10 盖在上面。 */
+function SiteBackground() {
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
+    >
+      <div className="cyber-grid absolute inset-0" />
+      <div className="cyber-blob cyber-blob-blue -top-40 -left-40" />
+      <div className="cyber-blob cyber-blob-purple -right-40 -bottom-40" />
+    </div>
+  )
+}
+
 function SiteLayout() {
   const { pathname } = useLocation()
   /* 首页是整屏吸附式落地页，最后一屏自己收尾 —— 不挂页脚，页面滚到底就是最后那一屏。
@@ -42,7 +57,7 @@ function SiteLayout() {
   const withFooter = pathname !== "/"
 
   return (
-    <div className="flex min-h-svh flex-col">
+    <div className="relative z-10 flex min-h-svh flex-col">
       <SiteHeader />
       <main className="flex-1">
         <Outlet />
@@ -55,6 +70,7 @@ function SiteLayout() {
 export function App() {
   return (
     <BrowserRouter>
+      <SiteBackground />
       <ScrollManager />
       <EscapeToHome />
       <Routes>

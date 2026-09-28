@@ -1,7 +1,6 @@
 import { MenuIcon } from "lucide-react"
 import { Link } from "react-router"
 
-import { ThemeToggle } from "@/components/layout/theme-toggle"
 import { Button } from "@/components/ui/button"
 import {
   Sheet,
@@ -18,7 +17,7 @@ const mobileNavigationItems = [{ href: "/", label: "首页" }, ...navigationItem
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-40 border-b bg-background/85 backdrop-blur-xl">
+    <header className="sticky top-0 z-40 border-b bg-background/70 backdrop-blur-xl">
       <div className="mx-auto flex h-20 w-full max-w-6xl items-center gap-4 px-4 sm:px-6">
         <nav aria-label="主导航" className="hidden items-center gap-1 md:flex">
           {navigationItems.map((item) => (
@@ -35,7 +34,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
-          <ThemeToggle />
+          {/* 暗色是唯一主题，主题切换按钮不再渲染（组件文件保留） */}
 
           <Button
             asChild

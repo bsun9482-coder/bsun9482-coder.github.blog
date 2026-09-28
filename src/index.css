@@ -39,6 +39,9 @@
   --color-card: var(--card);
   --color-foreground: var(--foreground);
   --color-background: var(--background);
+  /* 发光色注册成主题色，这样 ring-glow-blue/15 这类带透明度的写法能用 */
+  --color-glow-blue: var(--glow-blue);
+  --color-glow-purple: var(--glow-purple);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -49,72 +52,82 @@
 }
 
 :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
+    /* 暗色赛博 AI 主题：:root 与 .dark 用同一套色板，
+       所以无论 html 上挂的是 light 还是 dark，视觉都是这一套（暗色即唯一主题）。 */
+    color-scheme: dark;
+    --background: oklch(0.13 0.01 260);
+    --foreground: oklch(0.95 0.01 260);
+    --card: oklch(0.17 0.015 260);
+    --card-foreground: oklch(0.95 0.01 260);
+    --popover: oklch(0.17 0.015 260);
+    --popover-foreground: oklch(0.95 0.01 260);
+    --primary: oklch(0.65 0.2 260);
+    --primary-foreground: oklch(0.99 0 0);
+    --secondary: oklch(0.22 0.02 260);
+    --secondary-foreground: oklch(0.9 0.01 260);
+    --muted: oklch(0.2 0.015 260);
+    --muted-foreground: oklch(0.65 0.02 260);
+    --accent: oklch(0.55 0.22 290);
+    --accent-foreground: oklch(0.98 0 0);
+    --destructive: oklch(0.704 0.191 22.216);
+    --border: oklch(0.3 0.03 260 / 60%);
+    --input: oklch(0.25 0.02 260);
+    --ring: oklch(0.65 0.2 260);
+    /* 发光色：卡片描边 / 按钮外发光 / 背景光斑都用这两个 */
+    --glow-blue: oklch(0.65 0.22 260);
+    --glow-purple: oklch(0.6 0.24 290);
     --chart-1: oklch(0.87 0 0);
     --chart-2: oklch(0.556 0 0);
     --chart-3: oklch(0.439 0 0);
     --chart-4: oklch(0.371 0 0);
     --chart-5: oklch(0.269 0 0);
     --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
+    --sidebar: oklch(0.17 0.015 260);
+    --sidebar-foreground: oklch(0.95 0.01 260);
+    --sidebar-primary: oklch(0.65 0.2 260);
+    --sidebar-primary-foreground: oklch(0.99 0 0);
+    --sidebar-accent: oklch(0.22 0.02 260);
+    --sidebar-accent-foreground: oklch(0.9 0.01 260);
+    --sidebar-border: oklch(0.3 0.03 260 / 60%);
+    --sidebar-ring: oklch(0.65 0.2 260);
 }
 
 .dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
+    /* 与 :root 保持一致 —— 暗色是唯一主题，切到 .dark 不改变任何颜色 */
+    color-scheme: dark;
+    --background: oklch(0.13 0.01 260);
+    --foreground: oklch(0.95 0.01 260);
+    --card: oklch(0.17 0.015 260);
+    --card-foreground: oklch(0.95 0.01 260);
+    --popover: oklch(0.17 0.015 260);
+    --popover-foreground: oklch(0.95 0.01 260);
+    --primary: oklch(0.65 0.2 260);
+    --primary-foreground: oklch(0.99 0 0);
+    --secondary: oklch(0.22 0.02 260);
+    --secondary-foreground: oklch(0.9 0.01 260);
+    --muted: oklch(0.2 0.015 260);
+    --muted-foreground: oklch(0.65 0.02 260);
+    --accent: oklch(0.55 0.22 290);
+    --accent-foreground: oklch(0.98 0 0);
     --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
+    --border: oklch(0.3 0.03 260 / 60%);
+    --input: oklch(0.25 0.02 260);
+    --ring: oklch(0.65 0.2 260);
+    --glow-blue: oklch(0.65 0.22 260);
+    --glow-purple: oklch(0.6 0.24 290);
     --chart-1: oklch(0.87 0 0);
     --chart-2: oklch(0.556 0 0);
     --chart-3: oklch(0.439 0 0);
     --chart-4: oklch(0.371 0 0);
     --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
+    --sidebar: oklch(0.17 0.015 260);
+    --sidebar-foreground: oklch(0.95 0.01 260);
+    --sidebar-primary: oklch(0.65 0.2 260);
+    --sidebar-primary-foreground: oklch(0.99 0 0);
+    --sidebar-accent: oklch(0.22 0.02 260);
+    --sidebar-accent-foreground: oklch(0.9 0.01 260);
+    --sidebar-border: oklch(0.3 0.03 260 / 60%);
+    --sidebar-ring: oklch(0.65 0.2 260);
 }
 
 @layer base {
@@ -139,11 +152,56 @@
     @apply min-w-80 bg-background text-foreground antialiased;
   }
   ::selection {
-    @apply bg-primary/20 text-foreground;
+    @apply bg-primary/30 text-white;
   }
 }
 
 @layer components {
+  /* ---------- 背景：网格 + 两团漂移光斑 ----------
+     均由 App.tsx 的 SiteBackground 使用 */
+
+  /* 1px 网格，64px 一格 */
+  .cyber-grid {
+    background-image:
+      linear-gradient(
+        to right,
+        oklch(0.65 0.2 260 / 5%) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        to bottom,
+        oklch(0.65 0.2 260 / 5%) 1px,
+        transparent 1px
+      );
+    background-size: 64px 64px;
+  }
+
+  /* 两团光斑共用：尺寸 / 模糊 / 透明度 / 20s 循环，具体路径与相位由各自的类给 */
+  .cyber-blob {
+    position: absolute;
+    width: 36rem;
+    height: 36rem;
+    border-radius: 9999px;
+    opacity: 0.12;
+    filter: blur(120px);
+    will-change: transform;
+    animation-duration: 20s;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+  }
+
+  .cyber-blob-blue {
+    background-color: var(--glow-blue);
+    animation-name: cyber-drift-blue;
+  }
+
+  /* 负延迟 = 一起步就在循环中段，两团因此天然错开 */
+  .cyber-blob-purple {
+    background-color: var(--glow-purple);
+    animation-name: cyber-drift-purple;
+    animation-delay: -3s;
+  }
+
   .article-content [data-rehype-pretty-code-figure] {
     @apply my-7 overflow-hidden rounded-xl border bg-muted/35;
   }
@@ -170,5 +228,26 @@
 
   .dark .article-content [data-theme*=" "] {
     color: var(--shiki-dark);
+  }
+}
+
+/* 两团光斑的漂移路径：20s 一个来回，只动 transform（GPU 合成，不触发重排） */
+@keyframes cyber-drift-blue {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(70px, 50px, 0) scale(1.08);
+  }
+}
+
+@keyframes cyber-drift-purple {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-60px, -50px, 0) scale(1.06);
   }
 }

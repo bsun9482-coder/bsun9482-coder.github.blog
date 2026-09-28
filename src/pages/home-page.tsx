@@ -92,7 +92,10 @@ function riseIn(
   return {
     opacity: visible ? 1 : 0,
     transform: visible ? "translateY(0px)" : `translateY(${distance}px)`,
-    transition: `opacity ${duration}ms ${REVEAL_EASING} ${delayMs}ms, transform ${duration}ms ${REVEAL_EASING} ${delayMs}ms`,
+    // 入场只动 opacity / transform（节奏不变）；额外补一条 box-shadow 300ms，
+    // 否则卡片的 hover:ring / hover:shadow 发光会被这条行内 transition 盖掉、
+    // 变成瞬间跳变（行内样式优先级高于样式表里的 transition-[box-shadow] duration-300）。
+    transition: `opacity ${duration}ms ${REVEAL_EASING} ${delayMs}ms, transform ${duration}ms ${REVEAL_EASING} ${delayMs}ms, box-shadow 300ms ease 0ms`,
   }
 }
 
@@ -254,7 +257,7 @@ export function HomePage() {
           data-screen="0"
         >
           <Avatar
-            className="home-motion mx-auto size-40 border"
+            className="home-motion mx-auto size-40 ring-2 ring-primary/20"
             style={riseIn(heroRevealed, 0, 40, HERO_AVATAR_DURATION)}
           >
             <AvatarImage
@@ -309,7 +312,7 @@ export function HomePage() {
               死磕 Python 和 AI，出身寒微不是耻辱。
             </p>
             <Link
-              className="home-motion mt-8 inline-flex items-center rounded-full bg-foreground px-6 py-2.5 text-sm text-background"
+              className="home-motion mt-8 inline-flex items-center rounded-full bg-primary px-6 py-2.5 text-sm text-primary-foreground shadow-[0_0_15px_color-mix(in_oklab,var(--glow-blue)_30%,transparent)] hover:shadow-[0_0_22px_color-mix(in_oklab,var(--glow-blue)_50%,transparent)]"
               style={riseIn(isRevealed(1), 400)}
               to="/profile"
             >
@@ -359,7 +362,7 @@ export function HomePage() {
               ))}
             </div>
             <Link
-              className="home-motion mt-8 inline-flex items-center rounded-full bg-foreground px-6 py-2.5 text-sm text-background"
+              className="home-motion mt-8 inline-flex items-center rounded-full bg-primary px-6 py-2.5 text-sm text-primary-foreground shadow-[0_0_15px_color-mix(in_oklab,var(--glow-blue)_30%,transparent)] hover:shadow-[0_0_22px_color-mix(in_oklab,var(--glow-blue)_50%,transparent)]"
               style={riseIn(isRevealed(2), 600)}
               to="/works"
             >
@@ -415,7 +418,7 @@ export function HomePage() {
               </Card>
             </div>
             <Link
-              className="home-motion mt-8 inline-flex items-center rounded-full bg-foreground px-6 py-2.5 text-sm text-background"
+              className="home-motion mt-8 inline-flex items-center rounded-full bg-primary px-6 py-2.5 text-sm text-primary-foreground shadow-[0_0_15px_color-mix(in_oklab,var(--glow-blue)_30%,transparent)] hover:shadow-[0_0_22px_color-mix(in_oklab,var(--glow-blue)_50%,transparent)]"
               style={riseIn(isRevealed(3), 400)}
               to="/resources"
             >

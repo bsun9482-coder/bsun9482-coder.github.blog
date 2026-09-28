@@ -47,7 +47,7 @@ export function ProfilePage() {
         <aside className="space-y-4">
           <Card>
             <CardHeader>
-              <Avatar className="size-20">
+              <Avatar className="size-20 ring-2 ring-primary/20">
                 <AvatarImage
                   alt={siteContent.person.name}
                   src={siteContent.person.avatarUrl}
