@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import {
   ChevronDownIcon,
   PenLineIcon,
@@ -39,11 +39,6 @@ const WRITING_CARD = {
   description: "把踩过的坑整理成可以回看的资料。",
 }
 
-/* Preloader 黑屏总时长 = 计数 + 停留 + 滑出 = 1200 + 100 + 700 = 2000ms */
-const INTRO_COUNT_DURATION = 1200
-const INTRO_HOLD_DURATION = 100
-const INTRO_SLIDE_DURATION = 700
-
 /* 各屏滚动 reveal 统一时长与缓动 */
 const REVEAL_DURATION = 950
 const REVEAL_DISTANCE = 32
@@ -59,8 +54,9 @@ const HERO_TAGLINE_DELAY = 700
 const CARD_BASE_DELAY = 180
 const CARD_STAGGER = 250
 
-/* 模块级标记：每次页面加载重置，所以站内路由切回首页不重播、刷新才重播 */
-let introPlayedInThisLoad = false
+/* 模块级标记：每次页面加载重置 —— 首屏入场动画每次加载只播一次，
+   站内从别的路由切回首页不重播（只有刷新 / 直接打开才重播）。 */
+let heroPlayedInThisLoad = false
 
 function prefersReducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches
@@ -99,93 +95,38 @@ function riseIn(
   }
 }
 
-function Intro({
-  onReveal,
-  onFinish,
-}: {
-  onReveal: () => void
-  onFinish: () => void
-}) {
-  const [count, setCount] = useState(0)
-  const [sliding, setSliding] = useState(false)
-  const revealSent = useRef(false)
-  const timers = useRef<number[]>([])
-
-  /* 计数用 requestAnimationFrame 驱动：按真实流逝时间算进度，
-     后台标签页丢帧时不会像 setInterval 那样越拖越偏，回到前台也不会一次跳一大截 */
-  useEffect(() => {
-    const startedAt = performance.now()
-    let frame = 0
-
-    const step = (now: number) => {
-      const progress = Math.min(1, (now - startedAt) / INTRO_COUNT_DURATION)
-      setCount(Math.round(progress * 100))
-
-      if (progress < 1) {
-        frame = requestAnimationFrame(step)
-        return
-      }
-
-      timers.current.push(
-        window.setTimeout(() => {
-          setSliding(true)
-          if (!revealSent.current) {
-            revealSent.current = true
-            onReveal()
-          }
-          timers.current.push(window.setTimeout(onFinish, INTRO_SLIDE_DURATION))
-        }, INTRO_HOLD_DURATION)
-      )
-    }
-
-    frame = requestAnimationFrame(step)
-    return () => {
-      cancelAnimationFrame(frame)
-      timers.current.forEach((timer) => window.clearTimeout(timer))
-      timers.current = []
-    }
-  }, [onFinish, onReveal])
-
-  return (
-    <div
-      aria-live="polite"
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 bg-black"
-      style={{
-        willChange: "transform",
-        transform: sliding ? "translateY(-100%)" : "translateY(0px)",
-        transition: `transform ${INTRO_SLIDE_DURATION}ms ease-in-out`,
-      }}
-    >
-      <p className="text-7xl font-bold text-white tabular-nums">{count}</p>
-      <p className="text-sm text-white/60">正在把猪脚饭端上来…</p>
-    </div>
-  )
-}
-
 export function HomePage() {
   useDocumentTitle("首页")
 
   const [reducedMotion] = useState(prefersReducedMotion)
-  const [showIntro, setShowIntro] = useState(
-    () => !prefersReducedMotion() && !introPlayedInThisLoad
+  /* 首屏 Hero 的入场动画：首帧必须先按隐藏态渲染，挂载后再翻到可见态，
+     过渡才会真的跑起来 —— 直接用可见态初始化等于没有动画。
+     降级 / 站内切回首页时不重播，直接可见（否则会一直停在隐藏态）。 */
+  const [heroRevealed, setHeroRevealed] = useState(
+    () => prefersReducedMotion() || heroPlayedInThisLoad
   )
-  /* 不播黑幕时（降级 / 站内切回首页）没有 onReveal 可等，Hero 必须直接可见，
-     否则会永远停在隐藏态 */
-  const [heroRevealed, setHeroRevealed] = useState(() => !showIntro)
   const [revealed, setRevealed] = useState<number[]>(() =>
     prefersReducedMotion() ? [1, 2, 3] : []
   )
 
   const rootRef = useRef<HTMLDivElement>(null)
 
-  const finishIntro = useCallback(() => {
-    introPlayedInThisLoad = true
-    setShowIntro(false)
-  }, [])
+  /* 双 rAF：等首帧（隐藏态）真的画上去之后再翻状态。
+     只等一帧的话，状态变更会和首帧合并成同一次绘制，过渡被吃掉、动画根本不播。 */
+  useEffect(() => {
+    if (heroRevealed) return
+    heroPlayedInThisLoad = true
 
-  const revealHero = useCallback(() => {
-    setHeroRevealed(true)
-  }, [])
+    let second = 0
+    const first = requestAnimationFrame(() => {
+      second = requestAnimationFrame(() => setHeroRevealed(true))
+    })
+
+    return () => {
+      cancelAnimationFrame(first)
+      cancelAnimationFrame(second)
+    }
+  }, [heroRevealed])
 
   /* 整屏吸附设在滚动容器（<html>）上，卸载时还原。
      滚动条的隐藏已由 index.css 全局处理，这里不再重复。
@@ -200,18 +141,6 @@ export function HomePage() {
       html.style.scrollSnapType = previousSnap
     }
   }, [])
-
-  /* 黑幕期间锁住滚动，结束后解锁 */
-  useEffect(() => {
-    const html = document.documentElement
-    const previousOverflow = html.style.overflow
-
-    html.style.overflow = showIntro ? "hidden" : previousOverflow
-
-    return () => {
-      html.style.overflow = previousOverflow
-    }
-  }, [showIntro])
 
   /* 首屏由黑幕回调驱动，不参与视口观察；其余屏进入视口揭开一次后立即 unobserve，
      所以回调次数有上界（= 被观察的屏数），不会在滚动过程中反复触发 */
@@ -248,8 +177,6 @@ export function HomePage() {
   return (
     <>
       <style>{HOME_MOTION_CSS}</style>
-
-      {showIntro && <Intro onFinish={finishIntro} onReveal={revealHero} />}
 
       <div className="relative" ref={rootRef}>
         <section
