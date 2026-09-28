@@ -32,15 +32,12 @@ const FOCUS_ITEMS = [
   },
 ]
 
-/* 「最近在写」屏和「第一篇在路上」并排的那张卡 */
+/* 「最近在写」屏的卡片 */
 const WRITING_CARD = {
   icon: PenLineIcon,
   title: "写博客",
   description: "把踩过的坑整理成可以回看的资料。",
 }
-
-/* 「最近在写」屏右侧卡的描述 —— 仅首页使用；博客页同名位置的说明走 siteContent.blog */
-const UPCOMING_CARD_DESCRIPTION = "记录学习与踩坑，持续更新。"
 
 /* 各屏滚动 reveal 统一时长与缓动 */
 const REVEAL_DURATION = 950
@@ -319,6 +316,7 @@ export function HomePage() {
               最近在写
             </h2>
 
+            {/* 保留两列栅格：只剩一张卡时它仍占第一列，位置与宽度和原来一致（不是居中） */}
             <div className="mt-10 grid gap-4 sm:grid-cols-2">
               <Card
                 className="home-motion"
@@ -332,18 +330,6 @@ export function HomePage() {
                   />
                   <CardTitle>{WRITING_CARD.title}</CardTitle>
                   <CardDescription>{WRITING_CARD.description}</CardDescription>
-                </CardHeader>
-              </Card>
-              <Card
-                className="home-motion"
-                size="sm"
-                style={riseIn(isRevealed(3), CARD_BASE_DELAY + CARD_STAGGER)}
-              >
-                <CardHeader>
-                  <CardTitle>{siteContent.blog.publicResources}</CardTitle>
-                  <CardDescription>
-                    {UPCOMING_CARD_DESCRIPTION}
-                  </CardDescription>
                 </CardHeader>
               </Card>
             </div>
