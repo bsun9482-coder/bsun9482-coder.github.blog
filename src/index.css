@@ -157,35 +157,38 @@
 }
 
 @layer components {
-  /* ---------- 背景：网格 + 两团漂移光斑 ----------
-     均由 App.tsx 的 SiteBackground 使用 */
+  /* ---------- 背景：呼吸网格 + 三团漂移光斑 + 首页扫描光带 ----------
+     均由 App.tsx 的 SiteBackground 使用；粒子画布见 components/layout/neural-background.tsx */
 
-  /* 1px 网格，64px 一格 */
+  /* 1px 网格，64px 一格。底色按最大值 8% 画，再用元素 opacity 在 3%~8% 之间呼吸
+     （alpha 写在 gradient 里没法动画，所以把"变亮变暗"交给整层 opacity）。 */
   .cyber-grid {
     background-image:
       linear-gradient(
         to right,
-        oklch(0.65 0.2 260 / 5%) 1px,
+        oklch(0.65 0.2 260 / 8%) 1px,
         transparent 1px
       ),
       linear-gradient(
         to bottom,
-        oklch(0.65 0.2 260 / 5%) 1px,
+        oklch(0.65 0.2 260 / 8%) 1px,
         transparent 1px
       );
     background-size: 64px 64px;
+    opacity: 0.375; /* 0.375 × 8% = 3% */
+    animation: cyber-grid-breathe 6s ease-in-out infinite;
   }
 
-  /* 两团光斑共用：尺寸 / 模糊 / 透明度 / 20s 循环，具体路径与相位由各自的类给 */
+  /* 三团光斑共用：尺寸 / 模糊 / 透明度 / 12s 循环，具体路径与相位由各自的类给 */
   .cyber-blob {
     position: absolute;
     width: 36rem;
     height: 36rem;
     border-radius: 9999px;
-    opacity: 0.12;
+    opacity: 0.2;
     filter: blur(120px);
     will-change: transform;
-    animation-duration: 20s;
+    animation-duration: 12s;
     animation-timing-function: ease-in-out;
     animation-iteration-count: infinite;
   }
@@ -195,11 +198,32 @@
     animation-name: cyber-drift-blue;
   }
 
-  /* 负延迟 = 一起步就在循环中段，两团因此天然错开 */
+  /* 负延迟 = 一起步就在循环中段，三团因此天然错开 */
   .cyber-blob-purple {
     background-color: var(--glow-purple);
     animation-name: cyber-drift-purple;
     animation-delay: -3s;
+  }
+
+  /* 第三团：更小、居中偏下，再错开一个相位 */
+  .cyber-blob-purple-soft {
+    width: 26rem;
+    height: 26rem;
+    background-color: var(--glow-purple);
+    animation-name: cyber-drift-purple-soft;
+    animation-delay: -6s;
+  }
+
+  /* 首页专属的雷达扫描光带：200px 高，上下透明、中间 5%，
+     高度由 JSX 的 h-[200px] 给，位移用 transform（不碰 top，避免逐帧重排）。 */
+  .cyber-scan {
+    background-image: linear-gradient(
+      to bottom,
+      transparent,
+      oklch(0.65 0.2 260 / 5%),
+      transparent
+    );
+    animation: cyber-scan 8s linear infinite;
   }
 
   .article-content [data-rehype-pretty-code-figure] {
@@ -231,7 +255,7 @@
   }
 }
 
-/* 两团光斑的漂移路径：20s 一个来回，只动 transform（GPU 合成，不触发重排） */
+/* 三团光斑的漂移路径：12s 一个来回，只动 transform（GPU 合成，不触发重排） */
 @keyframes cyber-drift-blue {
   0%,
   100% {
@@ -249,5 +273,50 @@
   }
   50% {
     transform: translate3d(-60px, -50px, 0) scale(1.06);
+  }
+}
+
+@keyframes cyber-drift-purple-soft {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(50px, -40px, 0) scale(1.1);
+  }
+}
+
+/* 网格呼吸：3% ↔ 8%（元素 opacity 0.375 ↔ 1，配合 8% 的网格底色） */
+@keyframes cyber-grid-breathe {
+  0%,
+  100% {
+    opacity: 0.375;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* 扫描光带：从视口上方扫到下方，走到 100vh 时刚好完全出界 */
+@keyframes cyber-scan {
+  0% {
+    transform: translate3d(0, -200px, 0);
+  }
+  100% {
+    transform: translate3d(0, 100vh, 0);
+  }
+}
+
+/* 降级：不漂移、不呼吸、不出光带；光斑仍静态可见，网格停在原来的 5% */
+@media (prefers-reduced-motion: reduce) {
+  .cyber-blob,
+  .cyber-grid {
+    animation: none;
+  }
+  .cyber-grid {
+    opacity: 0.625; /* 0.625 × 8% = 5% */
+  }
+  .cyber-scan {
+    display: none;
   }
 }

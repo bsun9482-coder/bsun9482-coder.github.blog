@@ -1,6 +1,7 @@
 import { useEffect } from "react"
 import { BrowserRouter, Outlet, Route, Routes, useLocation } from "react-router"
 
+import { NeuralBackground } from "@/components/layout/neural-background"
 import { SiteFooter } from "@/components/layout/site-footer"
 import { SiteHeader } from "@/components/layout/site-header"
 import { useEscapeToHome } from "@/hooks/use-escape-to-home"
@@ -36,8 +37,13 @@ function EscapeToHome() {
 }
 
 /* 暗色赛博 AI 风格的固定背景，全部塞在这一层里（fixed / z-0 / pointer-events-none），
-   前景内容由 SiteLayout 的 z-10 盖在上面。 */
+   前景内容由 SiteLayout 的 z-10 盖在上面。从下往上依次是：
+   呼吸网格 → 三团漂移光斑 → 粒子画布 → （仅首页）扫描光带。 */
 function SiteBackground() {
+  const { pathname } = useLocation()
+  /* 扫描光带只在首页出现，其余路由不挂 */
+  const isHome = pathname === "/"
+
   return (
     <div
       aria-hidden="true"
@@ -46,6 +52,13 @@ function SiteBackground() {
       <div className="cyber-grid absolute inset-0" />
       <div className="cyber-blob cyber-blob-blue -top-40 -left-40" />
       <div className="cyber-blob cyber-blob-purple -right-40 -bottom-40" />
+      {/* 第三团更小的紫光斑，居中偏下；用 left 计算而不是 -translate-x-1/2，
+          因为 transform 已经被漂移动画占着，加了会被动画覆盖掉 */}
+      <div className="cyber-blob cyber-blob-purple-soft bottom-24 left-[calc(50%-13rem)]" />
+      <NeuralBackground />
+      {isHome && (
+        <div className="cyber-scan absolute inset-x-0 top-0 h-[200px]" />
+      )}
     </div>
   )
 }
