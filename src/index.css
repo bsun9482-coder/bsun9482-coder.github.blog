@@ -42,6 +42,9 @@
   /* 发光色注册成主题色，这样 ring-glow-blue/15 这类带透明度的写法能用 */
   --color-glow-blue: var(--glow-blue);
   --color-glow-purple: var(--glow-purple);
+  --color-tag-green: var(--tag-green);
+  --color-tag-pink: var(--tag-pink);
+  --color-tag-orange: var(--tag-orange);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -76,6 +79,10 @@
     /* 发光色：卡片描边 / 按钮外发光 / 背景光斑都用这两个 */
     --glow-blue: oklch(0.65 0.22 260);
     --glow-purple: oklch(0.6 0.24 290);
+    /* 标签小方块的分类色（蓝 / 紫直接复用上面的发光色，不另开重复令牌） */
+    --tag-green: oklch(0.75 0.17 150);
+    --tag-pink: oklch(0.72 0.2 350);
+    --tag-orange: oklch(0.78 0.15 60);
     --chart-1: oklch(0.87 0 0);
     --chart-2: oklch(0.556 0 0);
     --chart-3: oklch(0.439 0 0);
@@ -115,6 +122,9 @@
     --ring: oklch(0.65 0.2 260);
     --glow-blue: oklch(0.65 0.22 260);
     --glow-purple: oklch(0.6 0.24 290);
+    --tag-green: oklch(0.75 0.17 150);
+    --tag-pink: oklch(0.72 0.2 350);
+    --tag-orange: oklch(0.78 0.15 60);
     --chart-1: oklch(0.87 0 0);
     --chart-2: oklch(0.556 0 0);
     --chart-3: oklch(0.439 0 0);

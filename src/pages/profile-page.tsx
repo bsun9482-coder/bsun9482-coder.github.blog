@@ -4,6 +4,7 @@ import { ArticleCard } from "@/components/article/article-card"
 import { PersonName } from "@/components/person-name"
 import { CalendarCard } from "@/components/sidebar/calendar-card"
 import { MusicPlayerCard } from "@/components/sidebar/music-player-card"
+import { TagCard } from "@/components/sidebar/tag-card"
 import { WeatherCard } from "@/components/sidebar/weather-card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -91,6 +92,8 @@ export function ProfilePage() {
           </Card>
 
           <MusicPlayerCard />
+
+          <TagCard />
         </aside>
 
         <main className="min-w-0 space-y-12">
