@@ -3,8 +3,6 @@
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
 
-@custom-variant dark (&:is(.dark *));
-
 @theme inline {
   --font-heading: var(--font-sans);
   --font-sans: "Geist Variable", sans-serif;
@@ -56,8 +54,9 @@
 }
 
 :root {
-    /* 暗色赛博 AI 主题：:root 与 .dark 用同一套色板，
-       所以无论 html 上挂的是 light 还是 dark，视觉都是这一套（暗色即唯一主题）。 */
+    /* 暗色赛博 AI 主题：**暗色是唯一主题** —— 色板直接挂在 :root 上，不再有 light / dark 两套。
+       主题切换模块（theme-provider / theme-toggle）已整体删除，html 上不再挂 .dark / .light，
+       所以这里就是全站配色的唯一来源。color-scheme 同步钉成 dark（原生控件也跟着走暗色）。 */
     color-scheme: dark;
     --background: oklch(0.13 0.01 260);
     --foreground: oklch(0.95 0.01 260);
@@ -92,48 +91,6 @@
     --chart-4: oklch(0.371 0 0);
     --chart-5: oklch(0.269 0 0);
     --radius: 0.625rem;
-    --sidebar: oklch(0.17 0.015 260);
-    --sidebar-foreground: oklch(0.95 0.01 260);
-    --sidebar-primary: oklch(0.65 0.2 260);
-    --sidebar-primary-foreground: oklch(0.99 0 0);
-    --sidebar-accent: oklch(0.22 0.02 260);
-    --sidebar-accent-foreground: oklch(0.9 0.01 260);
-    --sidebar-border: oklch(0.3 0.03 260 / 60%);
-    --sidebar-ring: oklch(0.65 0.2 260);
-}
-
-.dark {
-    /* 与 :root 保持一致 —— 暗色是唯一主题，切到 .dark 不改变任何颜色 */
-    color-scheme: dark;
-    --background: oklch(0.13 0.01 260);
-    --foreground: oklch(0.95 0.01 260);
-    --card: oklch(0.17 0.015 260);
-    --card-foreground: oklch(0.95 0.01 260);
-    --popover: oklch(0.17 0.015 260);
-    --popover-foreground: oklch(0.95 0.01 260);
-    --primary: oklch(0.65 0.2 260);
-    --primary-foreground: oklch(0.99 0 0);
-    --secondary: oklch(0.22 0.02 260);
-    --secondary-foreground: oklch(0.9 0.01 260);
-    --muted: oklch(0.2 0.015 260);
-    --muted-foreground: oklch(0.65 0.02 260);
-    --accent: oklch(0.55 0.22 290);
-    --accent-foreground: oklch(0.98 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(0.3 0.03 260 / 60%);
-    --input: oklch(0.25 0.02 260);
-    --ring: oklch(0.65 0.2 260);
-    --glow-blue: oklch(0.65 0.22 260);
-    --glow-purple: oklch(0.6 0.24 290);
-    --tag-cyan: oklch(0.78 0.14 195);
-    --tag-green: oklch(0.75 0.17 150);
-    --tag-pink: oklch(0.72 0.2 350);
-    --tag-orange: oklch(0.78 0.15 60);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
     --sidebar: oklch(0.17 0.015 260);
     --sidebar-foreground: oklch(0.95 0.01 260);
     --sidebar-primary: oklch(0.65 0.2 260);
@@ -260,11 +217,13 @@
     @apply border-l-2 border-primary bg-primary/10;
   }
 
+  /* rehype-pretty-code 双主题：每个 token 上挂着 --shiki-light / --shiki-dark 两个变量，
+     data-theme 同时含两个主题名（中间有空格）时，由这条规则挑一个用。
+     暗色是唯一主题 ⇒ 直接用 --shiki-dark。
+     原先还有一条 `.dark .article-content …{ color: var(--shiki-dark) }` 覆盖规则，
+     删掉 .dark 后它永远不会命中，代码块会掉回浅色配色（浅色语法色 + 深色底），所以把
+     暗色值上提为默认值、并删掉那条条件规则。 */
   .article-content [data-theme*=" "] {
-    color: var(--shiki-light);
-  }
-
-  .dark .article-content [data-theme*=" "] {
     color: var(--shiki-dark);
   }
 }
