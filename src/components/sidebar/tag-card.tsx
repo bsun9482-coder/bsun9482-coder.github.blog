@@ -1,19 +1,21 @@
 import { TagIcon } from "lucide-react"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { siteContent, tagGroups } from "@/config/site"
+import { siteContent } from "@/config/site"
+import { getTagItems } from "@/lib/tags"
 import { cn } from "@/lib/utils"
-
-/* 配置里是按颜色分组的，这里摊平成"一条标签一个按钮"的扁平列表 */
-const tags = tagGroups.flatMap((group) =>
-  group.labels.map((label) => ({ label, dot: group.dot }))
-)
 
 /* TODO: 后续接入标签筛选 —— 按标签过滤资料列表，或跳到 /resources?tag=<label>。
    当前只做展示，所以点击先留空（真接的时候这里要收 label 参数）。 */
 function handleTagClick() {}
 
 export function TagCard() {
+  const tags = getTagItems()
+
+  /* 没有文章、或所有文章都没打过标签时，整张卡片不渲染 ——
+     不占位、也不显示"暂无标签"的空态。 */
+  if (tags.length === 0) return null
+
   return (
     <Card>
       <CardHeader>

@@ -18,32 +18,6 @@ export const musicPlaylist = [
   },
 ] as const
 
-/* 侧栏「标签」卡片的标签：按 AI 主题分类，同色归一组。
-   dot 给的是 Tailwind 类名，颜色令牌定义在 src/index.css（--glow-blue / --glow-purple /
-   --tag-green / --tag-pink / --tag-orange）—— 文案和颜色都只在这里改，组件里不硬编码。 */
-export const tagGroups = [
-  {
-    dot: "bg-glow-blue",
-    labels: ["AI视频", "项目复盘", "内容创作"],
-  },
-  {
-    dot: "bg-glow-purple",
-    labels: ["个人知识库", "AI协作"],
-  },
-  {
-    dot: "bg-tag-green",
-    labels: ["Obsidian", "工作流"],
-  },
-  {
-    dot: "bg-tag-pink",
-    labels: ["Codex"],
-  },
-  {
-    dot: "bg-tag-orange",
-    labels: ["短视频工作流"],
-  },
-] as const
-
 export const siteContent = {
   meta: {
     titleSuffix: "学习日志",
