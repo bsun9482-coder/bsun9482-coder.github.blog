@@ -39,6 +39,9 @@ const WRITING_CARD = {
   description: "把踩过的坑整理成可以回看的资料。",
 }
 
+/* 「最近在写」屏右侧卡的描述 —— 仅首页使用；博客页同名位置的说明走 siteContent.blog */
+const UPCOMING_CARD_DESCRIPTION = "记录学习与踩坑，持续更新。"
+
 /* 各屏滚动 reveal 统一时长与缓动 */
 const REVEAL_DURATION = 950
 const REVEAL_DISTANCE = 32
@@ -339,7 +342,7 @@ export function HomePage() {
                 <CardHeader>
                   <CardTitle>{siteContent.blog.publicResources}</CardTitle>
                   <CardDescription>
-                    {siteContent.blog.latestResources}
+                    {UPCOMING_CARD_DESCRIPTION}
                   </CardDescription>
                 </CardHeader>
               </Card>
