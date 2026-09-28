@@ -11,6 +11,7 @@ import { PersonName } from "@/components/person-name"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   Card,
+  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
@@ -232,12 +233,20 @@ export function HomePage() {
             >
               关于我
             </h2>
-            <p
-              className="home-motion mt-8 max-w-2xl text-lg leading-9 text-muted-foreground"
-              style={riseIn(isRevealed(1), 180)}
+            {/* 与「正在进行」屏同一套毛玻璃卡片：直接复用 Card（样式唯一来源在 ui/card.tsx）。
+                规格与那两张卡一致：size="sm"（内边距 12px）+ .home-motion + CARD_BASE_DELAY 入场。
+                只剩一张卡，所以不加 stagger。 */}
+            <Card
+              className="home-motion mt-8"
+              size="sm"
+              style={riseIn(isRevealed(1), CARD_BASE_DELAY)}
             >
-              死磕 Python 和 AI，出身寒微不是耻辱。
-            </p>
+              <CardContent>
+                <p className="text-lg leading-9 text-muted-foreground">
+                  死磕 Python 和 AI，出身寒微不是耻辱。
+                </p>
+              </CardContent>
+            </Card>
             <Link
               className="home-motion mt-8 inline-flex items-center rounded-full bg-primary px-6 py-2.5 text-sm text-primary-foreground shadow-[0_0_15px_color-mix(in_oklab,var(--glow-blue)_30%,transparent)] hover:shadow-[0_0_22px_color-mix(in_oklab,var(--glow-blue)_50%,transparent)]"
               style={riseIn(isRevealed(1), 400)}
