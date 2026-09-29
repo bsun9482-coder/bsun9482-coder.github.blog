@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react"
 import { BookOpenIcon, CodeXmlIcon } from "lucide-react"
 
 import { ArticleCard } from "@/components/article/article-card"
@@ -29,6 +30,19 @@ import { posts } from "@/lib/posts"
 
 export function ProfilePage() {
   useDocumentTitle("博客")
+
+  /* 标签筛选：null = 不筛（显示全部）。状态只活在组件里 —— 离开页面组件卸载即重置，
+     不落 URL、也不写 storage。 */
+  const [selectedTag, setSelectedTag] = useState<string | null>(null)
+
+  /* 结果不再 slice —— 选中标签后有几篇显示几篇，别被「最新 3 篇」截断。 */
+  const filteredPosts = useMemo(
+    () =>
+      selectedTag === null
+        ? posts
+        : posts.filter((post) => post.tags.includes(selectedTag)),
+    [selectedTag]
+  )
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-16">
@@ -93,7 +107,7 @@ export function ProfilePage() {
 
           <MusicPlayerCard />
 
-          <TagCard />
+          <TagCard onSelectTag={setSelectedTag} selectedTag={selectedTag} />
         </aside>
 
         <main className="min-w-0 space-y-12">
@@ -138,13 +152,24 @@ export function ProfilePage() {
                 {siteContent.blog.latestResources}
               </p>
             </div>
-            {posts.length > 0 ? (
-              <div className="grid gap-4">
-                {posts.slice(0, 3).map((post) => (
-                  <ArticleCard key={post.slug} post={post} />
+            {filteredPosts.length > 0 ? (
+              /* key 绑当前筛选：切标签时整块重挂载，卡片才会重新播一遍入场动画。
+                 否则留下的卡片 DOM 不变、只有新出现的会动，看着就像硬切。 */
+              <div className="grid gap-4" key={selectedTag ?? "__all__"}>
+                {filteredPosts.map((post, index) => (
+                  <div
+                    className="animate-in fade-in slide-in-from-bottom-3 fill-mode-backwards duration-500 motion-reduce:animate-none"
+                    key={post.slug}
+                    /* 依次晚 60ms 入场，封顶 5 档，长列表不至于等太久。
+                       fill-mode-backwards 不能省 —— animate-in 默认 fill-mode 是 none，
+                       延迟期间会先露出完整卡片再跳回起点，等于闪一下。 */
+                    style={{ animationDelay: `${Math.min(index, 5) * 60}ms` }}
+                  >
+                    <ArticleCard post={post} />
+                  </div>
                 ))}
               </div>
-            ) : (
+            ) : posts.length === 0 ? (
               <Card className="border-dashed py-10 text-center">
                 <CardContent>
                   <BookOpenIcon className="mx-auto size-8 text-muted-foreground" />
@@ -156,6 +181,11 @@ export function ProfilePage() {
                   </p>
                 </CardContent>
               </Card>
+            ) : (
+              /* 有文章、但当前标签一篇都没匹配上（兜底：标签本就是从文章里抽出来的，正常不该发生） */
+              <p className="text-center text-sm text-muted-foreground">
+                {siteContent.ui.profile.noTagResults}
+              </p>
             )}
           </section>
         </main>
