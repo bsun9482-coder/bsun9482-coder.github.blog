@@ -1,0 +1,20 @@
+#!/bin/sh
+# 提交前把关：跑一遍项目体检（npm run health），有 FAIL 就中止这次提交。
+#
+# 启用方式（仓库已通过 core.hooksPath 指向本目录）：
+#   git config core.hooksPath .githooks
+#
+# 临时跳过（不推荐，会让问题进库）：
+#   git commit --no-verify
+
+echo "→ 提交前体检：npm run health"
+echo ""
+
+if ! npm run health; then
+  echo ""
+  echo "体检未通过，本次提交已中止。"
+  echo "修复上面的 FAIL 后重试；确需跳过用：git commit --no-verify"
+  exit 1
+fi
+
+exit 0

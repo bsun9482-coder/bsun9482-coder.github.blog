@@ -74,4 +74,26 @@ npm run typecheck
 npm run build
 ```
 
+### 项目体检（提交前把关）
+
+```bash
+npm run health            # 全量体检：typecheck + lint + build + 四类静态检查
+npm run health -- --fast  # 跳过构建，只跑静态检查
+npm run health -- --json  # 输出 JSON，供 CI / 自动化消费
+```
+
+除了上面三个命令，体检还会额外核对：`src/` 里引用的静态资源是否真的存在于 `public/`、
+文章 frontmatter 与 slug 是否合法、文章结构（代码围栏是否闭合、目录同级标题是否重名，
+用与渲染一致的解析器判定）、`src/components/ui/` 下有没有无人引用的死组件（INFO，不阻断），
+并汇报产物体积。有 FAIL 时退出码为 1。
+
+本机已把 git hooks 指向 `.githooks/`（`core.hooksPath` 是本地配置，换台机器要重跑）：
+
+```bash
+git config core.hooksPath .githooks
+```
+
+装好之后每次 `git commit` 都会先跑一遍 `npm run health`（含生产构建），有 FAIL 直接中止提交。
+确需跳过用 `git commit --no-verify`。
+
 当前版本只负责本地内容与阅读体验，部署平台、正式视觉方案和 SEO 留到后续阶段决定。

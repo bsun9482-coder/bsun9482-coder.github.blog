@@ -28,3 +28,4 @@ Thumbs.db
 
 # WorkBuddy 工作目录（CDP 探针脚本 / 截图取证 / 本地记忆，不入库）
 .workbuddy/
+.workbuddy-ai/
