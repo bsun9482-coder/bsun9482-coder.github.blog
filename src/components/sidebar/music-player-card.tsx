@@ -53,6 +53,11 @@ export function MusicPlayerCard() {
     return () => audio?.pause()
   }, [])
 
+  /* 曲目表为空（config 里留空 = 暂不展示播放器）时整张卡片不渲染。
+     必须放在所有 hooks 之后 —— 提前 return 会变成「条件调用 hook」。
+     此刻 currentTrack 是 undefined，但上面两个 effect 都没碰它，所以安全。 */
+  if (musicPlaylist.length === 0) return null
+
   async function togglePlayback() {
     const audio = audioRef.current
     if (!audio) return

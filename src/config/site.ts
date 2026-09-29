@@ -5,18 +5,19 @@ export const navigationItems = [
   { href: "/community", label: "社区交流" },
 ] as const
 
-export const musicPlaylist = [
-  {
-    title: "示例音乐一",
-    artist: "待补充",
-    src: "/music/demo-1.mp3",
-  },
-  {
-    title: "示例音乐二",
-    artist: "待补充",
-    src: "/music/demo-2.mp3",
-  },
-] as const
+export type MusicTrack = {
+  title: string
+  artist: string
+  src: string
+}
+
+/* 侧栏音乐播放器的曲目表。
+   往 public/music/ 放好 mp3 后，在这里补 { title, artist, src }，
+   博客页侧栏的 MusicPlayerCard 会自动出现；空数组时该卡片整张不渲染。
+   —— 原先这里挂着两条指向 /music/demo-*.mp3 的示例曲目，但 public/music/ 里
+   并没有对应文件，卡片必然落进「音频加载失败」分支（体检也一直报 FAIL）。
+   先把示例撤下，等真实音频补上再挂回。 */
+export const musicPlaylist: readonly MusicTrack[] = []
 
 export const siteContent = {
   meta: {
@@ -104,6 +105,7 @@ export const siteContent = {
       latestResources: "最新资料",
       emptyResources: "暂无资料",
       emptyResourcesDescription: "新资料发布后会显示在这里。",
+      noTagResults: "没有找到带该标签的文章",
     },
     resources: {
       emptyResources: "暂无资料",
