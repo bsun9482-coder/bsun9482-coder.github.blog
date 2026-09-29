@@ -8,6 +8,17 @@
       content="面向 Python 与 AI 初学者的技术知识库。"
     />
     <title>学习日志 · Python 与 AI 知识库</title>
+    <script>
+      /* 关掉浏览器的自动滚动还原。刷新 / 前进后退时浏览器会把上次的滚动位置还原回来，
+         而首页是整屏吸附的落地页，被甩到第二三屏就等于错过了首屏入场动画。
+         本站导航本来就统一回顶部（见 src/App.tsx 的 ScrollManager），
+         交给浏览器还原反而是唯一的例外，所以这里直接接管。
+         必须放在 <head> 内联而不是入口模块里：还原动作发生在文档加载期，
+         具体时机由浏览器实现决定，等 defer 的模块跑起来可能已经晚了 —— 这一步要抢在它前面。 */
+      if ("scrollRestoration" in history) {
+        history.scrollRestoration = "manual"
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
