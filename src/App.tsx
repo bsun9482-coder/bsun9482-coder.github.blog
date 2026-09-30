@@ -4,7 +4,7 @@ import { BrowserRouter, Outlet, Route, Routes, useLocation } from "react-router"
 import { NeuralBackground } from "@/components/layout/neural-background"
 import { SiteFooter } from "@/components/layout/site-footer"
 import { SiteHeader } from "@/components/layout/site-header"
-import { useEscapeToHome } from "@/hooks/use-escape-to-home"
+import { useEscapeBack } from "@/hooks/use-escape-back"
 import { ArticlePage } from "@/pages/article-page"
 import { CommunityPage } from "@/pages/community-page"
 import { HomePage } from "@/pages/home-page"
@@ -30,8 +30,8 @@ function ScrollManager() {
   return null
 }
 
-function EscapeToHome() {
-  useEscapeToHome()
+function EscapeToBack() {
+  useEscapeBack()
 
   return null
 }
@@ -85,7 +85,7 @@ export function App() {
     <BrowserRouter>
       <SiteBackground />
       <ScrollManager />
-      <EscapeToHome />
+      <EscapeToBack />
       <Routes>
         <Route element={<SiteLayout />}>
           <Route element={<HomePage />} path="/" />
