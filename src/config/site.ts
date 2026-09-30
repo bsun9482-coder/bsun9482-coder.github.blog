@@ -36,9 +36,9 @@ export const siteContent = {
     latestResources: "还在写第一篇，很快见。",
   },
   links: {
-    github: {
-      label: "@bsun9482-coder",
-      url: "https://github.com/bsun9482-coder",
+    douyin: {
+      label: "抖音：bingziyuyang",
+      url: "https://www.douyin.com/search/bingziyuyang?type=user",
     },
   },
   weather: {

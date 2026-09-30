@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react"
-import { BookOpenIcon, CodeXmlIcon } from "lucide-react"
+import { BookOpenIcon, Music2Icon } from "lucide-react"
 
 import { ArticleCard } from "@/components/article/article-card"
 import { PersonName } from "@/components/person-name"
@@ -94,12 +94,12 @@ export function ProfilePage() {
             <CardContent className="grid gap-2">
               <Button asChild className="justify-start" variant="outline">
                 <a
-                  href={siteContent.links.github.url}
+                  href={siteContent.links.douyin.url}
                   rel="noreferrer"
                   target="_blank"
                 >
-                  <CodeXmlIcon />
-                  {siteContent.links.github.label}
+                  <Music2Icon />
+                  {siteContent.links.douyin.label}
                 </a>
               </Button>
             </CardContent>
