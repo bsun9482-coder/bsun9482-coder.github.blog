@@ -383,6 +383,87 @@ function checkBundleSize() {
   )
 }
 
+/* ---------- 检查 7：public/ 下没人用的文件 ---------- */
+
+/* public/ 里的东西会被原样拷进 dist 一起部署，所以「全仓库没人引用」= 白占带宽。
+   判定方式是拿文件名去全仓库文本里搜，排除 node_modules / dist / .git / .workbuddy
+   以及 public 自身 —— 否则文件自己的路径就能匹配上，永远判不出孤儿。 */
+const TEXT_EXT = /\.(ts|tsx|js|jsx|mjs|cjs|json|html|css|md|mdx|ya?ml|txt)$/
+const SEARCH_SKIP_DIRS = new Set([
+  "node_modules",
+  "dist",
+  ".git",
+  ".workbuddy",
+  ".workbuddy-ai",
+  "public",
+])
+const MAX_TEXT_BYTES = 200_000
+
+function collectRepoText(dir, acc = []) {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (entry.isDirectory()) {
+      if (SEARCH_SKIP_DIRS.has(entry.name)) continue
+      collectRepoText(path.join(dir, entry.name), acc)
+      continue
+    }
+    if (!TEXT_EXT.test(entry.name)) continue
+    const full = path.join(dir, entry.name)
+    if (statSync(full).size > MAX_TEXT_BYTES) continue
+    acc.push(readFileSync(full, "utf8"))
+  }
+  return acc
+}
+
+function checkOrphanPublicAssets() {
+  const publicDir = path.join(ROOT, "public")
+  if (!existsSync(publicDir)) return
+
+  const files = walk(publicDir, () => true).filter(
+    (f) => path.basename(f) !== ".gitkeep"
+  )
+  if (files.length === 0) return
+
+  const haystack = collectRepoText(ROOT).join("\n")
+  const orphans = files
+    .filter((f) => !haystack.includes(path.basename(f)))
+    .map((f) => rel(f))
+
+  if (orphans.length === 0) {
+    record("PASS", "静态资源冗余", `public/ 下 ${files.length} 个文件都有引用`)
+  } else {
+    record(
+      "INFO",
+      "静态资源冗余",
+      `${orphans.length} 个文件无人引用，仍会被部署`,
+      orphans.join("\n")
+    )
+  }
+}
+
+/* ---------- 检查 8：favicon ---------- */
+
+/* 页面没声明图标时，浏览器会自动去请求 /favicon.ico，拿不到就留一条 404。
+   不影响功能，所以判 WARN 而不是 FAIL。 */
+function checkFavicon() {
+  const htmlPath = path.join(ROOT, "index.html")
+  if (!existsSync(htmlPath)) return
+
+  const html = readFileSync(htmlPath, "utf8")
+  const declared = /<link[^>]+rel=["'](?:shortcut icon|icon|apple-touch-icon)["']/i.test(html)
+  const hasIco = existsSync(path.join(ROOT, "public", "favicon.ico"))
+
+  if (declared || hasIco) {
+    record("PASS", "favicon", "已声明图标或存在 public/favicon.ico")
+  } else {
+    record(
+      "WARN",
+      "favicon",
+      "index.html 未声明图标，public/ 也没有 favicon.ico",
+      "浏览器会自动请求 /favicon.ico，每次页面加载都会留一条 404"
+    )
+  }
+}
+
 /* ---------- 输出 ---------- */
 
 checkScripts()
@@ -390,6 +471,8 @@ checkAssetReferences()
 checkContent()
 checkArticleStructure()
 checkUnusedUiComponents()
+checkOrphanPublicAssets()
+checkFavicon()
 checkBundleSize()
 
 const failures = results.filter((r) => r.level === "FAIL")
