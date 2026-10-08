@@ -13,7 +13,10 @@ import {
 } from "@/components/ui/sheet"
 import { navigationItems, siteContent } from "@/config/site"
 
-const mobileNavigationItems = [{ href: "/", label: "首页" }, ...navigationItems]
+const mobileNavigationItems = [
+  { href: "/", label: siteContent.ui.header.home },
+  ...navigationItems,
+]
 
 export function SiteHeader() {
   return (
@@ -42,7 +45,7 @@ export function SiteHeader() {
             size="lg"
             variant="ghost"
           >
-            <Link to="/">首页</Link>
+            <Link to="/">{siteContent.ui.header.home}</Link>
           </Button>
 
           <Sheet>

@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { siteContent } from "@/config/site"
+import { pageNameOf, siteContent } from "@/config/site"
 import { useDocumentTitle } from "@/hooks/use-document-title"
 import { posts } from "@/lib/posts"
 
@@ -17,7 +17,7 @@ export function ResourcesPage() {
   const [activeCategory, setActiveCategory] = useState(ALL_CATEGORIES)
   const deferredQuery = useDeferredValue(query.trim().toLocaleLowerCase())
 
-  useDocumentTitle("资料")
+  useDocumentTitle(pageNameOf("/resources"))
 
   const categories = useMemo(() => {
     const counts = new Map<string, number>()
@@ -47,7 +47,7 @@ export function ResourcesPage() {
             Python · AI · 前端
           </Badge>
           <h1 className="font-heading text-4xl font-semibold tracking-tight sm:text-6xl">
-            资料库
+            {siteContent.ui.resources.title}
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-8 text-muted-foreground sm:text-lg">
             整理学习过程中值得反复查阅的背景、步骤、示例和常见错误。
@@ -62,7 +62,7 @@ export function ResourcesPage() {
               RESOURCES
             </p>
             <h2 className="mt-2 text-3xl font-semibold tracking-tight">
-              最近资料
+              {siteContent.ui.resources.latestTitle}
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
               按发布时间倒序排列，持续更新。

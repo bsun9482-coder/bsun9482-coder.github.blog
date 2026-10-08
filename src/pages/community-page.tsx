@@ -2,11 +2,11 @@ import { MessagesSquareIcon } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
-import { siteContent } from "@/config/site"
+import { pageNameOf, siteContent } from "@/config/site"
 import { useDocumentTitle } from "@/hooks/use-document-title"
 
 export function CommunityPage() {
-  useDocumentTitle(siteContent.ui.community.title)
+  useDocumentTitle(pageNameOf("/community"))
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-16">
@@ -22,7 +22,7 @@ export function CommunityPage() {
 
       <section aria-labelledby="community-content" className="mt-10">
         <h2 className="sr-only" id="community-content">
-          社区内容
+          {siteContent.ui.community.contentTitle}
         </h2>
         <Card className="border-dashed py-16 text-center">
           <CardContent>

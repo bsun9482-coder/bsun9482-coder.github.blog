@@ -1,6 +1,7 @@
 import { InfoIcon } from "lucide-react"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { siteContent } from "@/config/site"
 import { cn } from "@/lib/utils"
 import type { MDXComponents } from "mdx/types"
 import type { ComponentProps, ReactNode } from "react"
@@ -10,7 +11,10 @@ type NoteProps = {
   title?: string
 }
 
-function Note({ children, title = "提示" }: NoteProps) {
+function Note({
+  children,
+  title = siteContent.ui.article.noteDefaultTitle,
+}: NoteProps) {
   return (
     <Card className="my-6 gap-3 border-primary/20 bg-primary/5">
       <CardHeader className="flex-row items-center gap-2 pb-0">

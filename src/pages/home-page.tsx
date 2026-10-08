@@ -19,25 +19,16 @@ import {
 import { siteContent } from "@/config/site"
 import { useDocumentTitle } from "@/hooks/use-document-title"
 
-/* 「正在进行」屏的两张卡 */
+/* 「正在进行」屏的两张卡。图标是组件，留在组件里；文案统一从 siteContent 取。 */
 const FOCUS_ITEMS = [
-  {
-    icon: TerminalIcon,
-    title: "学 Python",
-    description: "从语法到工程，把基础一层层打牢。",
-  },
-  {
-    icon: SparklesIcon,
-    title: "玩 AI",
-    description: "把模型接进能用的小应用，边做边学。",
-  },
+  { icon: TerminalIcon, ...siteContent.ui.home.focus.python },
+  { icon: SparklesIcon, ...siteContent.ui.home.focus.ai },
 ]
 
 /* 「最近在写」屏的卡片 */
 const WRITING_CARD = {
   icon: PenLineIcon,
-  title: "写博客",
-  description: "把踩过的坑整理成可以回看的资料。",
+  ...siteContent.ui.home.writingCard,
 }
 
 /* 各屏滚动 reveal 统一时长与缓动 */
@@ -98,7 +89,7 @@ function riseIn(
 }
 
 export function HomePage() {
-  useDocumentTitle("首页")
+  useDocumentTitle(siteContent.ui.header.home)
 
   const [reducedMotion] = useState(prefersReducedMotion)
   /* 首屏 Hero 的入场动画：首帧必须先按隐藏态渲染，挂载后再翻到可见态，
@@ -285,7 +276,7 @@ export function HomePage() {
             className="home-motion mt-6 text-base text-muted-foreground"
             style={riseIn(heroRevealed, HERO_TAGLINE_DELAY)}
           >
-            学习日志 · Python 与 AI 知识库
+            {siteContent.tagline}
           </p>
 
           <ChevronDownIcon
@@ -309,7 +300,7 @@ export function HomePage() {
               className="home-motion mt-4 text-4xl font-semibold tracking-tight sm:text-6xl"
               style={riseIn(isRevealed(1), 80)}
             >
-              关于我
+              {siteContent.ui.home.aboutTitle}
             </h2>
             {/* 与「正在进行」同一套三层结构（图标 → 标题 → 描述）与同一套毛玻璃：
                 复用 Card / CardHeader / CardTitle / CardDescription，样式唯一来源在 ui/card.tsx，
@@ -327,7 +318,7 @@ export function HomePage() {
                     aria-hidden="true"
                     className="mb-1 size-5 text-muted-foreground"
                   />
-                  <CardTitle>关于我</CardTitle>
+                  <CardTitle>{siteContent.ui.home.aboutTitle}</CardTitle>
                   <CardDescription>
                     死磕 Python 和 AI，出身寒微不是耻辱。
                   </CardDescription>
@@ -359,7 +350,7 @@ export function HomePage() {
               className="home-motion mt-4 text-4xl font-semibold tracking-tight sm:text-6xl"
               style={riseIn(isRevealed(2), 80)}
             >
-              正在进行
+              {siteContent.ui.home.nowTitle}
             </h2>
 
             <div className="mt-10 grid gap-4 sm:grid-cols-2">
@@ -409,7 +400,7 @@ export function HomePage() {
               className="home-motion mt-4 text-4xl font-semibold tracking-tight sm:text-6xl"
               style={riseIn(isRevealed(3), 80)}
             >
-              最近在写
+              {siteContent.ui.home.writingTitle}
             </h2>
 
             {/* 保留两列栅格：只剩一张卡时它仍占第一列，位置与宽度和原来一致（不是居中） */}

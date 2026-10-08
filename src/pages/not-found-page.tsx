@@ -3,6 +3,7 @@ import { Link } from "react-router"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { siteContent } from "@/config/site"
 import { cn } from "@/lib/utils"
 
 type NotFoundPageProps = {
@@ -21,7 +22,9 @@ export function NotFoundPage({ compact = false }: NotFoundPageProps) {
         <CardContent>
           <FileQuestionIcon className="mx-auto mb-5 size-10 text-muted-foreground" />
           <p className="text-sm font-medium text-primary">404</p>
-          <h1 className="mt-2 text-2xl font-semibold">没有找到这个页面</h1>
+          <h1 className="mt-2 text-2xl font-semibold">
+            {siteContent.ui.notFound.title}
+          </h1>
           <p className="mt-3 text-sm text-muted-foreground">
             页面可能已被移动，或者链接地址有误。
           </p>

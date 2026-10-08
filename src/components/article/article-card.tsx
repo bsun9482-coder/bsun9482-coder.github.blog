@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { siteContent } from "@/config/site"
 import { formatPostDate } from "@/lib/posts"
 import type { Post } from "@/types/post"
 
@@ -50,7 +51,7 @@ export function ArticleCard({ post }: ArticleCardProps) {
           </span>
           <span className="inline-flex items-center gap-1.5">
             <Clock3Icon className="size-3.5" />
-            {post.readingMinutes} 分钟阅读
+            {post.readingMinutes} {siteContent.ui.article.minutesSuffix}
           </span>
         </div>
         <ArrowUpRightIcon className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />

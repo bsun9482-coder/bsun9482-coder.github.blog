@@ -3,6 +3,7 @@ import { CalendarDaysIcon, ClockIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { siteContent } from "@/config/site"
 import { cn } from "@/lib/utils"
 
 const WEEK_START = new Date(2023, 0, 1)
@@ -111,7 +112,7 @@ export function CalendarCard() {
       <CardHeader className="flex-row items-center justify-between gap-2">
         <CardTitle className="flex items-center gap-2 text-sm text-primary">
           <ClockIcon className="size-4" />
-          时间与提醒
+          {siteContent.ui.sidebar.calendarTitle}
         </CardTitle>
         <Button
           aria-expanded={isExpanded}

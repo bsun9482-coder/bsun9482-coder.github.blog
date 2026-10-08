@@ -5,6 +5,15 @@ export const navigationItems = [
   { href: "/community", label: "社区交流" },
 ] as const
 
+/* 页面名（即导航标签）的唯一来源：document.title 与导航标签共用它，
+   同一个词不再在配置和页面里各写一遍。
+   href 已限定成上面出现过的路由，所以 find 必定命中。
+   注：works / community 页内的大标题另有 ui.works.title / ui.community.title，
+   值与这里的标签相同 —— 两处都在配置里，属历史遗留，暂未合并。 */
+export function pageNameOf(href: (typeof navigationItems)[number]["href"]) {
+  return navigationItems.find((item) => item.href === href)!.label
+}
+
 export type MusicTrack = {
   title: string
   artist: string
@@ -23,6 +32,8 @@ export const siteContent = {
   meta: {
     titleSuffix: "学习日志",
   },
+  /* 全站标语：首页 Hero 和页脚用的是同一句，只在这里写一遍。 */
+  tagline: "学习日志 · Python 与 AI 知识库",
   person: {
     // 全站名字的唯一来源：主名字 + 尾部「（……）」敬称，展示时会自动把敬称降级处理
     name: "旺仔冰子（恩师萧氏）",
@@ -70,16 +81,48 @@ export const siteContent = {
   ],
   ui: {
     header: {
+      /* 「首页」这个词在组件里出现三次：桌面端导航条右侧的独立按钮、移动端菜单的第一项、
+         首页的 document.title。它不属于 navigationItems（桌面端不把首页排进主导航），
+         所以单独放这里，三处共用，别在组件里写死。 */
+      home: "首页",
       menuTitle: "导航菜单",
       menuDescription: "选择要访问的页面",
     },
     footer: {
-      tagline: "学习日志 · Python 与 AI 知识库",
       subtitle: "内容持续更新",
+    },
+    home: {
+      /* 首页各屏的区块标题与卡片文案。图标是组件，留在 home-page.tsx 里，配置只放文案。 */
+      aboutTitle: "关于我",
+      nowTitle: "正在进行",
+      writingTitle: "最近在写",
+      focus: {
+        python: {
+          title: "学 Python",
+          description: "从语法到工程，把基础一层层打牢。",
+        },
+        ai: {
+          title: "玩 AI",
+          description: "把模型接进能用的小应用，边做边学。",
+        },
+      },
+      writingCard: {
+        title: "写博客",
+        description: "把踩过的坑整理成可以回看的资料。",
+      },
+    },
+    article: {
+      tocTitle: "资料目录",
+      noteDefaultTitle: "提示",
+      minutesSuffix: "分钟阅读",
+    },
+    notFound: {
+      title: "没有找到这个页面",
     },
     works: {
       badge: "PORTFOLIO",
       title: "作品",
+      listTitle: "作品列表",
       description:
         "用来展示完成的项目、实验和其他创作。当前先保留页面结构，作品内容稍后添加。",
       emptyTitle: "暂无作品",
@@ -89,6 +132,7 @@ export const siteContent = {
     community: {
       badge: "COMMUNITY",
       title: "社区交流",
+      contentTitle: "社区内容",
       description:
         "用来发布讨论、分享经验和交流问题。当前先保留页面入口和内容结构。",
       emptyTitle: "社区暂未开放",
@@ -98,9 +142,7 @@ export const siteContent = {
       heroEyebrow: "BLOG / NOTES",
       heroTitle: "博客 · 记录与发现",
       heroSubtitle: "把学习、创作和建设过程整理成可以回看的片段。",
-      about: "关于我",
-      currentDirection: "当前方向",
-      thisBlog: "这个博客",
+      contact: "联系方式",
       writing: "WRITING",
       latestResources: "最新资料",
       emptyResources: "暂无资料",
@@ -108,12 +150,15 @@ export const siteContent = {
       noTagResults: "没有找到带该标签的文章",
     },
     resources: {
+      title: "资料库",
+      latestTitle: "最近资料",
       emptyResources: "暂无资料",
       noResults: "没有找到相关资料",
       emptyResourcesDescription: "资料内容已清空，之后可以添加新的 MDX 资料。",
       noResultsDescription: "换一个关键词，或者清除当前搜索条件。",
     },
     sidebar: {
+      calendarTitle: "时间与提醒",
       weatherUnavailable: "天气暂不可用",
       humidity: "湿度",
       unknownWeather: "未知",

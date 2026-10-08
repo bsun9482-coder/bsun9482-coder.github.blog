@@ -24,12 +24,12 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel"
 import { Separator } from "@/components/ui/separator"
-import { siteContent } from "@/config/site"
+import { pageNameOf, siteContent } from "@/config/site"
 import { useDocumentTitle } from "@/hooks/use-document-title"
 import { posts } from "@/lib/posts"
 
 export function ProfilePage() {
-  useDocumentTitle("博客")
+  useDocumentTitle(pageNameOf("/profile"))
 
   /* 标签筛选：null = 不筛（显示全部）。状态只活在组件里 —— 离开页面组件卸载即重置，
      不落 URL、也不写 storage。 */
@@ -89,7 +89,9 @@ export function ProfilePage() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">联系方式</CardTitle>
+              <CardTitle className="text-base">
+                {siteContent.ui.profile.contact}
+              </CardTitle>
             </CardHeader>
             <CardContent className="grid gap-2">
               <Button asChild className="justify-start" variant="outline">

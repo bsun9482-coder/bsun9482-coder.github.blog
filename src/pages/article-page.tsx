@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
+import { siteContent } from "@/config/site"
 import { useDocumentTitle } from "@/hooks/use-document-title"
 import { formatPostDate, getPostBySlug } from "@/lib/posts"
 import { NotFoundPage } from "@/pages/not-found-page"
@@ -57,7 +58,7 @@ export function ArticlePage() {
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <Clock3Icon className="size-4" />
-                {post.readingMinutes} 分钟阅读
+                {post.readingMinutes} {siteContent.ui.article.minutesSuffix}
               </span>
             </div>
           </header>

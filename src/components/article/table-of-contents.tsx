@@ -1,6 +1,7 @@
 import { ListTreeIcon } from "lucide-react"
 
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { siteContent } from "@/config/site"
 import { cn } from "@/lib/utils"
 import type { TableOfContentsItem } from "@/types/post"
 
@@ -12,10 +13,13 @@ export function TableOfContents({ items }: TableOfContentsProps) {
   if (items.length === 0) return null
 
   return (
-    <nav aria-label="资料目录" className="rounded-xl border bg-card p-4">
+    <nav
+      aria-label={siteContent.ui.article.tocTitle}
+      className="rounded-xl border bg-card p-4"
+    >
       <p className="mb-3 flex items-center gap-2 text-sm font-medium">
         <ListTreeIcon className="size-4" />
-        资料目录
+        {siteContent.ui.article.tocTitle}
       </p>
       <ScrollArea className="max-h-[calc(100vh-10rem)]">
         <ol className="space-y-1 pr-3 text-sm text-muted-foreground">
