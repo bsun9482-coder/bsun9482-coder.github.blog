@@ -2,6 +2,7 @@ import { useDeferredValue, useMemo, useState } from "react"
 import { SearchIcon, SparklesIcon, XIcon } from "lucide-react"
 
 import { ArticleCard } from "@/components/article/article-card"
+import { Container } from "@/components/layout/container"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -39,7 +40,7 @@ export function ResourcesPage() {
   )
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-16">
+    <Container className="py-10 sm:py-16">
       <section className="rounded-3xl border bg-card px-6 py-10 sm:px-10 sm:py-14">
         <div className="max-w-3xl">
           <Badge className="mb-5" variant="outline">
@@ -161,6 +162,6 @@ export function ResourcesPage() {
           </Card>
         )}
       </section>
-    </div>
+    </Container>
   )
 }

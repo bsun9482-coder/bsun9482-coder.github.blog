@@ -1,5 +1,6 @@
 import { MessagesSquareIcon } from "lucide-react"
 
+import { Container } from "@/components/layout/container"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { pageNameOf, siteContent } from "@/config/site"
@@ -9,7 +10,7 @@ export function CommunityPage() {
   useDocumentTitle(pageNameOf("/community"))
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-16">
+    <Container className="py-10 sm:py-16">
       <header className="max-w-3xl">
         <Badge variant="outline">{siteContent.ui.community.badge}</Badge>
         <h1 className="mt-5 text-4xl font-semibold tracking-tight sm:text-5xl">
@@ -36,6 +37,6 @@ export function CommunityPage() {
           </CardContent>
         </Card>
       </section>
-    </div>
+    </Container>
   )
 }

@@ -2,6 +2,7 @@ import { useMemo, useState } from "react"
 import { BookOpenIcon, Music2Icon } from "lucide-react"
 
 import { ArticleCard } from "@/components/article/article-card"
+import { Container } from "@/components/layout/container"
 import { PersonName } from "@/components/person-name"
 import { CalendarCard } from "@/components/sidebar/calendar-card"
 import { MusicPlayerCard } from "@/components/sidebar/music-player-card"
@@ -45,7 +46,7 @@ export function ProfilePage() {
   )
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-16">
+    <Container className="py-10 sm:py-16">
       <section className="mb-8">
         <p className="text-xs font-medium uppercase tracking-[0.2em] text-primary">
           {siteContent.ui.profile.heroEyebrow}
@@ -114,7 +115,7 @@ export function ProfilePage() {
 
         <main className="min-w-0 space-y-12">
           <section aria-label="博客轮播">
-            <Carousel className="px-12" opts={{ loop: true }}>
+            <Carousel opts={{ loop: true }}>
               <CarouselContent>
                 {siteContent.profileSlides.map((slide) => (
                   <CarouselItem key={slide.eyebrow}>
@@ -134,8 +135,8 @@ export function ProfilePage() {
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <CarouselPrevious className="left-0" />
-              <CarouselNext className="right-0" />
+              <CarouselPrevious className="-left-12" />
+              <CarouselNext className="-right-12" />
             </Carousel>
           </section>
 
@@ -197,6 +198,6 @@ export function ProfilePage() {
           <CalendarCard />
         </aside>
       </div>
-    </div>
+    </Container>
   )
 }

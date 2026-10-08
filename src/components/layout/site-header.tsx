@@ -2,6 +2,7 @@ import { MenuIcon } from "lucide-react"
 import { Link } from "react-router"
 
 import { Button } from "@/components/ui/button"
+import { Container } from "@/components/layout/container"
 import {
   Sheet,
   SheetClose,
@@ -21,7 +22,7 @@ const mobileNavigationItems = [
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b bg-background/70 backdrop-blur-xl">
-      <div className="mx-auto flex h-20 w-full max-w-6xl items-center gap-4 px-4 sm:px-6">
+      <Container className="flex h-20 items-center gap-4">
         <nav aria-label="主导航" className="hidden items-center gap-1 md:flex">
           {navigationItems.map((item) => (
             <Button
@@ -83,7 +84,7 @@ export function SiteHeader() {
             </SheetContent>
           </Sheet>
         </div>
-      </div>
+      </Container>
     </header>
   )
 }

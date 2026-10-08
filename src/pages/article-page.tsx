@@ -4,6 +4,7 @@ import { Link, useParams } from "react-router"
 
 import { mdxComponents } from "@/components/article/mdx-components"
 import { TableOfContents } from "@/components/article/table-of-contents"
+import { Container } from "@/components/layout/container"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
@@ -26,7 +27,7 @@ export function ArticlePage() {
   const { Content } = post
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
+    <Container className="py-8 sm:py-12">
       <Button asChild className="-ml-2" variant="ghost">
         <Link to="/resources">
           <ArrowLeftIcon data-icon="inline-start" />
@@ -86,6 +87,6 @@ export function ArticlePage() {
           <TableOfContents items={post.tableOfContents} />
         </aside>
       </div>
-    </div>
+    </Container>
   )
 }
