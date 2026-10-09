@@ -54,31 +54,35 @@
 }
 
 :root {
-    /* Kirameku 风格亮色毛玻璃主题：柔和浅色底 + 半透明白色毛玻璃卡片 + 紫色强调色。
-       color-scheme 钉成 light，原生控件跟着走亮色。 */
+    /* 「晚霞动漫风」浅色主题：暖奶白底 + 白色毛玻璃卡片 + 玫瑰粉主色 + 薰衣草紫强调。
+       color-scheme 钉成 light，原生控件跟着走亮色。
+       色值按设计稿直接写 hex，不做 oklch 换算 —— 手算转换会引入肉眼可见的色差；
+       Tailwind 的 `bg-card/65` 这类透明度修饰符走 color-mix，对 hex 一样有效。 */
     color-scheme: light;
-    --background: oklch(0.97 0.01 300);
-    --foreground: oklch(0.25 0.02 280);
-    --card: oklch(1 0 0 / 0.55);
-    --card-foreground: oklch(0.25 0.02 280);
-    --popover: oklch(1 0 0 / 0.85);
-    --popover-foreground: oklch(0.25 0.02 280);
-    --primary: oklch(0.62 0.22 295);
-    --primary-foreground: oklch(0.99 0 0);
-    --secondary: oklch(0.95 0.02 300);
-    --secondary-foreground: oklch(0.35 0.03 280);
-    --muted: oklch(0.94 0.015 300);
-    --muted-foreground: oklch(0.55 0.03 280);
-    --accent: oklch(0.7 0.18 330);
-    --accent-foreground: oklch(0.99 0 0);
-    --destructive: oklch(0.65 0.22 25);
-    --border: oklch(1 0 0 / 0.4);
-    --input: oklch(1 0 0 / 0.5);
-    --ring: oklch(0.62 0.22 295);
-    /* 光晕色：背景光斑用这两个，粉紫 / 蓝紫 */
-    --glow-blue: oklch(0.75 0.15 250);
-    --glow-purple: oklch(0.78 0.15 320);
-    /* 标签分类色板 */
+    --background: #fdf7f5; /* 暖奶白 */
+    --foreground: #4a3b48; /* 暖褐紫 */
+    /* 表面令牌给纯白，半透明与模糊交给组件层（Card 是 bg-card/65 + backdrop-blur-xl） */
+    --card: #ffffff;
+    --card-foreground: #4a3b48;
+    --popover: #ffffff;
+    --popover-foreground: #4a3b48;
+    --primary: #ec6ea3; /* 玫瑰粉 */
+    --primary-foreground: #ffffff;
+    --secondary: #f5ecf0;
+    --secondary-foreground: #4a3b48;
+    --muted: #f5ecf0;
+    --muted-foreground: #9a8596;
+    --accent: #a78bfa; /* 薰衣草紫 */
+    --accent-foreground: #ffffff;
+    --destructive: #f07070; /* 柔和珊瑚红 */
+    --border: #f0e2e8; /* 柔和粉灰 */
+    --input: #f0e2e8;
+    --ring: #ec6ea3;
+    /* 两个 glow 令牌的名字保留（页面/组件里已有大量引用，本次不动页面文件），
+       值换成主题的粉与紫 —— 原先的霓虹蓝紫随之退休。 */
+    --glow-blue: #ec6ea3;
+    --glow-purple: #a78bfa;
+    /* 标签分类色板（本次未要求改动，保持原值；它们是圆点小色块，浅底上仍可辨） */
     --tag-cyan: oklch(0.75 0.13 200);
     --tag-green: oklch(0.78 0.15 160);
     --tag-pink: oklch(0.75 0.18 340);
@@ -89,14 +93,15 @@
     --chart-4: oklch(0.78 0.15 320);
     --chart-5: oklch(0.55 0.18 280);
     --radius: 1rem;
-    --sidebar: oklch(1 0 0 / 0.55);
-    --sidebar-foreground: oklch(0.25 0.02 280);
-    --sidebar-primary: oklch(0.62 0.22 295);
-    --sidebar-primary-foreground: oklch(0.99 0 0);
-    --sidebar-accent: oklch(0.95 0.02 300);
-    --sidebar-accent-foreground: oklch(0.35 0.03 280);
-    --sidebar-border: oklch(1 0 0 / 0.4);
-    --sidebar-ring: oklch(0.62 0.22 295);
+    /* 侧栏也是毛玻璃，保留半透明（纯白 65%） */
+    --sidebar: rgb(255 255 255 / 0.65);
+    --sidebar-foreground: #4a3b48;
+    --sidebar-primary: #ec6ea3;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #f5ecf0;
+    --sidebar-accent-foreground: #4a3b48;
+    --sidebar-border: #f0e2e8;
+    --sidebar-ring: #ec6ea3;
 }
 
 @layer base {
@@ -121,7 +126,8 @@
     @apply min-w-80 bg-background text-foreground antialiased;
   }
   ::selection {
-    @apply bg-primary/30 text-white;
+    /* 浅色主题下白字落在 30% 玫瑰粉上几乎看不见，改用前景深色 */
+    @apply bg-primary/30 text-foreground;
   }
 }
 

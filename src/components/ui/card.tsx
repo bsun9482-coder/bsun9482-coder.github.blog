@@ -11,11 +11,11 @@ function Card({
       data-slot="card"
       data-size={size}
       className={cn(
-        /* 毛玻璃卡片：半透明底 + 背景模糊 + 极淡的电光蓝发光描边，
-           hover 时描边变亮并透出一圈 20px 外发光。
-           描边仍用 ring（box-shadow 实现）而不是真 border —— 真 border 会把盒子撑大 2px，
-           那就动了各屏的布局尺寸。 */
-        "group/card flex flex-col gap-(--card-spacing) overflow-hidden rounded-xl bg-card/60 py-(--card-spacing) text-sm text-card-foreground ring-1 ring-glow-blue/15 backdrop-blur-xl transition-[box-shadow] duration-300 hover:ring-glow-blue/40 hover:shadow-[0_0_20px_color-mix(in_oklab,var(--glow-blue)_10%,transparent)] [--card-spacing:--spacing(4)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
+        /* 毛玻璃卡片：白色半透明底（bg-card/65，令牌是纯白）+ 背景模糊 + 白色描边，
+           hover 时描边变亮并投出一圈柔和的粉紫阴影 —— 不再是霓虹发光。
+           描边仍用 ring（box-shadow 实现）而不是真 border：真 border 会把盒子撑大 2px，
+           那就动了各屏的布局尺寸。所以是 ring-white/60，不是 border-white/60。 */
+        "group/card flex flex-col gap-(--card-spacing) overflow-hidden rounded-xl bg-card/65 py-(--card-spacing) text-sm text-card-foreground ring-1 ring-white/60 backdrop-blur-xl transition-[box-shadow] duration-300 hover:ring-white/85 hover:shadow-[0_8px_24px_color-mix(in_oklab,var(--glow-purple)_22%,transparent)] [--card-spacing:--spacing(4)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
         className
       )}
       {...props}

@@ -8,19 +8,19 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        /* 主按钮：电光蓝底 + 一圈外发光，hover 时发光增强（base 已有 transition-all） */
+        /* 主按钮：玫瑰粉实色 + 柔和投影（不再是霓虹发光）；hover 时投影略微加深 */
         default:
-          "bg-primary text-primary-foreground shadow-[0_0_15px_color-mix(in_oklab,var(--glow-blue)_30%,transparent)] hover:bg-primary/90 hover:shadow-[0_0_22px_color-mix(in_oklab,var(--glow-blue)_50%,transparent)]",
-        /* outline 上原本还有一条 `aria-expanded:bg-glow-blue/10`，但在暗色主题下**它从来没生效过**：
-           它 (`aria-expanded:` 变体) 与 `dark:bg-input/30` 同为 (0,2,0) 特异性，只靠源码顺序决定胜负，
-           而实测展开态算出来就是 bg-input/30。删掉 dark: 之后这条路会让它"复活"，展开态颜色会变，
-           所以这里把它去掉，保持视觉零变化。若想让展开态真的高亮，把这条加回来即可。 */
+          "bg-primary text-primary-foreground shadow-[0_4px_14px_color-mix(in_oklab,var(--primary)_25%,transparent)] hover:bg-primary/90 hover:shadow-[0_6px_20px_color-mix(in_oklab,var(--primary)_35%,transparent)]",
+        /* hover / 展开态的浅色底一律走 accent（薰衣草紫），与旧的 glow-blue 霓虹蓝脱钩。
+           下面这段历史仍然成立：outline 的 `aria-expanded:` 底色曾被 `dark:bg-input/30`
+           以同权重 (0,2,0) 靠源码顺序压住，删掉 dark: 后那条会"复活"、改变展开态颜色，
+           所以 outline 刻意不写展开态底色。 */
         outline:
-          "border-input bg-input/30 hover:bg-glow-blue/10 hover:text-foreground aria-expanded:text-foreground",
+          "border-input bg-input/30 hover:bg-accent/15 hover:text-foreground aria-expanded:text-foreground",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-glow-blue/10 aria-expanded:bg-glow-blue/10 aria-expanded:text-secondary-foreground",
+          "bg-secondary text-secondary-foreground hover:bg-accent/15 aria-expanded:bg-accent/15 aria-expanded:text-secondary-foreground",
         ghost:
-          "hover:bg-glow-blue/10 hover:text-foreground aria-expanded:bg-glow-blue/10 aria-expanded:text-foreground",
+          "hover:bg-accent/15 hover:text-foreground aria-expanded:bg-accent/15 aria-expanded:text-foreground",
         destructive:
           "bg-destructive/20 text-destructive hover:bg-destructive/30 focus-visible:border-destructive/40 focus-visible:ring-destructive/40",
         link: "text-primary underline-offset-4 hover:underline",
