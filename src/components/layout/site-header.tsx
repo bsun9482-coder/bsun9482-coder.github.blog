@@ -1,8 +1,8 @@
-import { MenuIcon } from "lucide-react"
-import { Link } from "react-router"
+import { HomeIcon, MenuIcon } from "lucide-react"
+import { Link, useLocation } from "react-router"
 
-import { Button } from "@/components/ui/button"
 import { Container } from "@/components/layout/container"
+import { Button } from "@/components/ui/button"
 import {
   Sheet,
   SheetClose,
@@ -13,28 +13,47 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { navigationItems, siteContent } from "@/config/site"
+import { cn } from "cn"
 
 const mobileNavigationItems = [
-  { href: "/", label: siteContent.ui.header.home },
+  { href: "/", label: siteContent.ui.header.home, icon: HomeIcon },
   ...navigationItems,
 ]
 
 export function SiteHeader() {
+  const { pathname } = useLocation()
+
+  /* 当前页高亮：精确匹配；文章详情 /resources/:slug 也算「资料」当前页 */
+  const isActive = (href: string) =>
+    href === "/"
+      ? pathname === "/"
+      : pathname === href || pathname.startsWith(href + "/")
+
   return (
     <header className="sticky top-0 z-40 border-b bg-background/70 backdrop-blur-xl">
-      <Container className="flex h-20 items-center gap-4">
+      <Container className="flex h-20 items-center gap-2">
         <nav aria-label="主导航" className="hidden items-center gap-1 md:flex">
-          {navigationItems.map((item) => (
-            <Button
-              asChild
-              className="px-5 text-base"
-              key={item.href}
-              size="lg"
-              variant="ghost"
-            >
-              <Link to={item.href}>{item.label}</Link>
-            </Button>
-          ))}
+          {navigationItems.map((item) => {
+            const active = isActive(item.href)
+
+            return (
+              <Button
+                asChild
+                key={item.href}
+                size="lg"
+                variant="ghost"
+                className={cn(
+                  "gap-2 rounded-full px-4 text-sm",
+                  active && "bg-primary/10 text-primary"
+                )}
+              >
+                <Link to={item.href}>
+                  <item.icon aria-hidden="true" className="size-4" />
+                  {item.label}
+                </Link>
+              </Button>
+            )
+          })}
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
@@ -42,11 +61,17 @@ export function SiteHeader() {
 
           <Button
             asChild
-            className="hidden md:inline-flex"
+            className={cn(
+              "hidden gap-2 rounded-full px-4 text-sm md:inline-flex",
+              isActive("/") && "bg-primary/10 text-primary"
+            )}
             size="lg"
             variant="ghost"
           >
-            <Link to="/">{siteContent.ui.header.home}</Link>
+            <Link to="/">
+              <HomeIcon aria-hidden="true" className="size-4" />
+              {siteContent.ui.header.home}
+            </Link>
           </Button>
 
           <Sheet>
@@ -67,19 +92,29 @@ export function SiteHeader() {
                   {siteContent.ui.header.menuDescription}
                 </SheetDescription>
               </SheetHeader>
-              <nav aria-label="移动端导航" className="grid gap-2 px-4">
-                {mobileNavigationItems.map((item) => (
-                  <SheetClose asChild key={item.href}>
-                    <Button
-                      asChild
-                      className="justify-start"
-                      size="lg"
-                      variant="ghost"
-                    >
-                      <Link to={item.href}>{item.label}</Link>
-                    </Button>
-                  </SheetClose>
-                ))}
+              <nav aria-label="移动端导航" className="grid gap-1 px-4">
+                {mobileNavigationItems.map((item) => {
+                  const active = isActive(item.href)
+
+                  return (
+                    <SheetClose asChild key={item.href}>
+                      <Button
+                        asChild
+                        className={cn(
+                          "justify-start gap-2 rounded-full px-4 text-sm",
+                          active && "bg-primary/10 text-primary"
+                        )}
+                        size="lg"
+                        variant="ghost"
+                      >
+                        <Link to={item.href}>
+                          <item.icon aria-hidden="true" className="size-4" />
+                          {item.label}
+                        </Link>
+                      </Button>
+                    </SheetClose>
+                  )
+                })}
               </nav>
             </SheetContent>
           </Sheet>

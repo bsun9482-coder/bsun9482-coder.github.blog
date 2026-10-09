@@ -1,7 +1,9 @@
+import { BookOpen, FolderKanban, Library } from "lucide-react"
+
 export const navigationItems = [
-  { href: "/profile", label: "博客" },
-  { href: "/works", label: "作品" },
-  { href: "/resources", label: "资料" },
+  { href: "/profile", label: "博客", icon: BookOpen },
+  { href: "/works", label: "作品", icon: FolderKanban },
+  { href: "/resources", label: "资料", icon: Library },
 ] as const
 
 /* 页面名（即导航标签）的唯一来源：document.title 与导航标签共用它，
@@ -91,24 +93,10 @@ export const siteContent = {
       subtitle: "内容持续更新",
     },
     home: {
-      /* 首页各屏的区块标题与卡片文案。图标是组件，留在 home-page.tsx 里，配置只放文案。 */
-      aboutTitle: "关于我",
-      nowTitle: "正在进行",
-      writingTitle: "最近在写",
-      focus: {
-        python: {
-          title: "学 Python",
-          description: "从语法到工程，把基础一层层打牢。",
-        },
-        ai: {
-          title: "玩 AI",
-          description: "把模型接进能用的小应用，边做边学。",
-        },
-      },
-      writingCard: {
-        title: "写博客",
-        description: "把踩过的坑整理成可以回看的资料。",
-      },
+      /* 单屏欢迎页：欢迎标题与副标题。发光渐变色/字号等视觉样式留在 home-page.tsx，
+         这里只放文案，改字不改布局。 */
+      heroTitle: "欢迎来到旺仔冰子的博客",
+      heroSubtitle: "泪水打湿猪脚饭，发誓要挣100万",
     },
     article: {
       tocTitle: "资料目录",
