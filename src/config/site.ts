@@ -19,6 +19,9 @@ export type MusicTrack = {
   title: string
   artist: string
   src: string
+  /* TODO(歌词): 这里预留逐行歌词字段的位置，先不实现。
+     做成歌词后补上 lyrics?: readonly string[]（每项一句），
+     博客页顶部的歌词栏会按播放进度逐行切换、高亮当前句。 */
 }
 
 /* 音乐曲目表（博客页顶部「音乐卡」取第一首判断能否播放）。
@@ -137,6 +140,11 @@ export const siteContent = {
       emptyTitle: "暂无播放列表",
       emptyHint: "往 site.ts 添加曲目",
       play: "播放",
+    },
+    /* 顶部卡片与轮播卡之间那条「歌词展示栏」的文案 */
+    lyricsBar: {
+      regionLabel: "歌词展示",
+      empty: "暂无歌词",
     },
     resources: {
       title: "资料库",

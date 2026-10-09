@@ -1,4 +1,11 @@
-import { BookOpenIcon, ExternalLinkIcon, MapPinIcon, Music2Icon, PlayIcon } from "lucide-react"
+import {
+  BookOpenIcon,
+  ExternalLinkIcon,
+  MapPinIcon,
+  Music as MusicIcon,
+  Music2Icon,
+  PlayIcon,
+} from "lucide-react"
 import { Link } from "react-router"
 
 import { ArticleCard } from "@/components/article/article-card"
@@ -55,6 +62,37 @@ function MusicPlaceholderCard() {
         </div>
       </CardContent>
     </Card>
+  )
+}
+
+/* 歌词展示栏：夹在顶部卡片与轮播卡之间的一条深色胶囊。
+   当前 musicPlaylist 为空、也还没有歌词数据，所以中间只展示占位文案。
+   TODO(歌词): 接上真实歌词后在这里实现——
+     ① 跟随音频播放进度逐行切换（拿 <audio> 的 currentTime 去匹配每行的时间戳）；
+     ② 当前句高亮，并在句尾追加一个闪烁的打字光标；
+     ③ 歌词数据来自 site.ts 的 musicPlaylist[].lyrics（字段位置见 MusicTrack 的 TODO）。 */
+function LyricsBar() {
+  return (
+    <div
+      aria-label={siteContent.ui.lyricsBar.regionLabel}
+      className="flex items-center gap-4 rounded-2xl bg-slate-900/85 px-5 py-4 shadow-[0_8px_32px_color-mix(in_oklab,var(--glow-purple)_18%,transparent)] ring-1 ring-white/10 backdrop-blur-md"
+      role="status"
+    >
+      {/* 左侧装饰：5 个小圆点 */}
+      <span aria-hidden="true" className="flex shrink-0 items-center gap-1.5">
+        {Array.from({ length: 5 }, (_, index) => (
+          <span className="size-1.5 rounded-full bg-white/30" key={index} />
+        ))}
+      </span>
+
+      {/* 中间：歌词文字。当前没有歌词 → 占位；未来在这里渲染「当前句 + 闪烁打字光标」 */}
+      <p className="flex-1 text-center text-sm font-medium text-white/60">
+        {siteContent.ui.lyricsBar.empty}
+      </p>
+
+      {/* 右侧：音乐图标 */}
+      <MusicIcon aria-hidden="true" className="size-4 shrink-0 text-white/40" />
+    </div>
   )
 }
 
@@ -148,6 +186,9 @@ export function ProfilePage() {
             {/* 音乐占位卡 */}
             <MusicPlaceholderCard />
           </div>
+
+        {/* 歌词展示栏：只夹在「顶部卡片」与「轮播卡」之间 */}
+        <LyricsBar />
 
         {/* 轮播状态卡：箭头定位到卡片外侧（负偏移），所以卡片本身要去掉 overflow-hidden
             让箭头露出来；轮播内容由 CarouselContent 自带的 overflow-hidden 兜住，不会溢出圆角。 */}
