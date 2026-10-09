@@ -21,9 +21,9 @@ export type MusicTrack = {
   src: string
 }
 
-/* 侧栏音乐播放器的曲目表。
+/* 音乐曲目表（博客页顶部「音乐卡」取第一首判断能否播放）。
    往 public/music/ 放好 mp3 后，在这里补 { title, artist, src }，
-   博客页侧栏的 MusicPlayerCard 会自动出现；空数组时该卡片整张不渲染。
+   空数组时音乐卡的播放按钮置灰。
    —— 原先这里挂着两条指向 /music/demo-*.mp3 的示例曲目，但 public/music/ 里
    并没有对应文件，卡片必然落进「音频加载失败」分支（体检也一直报 FAIL）。
    先把示例撤下，等真实音频补上再挂回。 */
@@ -126,6 +126,17 @@ export const siteContent = {
       emptyResources: "暂无资料",
       emptyResourcesDescription: "新资料发布后会显示在这里。",
       noTagResults: "没有找到带该标签的文章",
+      /* 顶部个人资料卡三个统计项的小字标签（数字/短横线本身在组件里拼） */
+      statArticles: "文章",
+      statMoments: "说说",
+      statPhotos: "照片",
+    },
+    /* 顶部「音乐卡」的文案 */
+    musicCard: {
+      badge: "CLOUD MUSIC",
+      emptyTitle: "暂无播放列表",
+      emptyHint: "往 site.ts 添加曲目",
+      play: "播放",
     },
     resources: {
       title: "资料库",
@@ -136,22 +147,9 @@ export const siteContent = {
       noResultsDescription: "换一个关键词，或者清除当前搜索条件。",
     },
     sidebar: {
-      calendarTitle: "时间与提醒",
-      weatherUnavailable: "天气暂不可用",
+      weatherUnavailable: "天气不可用",
       humidity: "湿度",
       unknownWeather: "未知",
-      locationInputPlaceholder: "输入城市名，如：济南",
-      locate: "定位",
-      cityNotFound: "未找到该城市，请换个名称试试",
-      tagsTitle: "标签",
-      music: {
-        previousTrack: "上一首",
-        play: "播放",
-        pause: "暂停",
-        nextTrack: "下一首",
-        seek: "调整播放进度",
-        loadError: "音频加载失败",
-      },
     },
   },
 } as const

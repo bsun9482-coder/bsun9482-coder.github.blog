@@ -1,22 +1,13 @@
-import { useMemo, useState } from "react"
-import { BookOpenIcon, Music2Icon } from "lucide-react"
+import { BookOpenIcon, ExternalLinkIcon, MapPinIcon, Music2Icon, PlayIcon } from "lucide-react"
+import { Link } from "react-router"
 
 import { ArticleCard } from "@/components/article/article-card"
 import { Container } from "@/components/layout/container"
+import { StatusBar } from "@/components/layout/status-bar"
 import { PersonName } from "@/components/person-name"
-import { CalendarCard } from "@/components/sidebar/calendar-card"
-import { MusicPlayerCard } from "@/components/sidebar/music-player-card"
-import { TagCard } from "@/components/sidebar/tag-card"
-import { WeatherCard } from "@/components/sidebar/weather-card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import {
   Carousel,
   CarouselContent,
@@ -24,179 +15,206 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
-import { Separator } from "@/components/ui/separator"
-import { pageNameOf, siteContent } from "@/config/site"
+import { musicPlaylist, pageNameOf, siteContent } from "@/config/site"
 import { useDocumentTitle } from "@/hooks/use-document-title"
 import { posts } from "@/lib/posts"
+
+/* 音乐播放器占位卡 */
+function MusicPlaceholderCard() {
+  /* 点击播放 musicPlaylist 第一首；列表为空或 src 无效时置灰。
+     TODO: 接真实音频播放器（<audio> + 播放/暂停状态），当前 musicPlaylist 为空，先静态展示。 */
+  const firstTrack = musicPlaylist[0]
+  const canPlay = Boolean(firstTrack?.src)
+
+  return (
+    <Card className="rounded-3xl">
+      <CardContent className="flex h-full flex-col p-6">
+        <div className="flex items-center gap-4">
+          <div className="size-16 shrink-0 rounded-full bg-muted/60" />
+          <div className="min-w-0">
+            <span className="inline-block rounded-md bg-primary/10 px-2 py-0.5 text-[10px] font-semibold tracking-wider text-primary">
+              {siteContent.ui.musicCard.badge}
+            </span>
+            <p className="mt-1.5 truncate text-base font-semibold">
+              {siteContent.ui.musicCard.emptyTitle}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {siteContent.ui.musicCard.emptyHint}
+            </p>
+          </div>
+        </div>
+        <div className="mt-auto flex items-center justify-center pt-4">
+          <Button
+            aria-label={siteContent.ui.musicCard.play}
+            className="size-14 rounded-full bg-primary text-primary-foreground shadow-[0_0_24px_color-mix(in_oklab,var(--glow-purple)_45%,transparent)] hover:bg-primary/90 hover:shadow-[0_0_32px_color-mix(in_oklab,var(--glow-purple)_60%,transparent)] disabled:shadow-none"
+            disabled={!canPlay}
+            size="icon"
+          >
+            <PlayIcon className="size-6" />
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
 
 export function ProfilePage() {
   useDocumentTitle(pageNameOf("/profile"))
 
-  /* 标签筛选：null = 不筛（显示全部）。状态只活在组件里 —— 离开页面组件卸载即重置，
-     不落 URL、也不写 storage。 */
-  const [selectedTag, setSelectedTag] = useState<string | null>(null)
-
-  /* 结果不再 slice —— 选中标签后有几篇显示几篇，别被「最新 3 篇」截断。 */
-  const filteredPosts = useMemo(
-    () =>
-      selectedTag === null
-        ? posts
-        : posts.filter((post) => post.tags.includes(selectedTag)),
-    [selectedTag]
-  )
-
   return (
     <Container className="py-10 sm:py-16">
-      <section className="mb-8">
-        <p className="text-xs font-medium uppercase tracking-[0.2em] text-primary">
-          {siteContent.ui.profile.heroEyebrow}
-        </p>
-        <h1 className="mt-3 text-5xl font-bold tracking-tight sm:text-6xl">
-          {siteContent.ui.profile.heroTitle}
-        </h1>
-        <p className="mt-4 text-base text-muted-foreground">
-          {siteContent.ui.profile.heroSubtitle}
-        </p>
-      </section>
+      <div className="mx-auto max-w-none space-y-5">
+        <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
+            {/* 个人信息卡 */}
+            <Card className="rounded-3xl">
+              <CardContent className="flex h-full flex-col p-7 sm:p-9">
+                <div className="flex items-start gap-6">
+                  <Avatar className="size-20 shrink-0 ring-2 ring-primary/20">
+                    <AvatarImage
+                      alt={siteContent.person.name}
+                      src={siteContent.person.avatarUrl}
+                    />
+                    <AvatarFallback className="text-3xl">
+                      {siteContent.person.avatarInitial}
+                    </AvatarFallback>
+                  </Avatar>
 
-      <div className="grid items-start gap-8 lg:grid-cols-[18rem_minmax(0,1fr)_15rem]">
-        <aside className="space-y-4">
-          <Card>
-            <CardHeader>
-              <Avatar className="size-20 ring-2 ring-primary/20">
-                <AvatarImage
-                  alt={siteContent.person.name}
-                  src={siteContent.person.avatarUrl}
-                />
-                <AvatarFallback className="text-2xl">
-                  {siteContent.person.avatarInitial}
-                </AvatarFallback>
-              </Avatar>
-              <CardTitle className="mt-3">
-                <PersonName />
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm leading-7 text-muted-foreground">
-                {siteContent.person.introduction}
-              </p>
-              <Separator />
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <BookOpenIcon className="size-4" />
-                {siteContent.blog.publicResources}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">
-                {siteContent.ui.profile.contact}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-2">
-              <Button asChild className="justify-start" variant="outline">
-                <a
-                  href={siteContent.links.douyin.url}
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  <Music2Icon />
-                  {siteContent.links.douyin.label}
-                </a>
-              </Button>
-            </CardContent>
-          </Card>
-
-          <MusicPlayerCard />
-
-          <TagCard onSelectTag={setSelectedTag} selectedTag={selectedTag} />
-        </aside>
-
-        <main className="min-w-0 space-y-12">
-          <section aria-label="博客轮播">
-            <Carousel opts={{ loop: true }}>
-              <CarouselContent>
-                {siteContent.profileSlides.map((slide) => (
-                  <CarouselItem key={slide.eyebrow}>
-                    <Card className="min-h-56 justify-center">
-                      <CardHeader>
-                        <p className="text-sm font-medium text-primary">
-                          {slide.eyebrow}
-                        </p>
-                        <CardTitle className="text-2xl">
-                          {slide.title}
-                        </CardTitle>
-                        <CardDescription className="text-base leading-7">
-                          {slide.description}
-                        </CardDescription>
-                      </CardHeader>
-                    </Card>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious className="-left-12" />
-              <CarouselNext className="-right-12" />
-            </Carousel>
-          </section>
-
-          <section aria-labelledby="profile-latest-resources">
-            <div className="mb-6">
-              <p className="text-sm font-medium text-primary">
-                {siteContent.ui.profile.writing}
-              </p>
-              <h2
-                className="mt-2 text-2xl font-semibold tracking-tight"
-                id="profile-latest-resources"
-              >
-                {siteContent.ui.profile.latestResources}
-              </h2>
-              <p className="mt-2 text-sm text-muted-foreground">
-                {siteContent.blog.latestResources}
-              </p>
-            </div>
-            {filteredPosts.length > 0 ? (
-              /* key 绑当前筛选：切标签时整块重挂载，卡片才会重新播一遍入场动画。
-                 否则留下的卡片 DOM 不变、只有新出现的会动，看着就像硬切。 */
-              <div className="grid gap-4" key={selectedTag ?? "__all__"}>
-                {filteredPosts.map((post, index) => (
-                  <div
-                    className="animate-in fade-in slide-in-from-bottom-3 fill-mode-backwards duration-500 motion-reduce:animate-none"
-                    key={post.slug}
-                    /* 依次晚 60ms 入场，封顶 5 档，长列表不至于等太久。
-                       fill-mode-backwards 不能省 —— animate-in 默认 fill-mode 是 none，
-                       延迟期间会先露出完整卡片再跳回起点，等于闪一下。 */
-                    style={{ animationDelay: `${Math.min(index, 5) * 60}ms` }}
-                  >
-                    <ArticleCard post={post} />
+                  <div className="min-w-0 flex-1">
+                    <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+                      <PersonName />
+                    </h1>
+                    <p className="mt-2 flex items-center gap-1.5 text-sm text-muted-foreground">
+                      <MapPinIcon className="size-4" />
+                      {siteContent.person.location}
+                    </p>
+                    <p className="mt-4 text-base leading-7 text-muted-foreground">
+                      {siteContent.person.introduction}
+                    </p>
                   </div>
-                ))}
-              </div>
-            ) : posts.length === 0 ? (
-              <Card className="border-dashed py-10 text-center">
-                <CardContent>
-                  <BookOpenIcon className="mx-auto size-8 text-muted-foreground" />
-                  <h3 className="mt-4 font-medium">
-                    {siteContent.ui.profile.emptyResources}
-                  </h3>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    {siteContent.ui.profile.emptyResourcesDescription}
-                  </p>
-                </CardContent>
-              </Card>
-            ) : (
-              /* 有文章、但当前标签一篇都没匹配上（兜底：标签本就是从文章里抽出来的，正常不该发生） */
-              <p className="text-center text-sm text-muted-foreground">
-                {siteContent.ui.profile.noTagResults}
-              </p>
-            )}
-          </section>
-        </main>
+                </div>
 
-        <aside className="grid gap-4 self-start sm:grid-cols-2 lg:block lg:space-y-4">
-          <WeatherCard />
-          <CalendarCard />
-        </aside>
+                <div className="mt-auto flex items-end justify-between pt-8">
+                  <div className="flex items-center gap-8 sm:gap-10">
+                    <div>
+                      <p className="text-3xl font-bold text-primary">{posts.length}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {siteContent.ui.profile.statArticles}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-3xl font-bold text-tag-pink">—</p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {siteContent.ui.profile.statMoments}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-3xl font-bold text-destructive">—</p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {siteContent.ui.profile.statPhotos}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2.5">
+                    {/* TODO: 外部链接入口（暂未定目标地址，先留空） */}
+                    <Button
+                      aria-label="外部链接"
+                      className="size-10 rounded-full"
+                      onClick={() => {
+                        /* TODO: 跳转外部链接 */
+                      }}
+                      size="icon"
+                      variant="ghost"
+                    >
+                      <ExternalLinkIcon className="size-4" />
+                    </Button>
+                    {/* TODO: 音乐入口（暂未接音乐页/播放器） */}
+                    <Button
+                      aria-label="音乐"
+                      className="size-10 rounded-full"
+                      onClick={() => {
+                        /* TODO: 打开音乐 */
+                      }}
+                      size="icon"
+                      variant="ghost"
+                    >
+                      <Music2Icon className="size-4" />
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 音乐占位卡 */}
+            <MusicPlaceholderCard />
+          </div>
+
+        {/* 轮播状态卡：箭头定位到卡片外侧（负偏移），所以卡片本身要去掉 overflow-hidden
+            让箭头露出来；轮播内容由 CarouselContent 自带的 overflow-hidden 兜住，不会溢出圆角。 */}
+        <Card className="overflow-visible rounded-3xl">
+          <Carousel opts={{ loop: true }}>
+            <CarouselContent>
+              {siteContent.profileSlides.map((slide) => (
+                <CarouselItem key={slide.eyebrow}>
+                  <CardContent className="p-7 sm:p-9">
+                    <p className="text-xs font-medium uppercase tracking-[0.2em] text-primary">
+                      {slide.eyebrow}
+                    </p>
+                    <h2 className="mt-3 text-2xl font-semibold">
+                      {slide.title}
+                    </h2>
+                    <p className="mt-2 text-base leading-7 text-muted-foreground">
+                      {slide.description}
+                    </p>
+                  </CardContent>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="-left-8" />
+            <CarouselNext className="-right-8" />
+          </Carousel>
+        </Card>
+
+        {/* 最新文章 */}
+        <section aria-labelledby="latest-posts">
+          <div className="mb-4 flex items-baseline justify-between px-1">
+            <h2 className="text-xl font-semibold tracking-tight" id="latest-posts">
+              最新文章
+            </h2>
+            <Link to="/resources" className="text-sm text-primary hover:underline">
+              查看全部 →
+            </Link>
+          </div>
+
+          {posts.length > 0 ? (
+            <div className="space-y-4">
+              {posts.map((post, index) => (
+                <div
+                  className="animate-in fade-in slide-in-from-bottom-3 fill-mode-backwards duration-500 motion-reduce:animate-none"
+                  key={post.slug}
+                  style={{ animationDelay: `${index * 60}ms` }}
+                >
+                  <ArticleCard post={post} />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <Card className="rounded-3xl border-dashed py-10 text-center">
+              <CardContent>
+                <BookOpenIcon className="mx-auto size-8 text-muted-foreground" />
+                <h3 className="mt-4 font-medium">
+                  {siteContent.ui.profile.emptyResources}
+                </h3>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {siteContent.blog.latestResources}
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </section>
+
+        {/* 时间天气横条 */}
+        <StatusBar />
       </div>
     </Container>
   )
