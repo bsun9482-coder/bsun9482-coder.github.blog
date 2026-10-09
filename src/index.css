@@ -54,51 +54,49 @@
 }
 
 :root {
-    /* 暗色赛博 AI 主题：**暗色是唯一主题** —— 色板直接挂在 :root 上，不再有 light / dark 两套。
-       主题切换模块（theme-provider / theme-toggle）已整体删除，html 上不再挂 .dark / .light，
-       所以这里就是全站配色的唯一来源。color-scheme 同步钉成 dark（原生控件也跟着走暗色）。 */
-    color-scheme: dark;
-    --background: oklch(0.13 0.01 260);
-    --foreground: oklch(0.95 0.01 260);
-    --card: oklch(0.17 0.015 260);
-    --card-foreground: oklch(0.95 0.01 260);
-    --popover: oklch(0.17 0.015 260);
-    --popover-foreground: oklch(0.95 0.01 260);
-    --primary: oklch(0.65 0.2 260);
+    /* Kirameku 风格亮色毛玻璃主题：柔和浅色底 + 半透明白色毛玻璃卡片 + 紫色强调色。
+       color-scheme 钉成 light，原生控件跟着走亮色。 */
+    color-scheme: light;
+    --background: oklch(0.97 0.01 300);
+    --foreground: oklch(0.25 0.02 280);
+    --card: oklch(1 0 0 / 0.55);
+    --card-foreground: oklch(0.25 0.02 280);
+    --popover: oklch(1 0 0 / 0.85);
+    --popover-foreground: oklch(0.25 0.02 280);
+    --primary: oklch(0.62 0.22 295);
     --primary-foreground: oklch(0.99 0 0);
-    --secondary: oklch(0.22 0.02 260);
-    --secondary-foreground: oklch(0.9 0.01 260);
-    --muted: oklch(0.2 0.015 260);
-    --muted-foreground: oklch(0.65 0.02 260);
-    --accent: oklch(0.55 0.22 290);
-    --accent-foreground: oklch(0.98 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(0.3 0.03 260 / 60%);
-    --input: oklch(0.25 0.02 260);
-    --ring: oklch(0.65 0.2 260);
-    /* 发光色：卡片描边 / 按钮外发光 / 背景光斑都用这两个 */
-    --glow-blue: oklch(0.65 0.22 260);
-    --glow-purple: oklch(0.6 0.24 290);
-    /* 标签小方块的分类色板（蓝 / 紫直接复用上面的发光色，不另开重复令牌）。
-       这一组是「冷色板」，标签卡片按索引在这里循环取色，顺序见 src/lib/tags.ts。 */
-    --tag-cyan: oklch(0.78 0.14 195);
-    --tag-green: oklch(0.75 0.17 150);
-    --tag-pink: oklch(0.72 0.2 350);
-    --tag-orange: oklch(0.78 0.15 60);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --radius: 0.625rem;
-    --sidebar: oklch(0.17 0.015 260);
-    --sidebar-foreground: oklch(0.95 0.01 260);
-    --sidebar-primary: oklch(0.65 0.2 260);
+    --secondary: oklch(0.95 0.02 300);
+    --secondary-foreground: oklch(0.35 0.03 280);
+    --muted: oklch(0.94 0.015 300);
+    --muted-foreground: oklch(0.55 0.03 280);
+    --accent: oklch(0.7 0.18 330);
+    --accent-foreground: oklch(0.99 0 0);
+    --destructive: oklch(0.65 0.22 25);
+    --border: oklch(1 0 0 / 0.4);
+    --input: oklch(1 0 0 / 0.5);
+    --ring: oklch(0.62 0.22 295);
+    /* 光晕色：背景光斑用这两个，粉紫 / 蓝紫 */
+    --glow-blue: oklch(0.75 0.15 250);
+    --glow-purple: oklch(0.78 0.15 320);
+    /* 标签分类色板 */
+    --tag-cyan: oklch(0.75 0.13 200);
+    --tag-green: oklch(0.78 0.15 160);
+    --tag-pink: oklch(0.75 0.18 340);
+    --tag-orange: oklch(0.8 0.14 70);
+    --chart-1: oklch(0.62 0.22 295);
+    --chart-2: oklch(0.7 0.18 330);
+    --chart-3: oklch(0.75 0.15 250);
+    --chart-4: oklch(0.78 0.15 320);
+    --chart-5: oklch(0.55 0.18 280);
+    --radius: 1rem;
+    --sidebar: oklch(1 0 0 / 0.55);
+    --sidebar-foreground: oklch(0.25 0.02 280);
+    --sidebar-primary: oklch(0.62 0.22 295);
     --sidebar-primary-foreground: oklch(0.99 0 0);
-    --sidebar-accent: oklch(0.22 0.02 260);
-    --sidebar-accent-foreground: oklch(0.9 0.01 260);
-    --sidebar-border: oklch(0.3 0.03 260 / 60%);
-    --sidebar-ring: oklch(0.65 0.2 260);
+    --sidebar-accent: oklch(0.95 0.02 300);
+    --sidebar-accent-foreground: oklch(0.35 0.03 280);
+    --sidebar-border: oklch(1 0 0 / 0.4);
+    --sidebar-ring: oklch(0.62 0.22 295);
 }
 
 @layer base {
@@ -128,73 +126,40 @@
 }
 
 @layer components {
-  /* ---------- 背景：呼吸网格 + 三团漂移光斑 + 首页扫描光带 ----------
-     均由 App.tsx 的 SiteBackground 使用；粒子画布见 components/layout/neural-background.tsx */
+  /* ---------- 背景：柔和水彩渐变光斑 ----------
+     由 App.tsx 的 SiteBackground 使用； Kirameku 风格：粉/紫/蓝/绿模糊光斑缓缓漂移 */
 
-  /* 1px 网格，64px 一格。底色按最大值 8% 画，再用元素 opacity 在 3%~8% 之间呼吸
-     （alpha 写在 gradient 里没法动画，所以把"变亮变暗"交给整层 opacity）。 */
-  .cyber-grid {
-    background-image:
-      linear-gradient(
-        to right,
-        oklch(0.65 0.2 260 / 8%) 1px,
-        transparent 1px
-      ),
-      linear-gradient(
-        to bottom,
-        oklch(0.65 0.2 260 / 8%) 1px,
-        transparent 1px
-      );
-    background-size: 64px 64px;
-    opacity: 0.375; /* 0.375 × 8% = 3% */
-    animation: cyber-grid-breathe 6s ease-in-out infinite;
-  }
-
-  /* 三团光斑共用：尺寸 / 模糊 / 透明度 / 12s 循环，具体路径与相位由各自的类给 */
+  /* 光斑共用：超大尺寸 / 超大模糊 / 高透明度，形成水彩晕染感 */
   .cyber-blob {
     position: absolute;
-    width: 36rem;
-    height: 36rem;
+    width: 42rem;
+    height: 42rem;
     border-radius: 9999px;
-    opacity: 0.2;
-    filter: blur(120px);
+    opacity: 0.35;
+    filter: blur(100px);
     will-change: transform;
-    animation-duration: 12s;
+    animation-duration: 18s;
     animation-timing-function: ease-in-out;
     animation-iteration-count: infinite;
   }
 
   .cyber-blob-blue {
-    background-color: var(--glow-blue);
+    background-color: oklch(0.75 0.12 240);
     animation-name: cyber-drift-blue;
   }
 
-  /* 负延迟 = 一起步就在循环中段，三团因此天然错开 */
   .cyber-blob-purple {
-    background-color: var(--glow-purple);
+    background-color: oklch(0.78 0.14 310);
     animation-name: cyber-drift-purple;
-    animation-delay: -3s;
+    animation-delay: -4s;
   }
 
-  /* 第三团：更小、居中偏下，再错开一个相位 */
   .cyber-blob-purple-soft {
-    width: 26rem;
-    height: 26rem;
-    background-color: var(--glow-purple);
+    width: 32rem;
+    height: 32rem;
+    background-color: oklch(0.8 0.1 180);
     animation-name: cyber-drift-purple-soft;
-    animation-delay: -6s;
-  }
-
-  /* 首页专属的雷达扫描光带：200px 高，上下透明、中间 5%，
-     高度由 JSX 的 h-[200px] 给，位移用 transform（不碰 top，避免逐帧重排）。 */
-  .cyber-scan {
-    background-image: linear-gradient(
-      to bottom,
-      transparent,
-      oklch(0.65 0.2 260 / 5%),
-      transparent
-    );
-    animation: cyber-scan 8s linear infinite;
+    animation-delay: -9s;
   }
 
   .article-content [data-rehype-pretty-code-figure] {
@@ -228,14 +193,14 @@
   }
 }
 
-/* 三团光斑的漂移路径：12s 一个来回，只动 transform（GPU 合成，不触发重排） */
+/* 三团光斑的漂移路径：18s 一个来回，只动 transform（GPU 合成，不触发重排） */
 @keyframes cyber-drift-blue {
   0%,
   100% {
     transform: translate3d(0, 0, 0) scale(1);
   }
   50% {
-    transform: translate3d(70px, 50px, 0) scale(1.08);
+    transform: translate3d(80px, 60px, 0) scale(1.1);
   }
 }
 
@@ -245,7 +210,7 @@
     transform: translate3d(0, 0, 0) scale(1);
   }
   50% {
-    transform: translate3d(-60px, -50px, 0) scale(1.06);
+    transform: translate3d(-70px, -60px, 0) scale(1.08);
   }
 }
 
@@ -255,41 +220,13 @@
     transform: translate3d(0, 0, 0) scale(1);
   }
   50% {
-    transform: translate3d(50px, -40px, 0) scale(1.1);
+    transform: translate3d(60px, -50px, 0) scale(1.12);
   }
 }
 
-/* 网格呼吸：3% ↔ 8%（元素 opacity 0.375 ↔ 1，配合 8% 的网格底色） */
-@keyframes cyber-grid-breathe {
-  0%,
-  100% {
-    opacity: 0.375;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-/* 扫描光带：从视口上方扫到下方，走到 100vh 时刚好完全出界 */
-@keyframes cyber-scan {
-  0% {
-    transform: translate3d(0, -200px, 0);
-  }
-  100% {
-    transform: translate3d(0, 100vh, 0);
-  }
-}
-
-/* 降级：不漂移、不呼吸、不出光带；光斑仍静态可见，网格停在原来的 5% */
+/* 降级：不漂移；光斑仍静态可见 */
 @media (prefers-reduced-motion: reduce) {
-  .cyber-blob,
-  .cyber-grid {
+  .cyber-blob {
     animation: none;
-  }
-  .cyber-grid {
-    opacity: 0.625; /* 0.625 × 8% = 5% */
-  }
-  .cyber-scan {
-    display: none;
   }
 }
