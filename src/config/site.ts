@@ -2,14 +2,13 @@ export const navigationItems = [
   { href: "/profile", label: "博客" },
   { href: "/works", label: "作品" },
   { href: "/resources", label: "资料" },
-  { href: "/community", label: "社区交流" },
 ] as const
 
 /* 页面名（即导航标签）的唯一来源：document.title 与导航标签共用它，
    同一个词不再在配置和页面里各写一遍。
    href 已限定成上面出现过的路由，所以 find 必定命中。
-   注：works / community 页内的大标题另有 ui.works.title / ui.community.title，
-   值与这里的标签相同 —— 两处都在配置里，属历史遗留，暂未合并。 */
+   注：works 页内的大标题另有 ui.works.title，值与这里的标签相同，
+   属历史遗留，暂未合并。 */
 export function pageNameOf(href: (typeof navigationItems)[number]["href"]) {
   return navigationItems.find((item) => item.href === href)!.label
 }
@@ -128,15 +127,6 @@ export const siteContent = {
       emptyTitle: "暂无作品",
       emptyDescription:
         "后续添加作品时，这里会展示作品名称、简介、状态和访问入口。",
-    },
-    community: {
-      badge: "COMMUNITY",
-      title: "社区交流",
-      contentTitle: "社区内容",
-      description:
-        "用来发布讨论、分享经验和交流问题。当前先保留页面入口和内容结构。",
-      emptyTitle: "社区暂未开放",
-      emptyDescription: "后续可以在这里加入话题列表、发布入口和评论功能。",
     },
     profile: {
       heroEyebrow: "BLOG / NOTES",

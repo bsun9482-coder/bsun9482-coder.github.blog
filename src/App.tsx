@@ -6,7 +6,6 @@ import { SiteFooter } from "@/components/layout/site-footer"
 import { SiteHeader } from "@/components/layout/site-header"
 import { useEscapeBack } from "@/hooks/use-escape-back"
 import { ArticlePage } from "@/pages/article-page"
-import { CommunityPage } from "@/pages/community-page"
 import { HomePage } from "@/pages/home-page"
 import { NotFoundPage } from "@/pages/not-found-page"
 import { ProfilePage } from "@/pages/profile-page"
@@ -66,7 +65,7 @@ function SiteBackground() {
 function SiteLayout() {
   const { pathname } = useLocation()
   /* 首页是整屏吸附式落地页，最后一屏自己收尾 —— 不挂页脚，页面滚到底就是最后那一屏。
-     其余路由（作品 / 资料 / 社区 / 关于 / 文章 / 404）照旧渲染 SiteFooter。 */
+     其余路由（作品 / 资料 / 关于 / 文章 / 404）照旧渲染 SiteFooter。 */
   const withFooter = pathname !== "/"
 
   return (
@@ -92,7 +91,6 @@ export function App() {
           <Route element={<ProfilePage />} path="/profile" />
           <Route element={<WorksPage />} path="/works" />
           <Route element={<ResourcesPage />} path="/resources" />
-          <Route element={<CommunityPage />} path="/community" />
           <Route element={<ArticlePage />} path="/resources/:slug" />
           <Route element={<NotFoundPage />} path="*" />
         </Route>
