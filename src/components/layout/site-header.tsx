@@ -23,6 +23,10 @@ const mobileNavigationItems = [
 export function SiteHeader() {
   const { pathname } = useLocation()
 
+  /* 首页是深色视频背景，页头要跟着换成深色半透 + 亮色文字，
+     否则浅色导航压在深色画面上会割裂。其余路由维持浅色主题默认样式。 */
+  const isHome = pathname === "/"
+
   /* 当前页高亮：精确匹配；文章详情 /resources/:slug 也算「资料」当前页 */
   const isActive = (href: string) =>
     href === "/"
@@ -30,7 +34,14 @@ export function SiteHeader() {
       : pathname === href || pathname.startsWith(href + "/")
 
   return (
-    <header className="sticky top-0 z-40 border-b bg-background/70 backdrop-blur-xl">
+    <header
+      className={cn(
+        "sticky top-0 z-40 border-b backdrop-blur-xl",
+        isHome
+          ? "border-white/10 bg-black/55 text-white"
+          : "border-border bg-background/70"
+      )}
+    >
       <Container className="flex h-20 items-center gap-2">
         <nav aria-label="主导航" className="hidden items-center gap-1 md:flex">
           {navigationItems.map((item) => {
@@ -44,7 +55,10 @@ export function SiteHeader() {
                 variant="ghost"
                 className={cn(
                   "gap-2 rounded-full px-4 text-sm",
-                  active && "bg-primary/10 text-primary"
+                  isHome
+                    ? "text-white/85 hover:text-white"
+                    : "text-foreground",
+                  active && (isHome ? "bg-white/15 text-white" : "bg-primary/10 text-primary")
                 )}
               >
                 <Link to={item.href}>
@@ -63,7 +77,8 @@ export function SiteHeader() {
             asChild
             className={cn(
               "hidden gap-2 rounded-full px-4 text-sm md:inline-flex",
-              isActive("/") && "bg-primary/10 text-primary"
+              isHome ? "text-white/85 hover:text-white" : "text-foreground",
+              isActive("/") && (isHome ? "bg-white/15 text-white" : "bg-primary/10 text-primary")
             )}
             size="lg"
             variant="ghost"
@@ -78,7 +93,7 @@ export function SiteHeader() {
             <SheetTrigger asChild>
               <Button
                 aria-label="打开导航菜单"
-                className="md:hidden"
+                className={cn("md:hidden", isHome && "text-white hover:text-white")}
                 size="icon"
                 variant="ghost"
               >

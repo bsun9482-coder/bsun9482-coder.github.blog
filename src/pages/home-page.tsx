@@ -33,6 +33,11 @@ export function HomePage() {
   /* 只有一页、触发一次即跳转，用 ref 挡掉触控板惯性连发的后续 wheel / 连续按键 */
   const navigatingRef = useRef(false)
 
+  /* 视频背景：降级时（prefers-reduced-motion）不自动播放，直接回退到全站背景；
+     视频本身加载失败 / 不支持时，也隐藏掉、透出全站背景兜底。 */
+  const [reducedMotion] = useState(prefersReducedMotion)
+  const [videoFailed, setVideoFailed] = useState(false)
+
   useEffect(() => {
     if (visible) return
 
@@ -120,17 +125,42 @@ export function HomePage() {
     <>
       <style>{CHEVRON_CSS}</style>
 
+      {/* 视频背景层：只在首页挂载（组件卸载即随路由移除），fixed 全屏铺满。
+          muted + playsInline + loop 静音循环；降级（prefers-reduced-motion）不自动播放，
+          直接回退到全站背景；加载失败 / 不支持时 onError 隐藏本层，同样透出全站背景兜底。 */}
+      {!reducedMotion && !videoFailed && (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
+        >
+          <video
+            ref={(el) => {
+              /* React 对 muted 属性的渲染有历史坑（初始不落 DOM），用 ref 兜底确保真静音，
+                 否则浏览器会拦截 autoplay。 */
+              if (el) el.muted = true
+            }}
+            src="/videos/home-bg.mp4"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            className="h-full w-full object-cover"
+            onError={() => setVideoFailed(true)}
+          />
+          {/* 暗色遮罩：上下重、中间轻的渐变。
+              这里必须用固定深色（black）而不是 bg-background/*：全站已改成浅色主题，
+              --background 接近白（oklch 97%），用它盖出来是一层白纱、压不暗，
+              视频亮部（云层/高光）会把标题冲淡。深紫黑压暗后，
+              配合下面改成亮色的标题/副标题才读得清。 */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/45 to-black/75" />
+        </div>
+      )}
+
       <div
-        className="relative flex min-h-[calc(100svh-5rem)] flex-col items-center justify-center px-4 py-24 text-center"
+        className="relative z-10 flex min-h-[calc(100svh-5rem)] flex-col items-center justify-center px-4 py-24 text-center"
         style={{ opacity: leaving ? 0 : 1, transition: "opacity 300ms ease" }}
       >
-        {/*
-          背景图占位：以后要放全屏插画时，把图放进 public/，再在这里加一层绝对定位的
-          背景层，类名用 bg-cover bg-center 并把图片路径写进 background-image，然后在其上
-          盖一层暗色遮罩（bg-background/60）保证文字可读。
-          当前不显示图片，直接透出全站的粒子 / 网格 / 光斑背景（见 App.tsx 的 SiteBackground）。
-        */}
-
         <Avatar className="size-14 ring-2 ring-primary/20" style={rise(0)}>
           <AvatarImage
             alt={siteContent.person.name}
@@ -141,24 +171,30 @@ export function HomePage() {
           </AvatarFallback>
         </Avatar>
 
+        {/* 标题在深色遮罩上，改用高亮度的粉紫渐变（原来的浅蓝/浅粉是给浅底配的，
+            压到视频画面上会糊成一片）。 */}
         <h1
-          className="mt-6 bg-gradient-to-r from-glow-blue to-glow-purple bg-clip-text text-4xl font-bold text-transparent sm:text-5xl"
+          className="mt-6 bg-gradient-to-r from-pink-200 via-fuchsia-200 to-violet-200 bg-clip-text text-4xl font-bold text-transparent sm:text-5xl"
           style={{
             ...rise(200),
             filter:
-              "drop-shadow(0 0 24px color-mix(in oklab, var(--glow-blue) 45%, transparent))",
+              "drop-shadow(0 0 24px color-mix(in oklab, var(--glow-purple) 55%, transparent))",
           }}
         >
           {siteContent.ui.home.heroTitle}
         </h1>
 
-        <p className="mt-4 text-base text-muted-foreground" style={rise(400)}>
+        {/* 副标题同理：从浅色主题的 muted-foreground（中灰，压深底会糊）改成亮色 */}
+        <p
+          className="mt-4 text-base text-white/75"
+          style={rise(400)}
+        >
           {siteContent.ui.home.heroSubtitle}
         </p>
 
         <button
           aria-label="向下滚动进入博客"
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 rounded-full p-2 text-muted-foreground transition-colors hover:text-foreground"
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 rounded-full p-2 text-white/70 transition-colors hover:text-white"
           onClick={goProfile}
           type="button"
         >
