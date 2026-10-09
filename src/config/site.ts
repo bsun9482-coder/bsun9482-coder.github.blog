@@ -96,7 +96,7 @@ export const siteContent = {
       /* 单屏欢迎页：欢迎标题与副标题。发光渐变色/字号等视觉样式留在 home-page.tsx，
          这里只放文案，改字不改布局。 */
       heroTitle: "欢迎来到旺仔冰子的博客",
-      heroSubtitle: "泪水打湿猪脚饭，发誓要挣100万",
+      heroSubtitle: "或许有天会发现，有些告别不是错付",
     },
     article: {
       tocTitle: "资料目录",
