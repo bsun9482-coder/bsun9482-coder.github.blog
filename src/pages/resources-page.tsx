@@ -1,5 +1,5 @@
 import { useDeferredValue, useMemo, useState } from "react"
-import { SearchIcon, XIcon } from "lucide-react"
+import { BookOpen, SearchIcon, XIcon } from "lucide-react"
 
 import { ArticleCard } from "@/components/article/article-card"
 import { Container } from "@/components/layout/container"
@@ -41,6 +41,16 @@ export function ResourcesPage() {
   return (
     <Container className="py-10 sm:py-16">
       <section>
+        <div className="mb-6">
+          <div className="flex items-center gap-3">
+            <BookOpen aria-hidden="true" className="size-8 text-primary" />
+            <h1 className="text-3xl font-bold">{pageNameOf("/resources")}</h1>
+          </div>
+          <p className="mt-2 text-muted-foreground">
+            {siteContent.ui.resources.subtitle}
+          </p>
+        </div>
+
         <div className="flex flex-col gap-3 rounded-xl border bg-card p-2.5 sm:flex-row sm:items-center">
           <div
             aria-label="按分类筛选"

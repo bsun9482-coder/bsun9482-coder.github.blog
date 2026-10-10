@@ -147,6 +147,7 @@ export const siteContent = {
       empty: "暂无歌词",
     },
     resources: {
+      subtitle: "记录技术探索、学术研究与生活感悟",
       emptyResources: "暂无资料",
       noResults: "没有找到相关资料",
       emptyResourcesDescription: "资料内容已清空，之后可以添加新的 MDX 资料。",
