@@ -1,9 +1,8 @@
 import { useDeferredValue, useMemo, useState } from "react"
-import { SearchIcon, SparklesIcon, XIcon } from "lucide-react"
+import { SearchIcon, XIcon } from "lucide-react"
 
 import { ArticleCard } from "@/components/article/article-card"
 import { Container } from "@/components/layout/container"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -41,41 +40,8 @@ export function ResourcesPage() {
 
   return (
     <Container className="py-10 sm:py-16">
-      <section className="rounded-3xl border bg-card px-6 py-10 sm:px-10 sm:py-14">
-        <div className="max-w-3xl">
-          <Badge className="mb-5" variant="outline">
-            <SparklesIcon data-icon="inline-start" />
-            Python · AI · 前端
-          </Badge>
-          <h1 className="font-heading text-4xl font-semibold tracking-tight sm:text-6xl">
-            {siteContent.ui.resources.title}
-          </h1>
-          <p className="mt-5 max-w-2xl text-base leading-8 text-muted-foreground sm:text-lg">
-            整理学习过程中值得反复查阅的背景、步骤、示例和常见错误。
-          </p>
-        </div>
-      </section>
-
-      <section className="pt-16">
-        <div className="flex flex-col gap-5 border-b pb-6 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-xs font-medium tracking-[0.2em] text-primary">
-              RESOURCES
-            </p>
-            <h2 className="mt-2 text-3xl font-semibold tracking-tight">
-              {siteContent.ui.resources.latestTitle}
-            </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              按发布时间倒序排列，持续更新。
-            </p>
-          </div>
-
-          <p className="text-xs text-primary tabular-nums sm:pb-1">
-            {posts.length} 份资料
-          </p>
-        </div>
-
-        <div className="mt-6 flex flex-col gap-3 rounded-xl border bg-card p-2.5 sm:flex-row sm:items-center">
+      <section>
+        <div className="flex flex-col gap-3 rounded-xl border bg-card p-2.5 sm:flex-row sm:items-center">
           <div
             aria-label="按分类筛选"
             className="flex flex-wrap gap-1.5"

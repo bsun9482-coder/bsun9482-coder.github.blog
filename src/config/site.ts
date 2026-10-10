@@ -3,7 +3,7 @@ import { BookOpen, FolderKanban, Library } from "lucide-react"
 export const navigationItems = [
   { href: "/profile", label: "博客", icon: BookOpen },
   { href: "/works", label: "作品", icon: FolderKanban },
-  { href: "/resources", label: "资料", icon: Library },
+  { href: "/resources", label: "文章", icon: Library },
 ] as const
 
 /* 页面名（即导航标签）的唯一来源：document.title 与导航标签共用它，
@@ -147,8 +147,6 @@ export const siteContent = {
       empty: "暂无歌词",
     },
     resources: {
-      title: "资料库",
-      latestTitle: "最近资料",
       emptyResources: "暂无资料",
       noResults: "没有找到相关资料",
       emptyResourcesDescription: "资料内容已清空，之后可以添加新的 MDX 资料。",
