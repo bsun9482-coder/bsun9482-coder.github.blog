@@ -1,7 +1,6 @@
-import { FolderKanbanIcon } from "lucide-react"
+import { FolderGit2Icon } from "lucide-react"
 
 import { Container } from "@/components/layout/container"
-import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { pageNameOf, siteContent } from "@/config/site"
 import { useDocumentTitle } from "@/hooks/use-document-title"
@@ -11,15 +10,15 @@ export function WorksPage() {
 
   return (
     <Container className="py-10 sm:py-16">
-      <header className="max-w-3xl">
-        <Badge variant="outline">{siteContent.ui.works.badge}</Badge>
-        <h1 className="mt-5 text-4xl font-semibold tracking-tight sm:text-5xl">
-          {siteContent.ui.works.title}
-        </h1>
-        <p className="mt-5 text-base leading-8 text-muted-foreground sm:text-lg">
-          {siteContent.ui.works.description}
+      <div className="mb-6">
+        <div className="flex items-center gap-3">
+          <FolderGit2Icon aria-hidden="true" className="size-8 text-primary" />
+          <h1 className="text-3xl font-bold">{pageNameOf("/works")}</h1>
+        </div>
+        <p className="mt-2 text-muted-foreground">
+          {siteContent.ui.works.subtitle}
         </p>
-      </header>
+      </div>
 
       <section aria-labelledby="works-list" className="mt-10">
         <h2 className="sr-only" id="works-list">
@@ -27,7 +26,7 @@ export function WorksPage() {
         </h2>
         <Card className="border-dashed py-16 text-center">
           <CardContent>
-            <FolderKanbanIcon className="mx-auto size-10 text-muted-foreground" />
+            <FolderGit2Icon className="mx-auto size-10 text-muted-foreground" />
             <h3 className="mt-5 text-lg font-medium">
               {siteContent.ui.works.emptyTitle}
             </h3>

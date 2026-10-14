@@ -52,7 +52,7 @@ function SiteBackground() {
 function SiteLayout() {
   const { pathname } = useLocation()
   /* 首页是整屏吸附式落地页，最后一屏自己收尾 —— 不挂页脚，页面滚到底就是最后那一屏。
-     其余路由（作品 / 资料 / 关于 / 文章 / 404）照旧渲染 SiteFooter。 */
+     其余路由（项目 / 文章 / 404）照旧渲染 SiteFooter。 */
   const withFooter = pathname !== "/"
 
   return (

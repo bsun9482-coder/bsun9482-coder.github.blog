@@ -1,16 +1,15 @@
-import { BookOpen, FolderKanban, Library } from "lucide-react"
+import { BookOpen, FolderGit2, Library } from "lucide-react"
 
 export const navigationItems = [
   { href: "/profile", label: "博客", icon: BookOpen },
-  { href: "/works", label: "作品", icon: FolderKanban },
+  { href: "/works", label: "项目", icon: FolderGit2 },
   { href: "/resources", label: "文章", icon: Library },
 ] as const
 
 /* 页面名（即导航标签）的唯一来源：document.title 与导航标签共用它，
    同一个词不再在配置和页面里各写一遍。
    href 已限定成上面出现过的路由，所以 find 必定命中。
-   注：works 页内的大标题另有 ui.works.title，值与这里的标签相同，
-   属历史遗留，暂未合并。 */
+   大标题也走本函数，值同导航标签。 */
 export function pageNameOf(href: (typeof navigationItems)[number]["href"]) {
   return navigationItems.find((item) => item.href === href)!.label
 }
@@ -110,14 +109,13 @@ export const siteContent = {
       title: "没有找到这个页面",
     },
     works: {
-      badge: "PORTFOLIO",
-      title: "作品",
-      listTitle: "作品列表",
+      subtitle: "从零到一，用代码构建的每一个项目",
+      listTitle: "项目列表",
       description:
-        "用来展示完成的项目、实验和其他创作。当前先保留页面结构，作品内容稍后添加。",
-      emptyTitle: "暂无作品",
+        "用来展示完成的项目、实验和其他创作。当前先保留页面结构，项目内容稍后添加。",
+      emptyTitle: "暂无项目",
       emptyDescription:
-        "后续添加作品时，这里会展示作品名称、简介、状态和访问入口。",
+        "后续添加项目时，这里会展示项目名称、简介、状态和访问入口。",
     },
     profile: {
       heroEyebrow: "BLOG / NOTES",
