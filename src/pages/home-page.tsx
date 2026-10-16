@@ -140,6 +140,7 @@ export function HomePage() {
               if (el) el.muted = true
             }}
             src="/videos/home-bg.mp4"
+            poster="/videos/home-bg-poster.jpg"
             autoPlay
             muted
             loop
@@ -148,12 +149,15 @@ export function HomePage() {
             className="h-full w-full object-cover"
             onError={() => setVideoFailed(true)}
           />
-          {/* 暗色遮罩：上下重、中间轻的渐变。
+          {/* 暗色遮罩：上下重、中间轻的渐变（50 / 25 / 55，整体调薄让视频透出来）。
               这里必须用固定深色（black）而不是 bg-background/*：全站已改成浅色主题，
               --background 接近白（oklch 97%），用它盖出来是一层白纱、压不暗，
               视频亮部（云层/高光）会把标题冲淡。深紫黑压暗后，
               配合下面改成亮色的标题/副标题才读得清。 */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/45 to-black/75" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/25 to-black/55" />
+          {/* 手机小屏兜底：窄屏时人物脸部会压在居中标题下方，靠中间的径向暗角再多压一点，
+              保证标题可读；桌面（sm 起）不叠加，避免整块画面偏暗。 */}
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.45),transparent_70%)] sm:hidden" />
         </div>
       )}
 
