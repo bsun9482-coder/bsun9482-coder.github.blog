@@ -28,7 +28,7 @@ export function HomePage() {
   const navigate = useNavigate()
 
   const [visible, setVisible] = useState(prefersReducedMotion)
-  /* 翻页淡出：置 true 后整层 opacity → 0（300ms），过渡结束再 navigate。 */
+  /* 退场：置 true 后内容层淡出 + 放大上移、视频层压暗（450ms），过渡结束再 navigate。 */
   const [leaving, setLeaving] = useState(false)
   /* 只有一页、触发一次即跳转，用 ref 挡掉触控板惯性连发的后续 wheel / 连续按键 */
   const navigatingRef = useRef(false)
@@ -58,15 +58,31 @@ export function HomePage() {
     if (navigatingRef.current) return
     navigatingRef.current = true
 
-    /* 降级：跳过淡出，直接跳转 */
+    /* 降级：跳过退场，直接跳转（不带 state、不锁滚动） */
     if (prefersReducedMotion()) {
       navigate("/profile")
       return
     }
 
     setLeaving(true)
-    window.setTimeout(() => navigate("/profile"), 300)
+    /* 退场动画跑满 450ms 再跳；并把「从首页来」的标记带给博客页，供其播入场动画。 */
+    window.setTimeout(
+      () => navigate("/profile", { state: { fromHome: true } }),
+      450,
+    )
   }, [navigate])
+
+  /* 退场播放期间锁住页面滚动（防止动画中还能滚），组件卸载（跳转完成后）自动还原。 */
+  useEffect(() => {
+    if (!leaving) return
+
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+
+    return () => {
+      document.body.style.overflow = previousOverflow
+    }
+  }, [leaving])
 
   /* 监听下滑翻页：滚轮向下 / 手机上滑 / 键盘向下。卸载时全部移除，
      跳转后组件卸载，监听自然消失，不会重复 navigate。 */
@@ -132,6 +148,10 @@ export function HomePage() {
         <div
           aria-hidden="true"
           className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
+          style={{
+            filter: leaving ? "brightness(0.3)" : "brightness(1)",
+            transition: "filter 450ms cubic-bezier(0.4, 0, 0.2, 1)",
+          }}
         >
           <video
             ref={(el) => {
@@ -163,7 +183,14 @@ export function HomePage() {
 
       <div
         className="relative z-10 flex min-h-[calc(100svh-5rem)] flex-col items-center justify-center px-4 py-24 text-center"
-        style={{ opacity: leaving ? 0 : 1, transition: "opacity 300ms ease" }}
+        style={{
+          opacity: leaving ? 0 : 1,
+          transform: leaving
+            ? "scale(1.04) translateY(-12px)"
+            : "scale(1) translateY(0)",
+          transition:
+            "opacity 450ms cubic-bezier(0.4, 0, 0.2, 1), transform 450ms cubic-bezier(0.4, 0, 0.2, 1)",
+        }}
       >
         <Avatar className="size-14 ring-2 ring-primary/20" style={rise(0)}>
           <AvatarImage

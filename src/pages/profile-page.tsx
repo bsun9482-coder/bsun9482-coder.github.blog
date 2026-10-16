@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react"
 import {
   BookOpenIcon,
   ExternalLinkIcon,
@@ -6,7 +7,7 @@ import {
   Music2Icon,
   PlayIcon,
 } from "lucide-react"
-import { Link } from "react-router"
+import { Link, useLocation } from "react-router"
 
 import { ArticleCard } from "@/components/article/article-card"
 import { Container } from "@/components/layout/container"
@@ -96,11 +97,62 @@ function LyricsBar() {
   )
 }
 
+function prefersReducedMotion() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches
+}
+
 export function ProfilePage() {
   useDocumentTitle(pageNameOf("/profile"))
 
+  /* 从首页「下滑翻页」进来时带上 fromHome 标记 ⇒ 播一次入场（黑幕淡出 + 内容上浮）；
+     其他入口（导航点「博客」/ 浏览器后退 / 直接开 /profile）不带标记 ⇒ 不播。
+     reduced-motion 下也跳过。 */
+  const location = useLocation()
+  const animate = location.state?.fromHome === true && !prefersReducedMotion()
+  /* 不播时直接初始为「已进入」，内容正常显示 */
+  const [entered, setEntered] = useState(!animate)
+  /* 黑幕淡出结束后从 DOM 移除（不再多挂一层）；不播时压根不渲染。 */
+  const [curtainGone, setCurtainGone] = useState(false)
+
+  useEffect(() => {
+    if (!animate || entered) return
+
+    /* 双 rAF：先以隐藏态画首帧，再翻到进入态 —— 否则状态变更会和首帧合并成同一次绘制，
+       过渡被吃掉（与首页入场同款写法）。 */
+    let second = 0
+    const first = requestAnimationFrame(() => {
+      second = requestAnimationFrame(() => setEntered(true))
+    })
+
+    return () => {
+      cancelAnimationFrame(first)
+      cancelAnimationFrame(second)
+    }
+  }, [animate, entered])
+
   return (
-    <Container className="py-10 sm:py-16">
+    <>
+      {/* 入场黑幕：仅「从首页来」时渲染，600ms 淡出到透明（pointer-events-none 不挡交互） */}
+      {animate && !curtainGone && (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none fixed inset-0 z-[100] bg-black"
+          onTransitionEnd={() => setCurtainGone(true)}
+          style={{
+            opacity: entered ? 0 : 1,
+            transition: "opacity 600ms ease-out",
+          }}
+        />
+      )}
+
+      <Container
+        className="py-10 sm:py-16"
+        style={{
+          opacity: entered ? 1 : 0,
+          transform: entered ? "translateY(0)" : "translateY(16px)",
+          transition: "opacity 600ms ease 100ms, transform 600ms ease 100ms",
+        }}
+      >
       <div className="mx-auto max-w-none space-y-5">
         <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
             {/* 个人信息卡 */}
@@ -257,6 +309,7 @@ export function ProfilePage() {
         {/* 时间天气横条 */}
         <StatusBar />
       </div>
-    </Container>
+      </Container>
+    </>
   )
 }
