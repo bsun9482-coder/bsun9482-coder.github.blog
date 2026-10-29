@@ -36,10 +36,10 @@ export function SiteHeader() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-40 border-b backdrop-blur-xl",
+        "sticky top-0 z-40 border-b backdrop-blur-md",
         isHome
           ? "border-white/10 bg-black/55 text-white"
-          : "border-border bg-background/70"
+          : "border-border bg-white/70"
       )}
     >
       <Container className="flex h-20 items-center gap-2">
