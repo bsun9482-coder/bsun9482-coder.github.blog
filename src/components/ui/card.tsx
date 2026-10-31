@@ -1,15 +1,36 @@
 import * as React from "react"
 import { cn } from "cn"
+import { handleTiltLeave, handleTiltMove } from "@/lib/tilt"
 
 function Card({
   className,
   size = "default",
+  tilt = true,
+  onPointerMove,
+  onPointerLeave,
+  onPointerCancel,
   ...props
-}: React.ComponentProps<"div"> & { size?: "default" | "sm" }) {
+}: React.ComponentProps<"div"> & {
+  size?: "default" | "sm"
+  /** 鼠标跟随倾斜开关。正文里的提示框（mdx Note）传 false。 */
+  tilt?: boolean
+}) {
   return (
     <div
       data-slot="card"
       data-size={size}
+      onPointerMove={(event) => {
+        onPointerMove?.(event)
+        if (tilt) handleTiltMove(event)
+      }}
+      onPointerLeave={(event) => {
+        onPointerLeave?.(event)
+        if (tilt) handleTiltLeave(event)
+      }}
+      onPointerCancel={(event) => {
+        onPointerCancel?.(event)
+        if (tilt) handleTiltLeave(event)
+      }}
       className={cn(
         /* 毛玻璃卡片：白色半透明底（bg-card/65，令牌是纯白）+ 背景模糊 + 白色描边，
            hover 时描边变亮并投出一圈柔和的粉紫阴影 —— 不再是霓虹发光。
