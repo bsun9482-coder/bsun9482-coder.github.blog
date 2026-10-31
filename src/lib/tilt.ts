@@ -8,7 +8,9 @@
 
 import type { PointerEvent as ReactPointerEvent } from "react"
 
-const MAX_TILT_DEG = 5
+/* 极简风格下倾斜要更克制：5° 在纯白 + 细边框的卡片上会晃得明显，收到 3°。
+   它仍是交互（不是装饰），所以保留；想彻底关掉：card.tsx 里把 tilt 默认值改 false。 */
+const MAX_TILT_DEG = 3
 const PERSPECTIVE_PX = 1200
 const FOLLOW_MS = 80
 const RESET_MS = 420

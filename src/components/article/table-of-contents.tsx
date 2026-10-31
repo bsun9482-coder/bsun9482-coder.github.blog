@@ -15,20 +15,20 @@ export function TableOfContents({ items }: TableOfContentsProps) {
   return (
     <nav
       aria-label={siteContent.ui.article.tocTitle}
-      className="rounded-xl border bg-card p-4"
+      className="rounded-[10px] border border-border p-4"
     >
-      <p className="mb-3 flex items-center gap-2 text-sm font-medium">
-        <ListTreeIcon className="size-4" />
+      <p className="mb-3 flex items-center gap-2 font-mono text-[11px] tracking-wide text-faint uppercase">
+        <ListTreeIcon className="size-3.5" />
         {siteContent.ui.article.tocTitle}
       </p>
       <ScrollArea className="max-h-[calc(100vh-10rem)]">
-        <ol className="space-y-1 pr-3 text-sm text-muted-foreground">
+        <ol className="space-y-0.5 border-l border-border pr-3 text-sm text-muted-foreground">
           {items.map((item) => (
             <li key={item.id}>
               <a
                 className={cn(
-                  "block rounded-md px-2 py-1.5 transition-colors hover:bg-muted hover:text-foreground",
-                  item.level === 3 && "pl-5"
+                  "-ml-px block border-l border-transparent px-3 py-1.5 transition-colors hover:border-foreground/30 hover:text-foreground",
+                  item.level === 3 && "pl-6"
                 )}
                 href={`#${item.id}`}
               >

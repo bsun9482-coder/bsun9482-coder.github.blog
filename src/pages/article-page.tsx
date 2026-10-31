@@ -52,7 +52,7 @@ export function ArticlePage() {
             <p className="mt-5 max-w-3xl text-base leading-8 text-muted-foreground sm:text-lg">
               {post.description}
             </p>
-            <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+            <div className="mt-6 flex flex-wrap items-center gap-4 font-mono text-[11px] text-faint">
               <span className="inline-flex items-center gap-1.5">
                 <CalendarDaysIcon className="size-4" />
                 {formatPostDate(post.date)}

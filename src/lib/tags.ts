@@ -1,19 +1,18 @@
 import { posts } from "@/lib/posts"
 import type { Post } from "@/types/post"
 
-/* 预设冷色板：蓝 → 紫 → 青 → 粉 → 绿 → 橙。
-   存的是 Tailwind 类名，对应的颜色令牌定义在 src/index.css
-   （--glow-blue / --glow-purple / --tag-cyan / --tag-pink / --tag-green / --tag-orange）。
-   加色、删色、换顺序都只改这一个数组，标签卡片会自动跟着变。
-   注意：**必须存完整类名**（"bg-tag-cyan"），不能拼（"bg-" + 变量）——
+/* 极简配色下标签不再分色：统一一个中性灰点。
+   色板仍保留为数组（调用方按索引取色，API 不变），只是所有位置都指向同一个类名；
+   哪天想恢复分色，把数组换回多个颜色即可，不用动调用点。
+   注意：**必须存完整类名**（"bg-muted-foreground"），不能拼（"bg-" + 变量）——
    Tailwind 是靠扫描源码里的字面量生成工具类的，拼出来的类名不会被生成。 */
 const TAG_PALETTE = [
-  "bg-glow-blue",
-  "bg-glow-purple",
-  "bg-tag-cyan",
-  "bg-tag-pink",
-  "bg-tag-green",
-  "bg-tag-orange",
+  "bg-muted-foreground",
+  "bg-muted-foreground",
+  "bg-muted-foreground",
+  "bg-muted-foreground",
+  "bg-muted-foreground",
+  "bg-muted-foreground",
 ] as const
 
 export type TagItem = {

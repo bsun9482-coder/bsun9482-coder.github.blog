@@ -1,19 +1,95 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/geist";
 
-/* 卡片流光边框：conic-gradient 的起始角必须注册成 @property 才能被 animation 插值
-   （直接动画 background-image 无法平滑过渡）。本块必须留在最顶层 —— 塞进 @layer 里不生效。 */
-@property --card-angle {
-  syntax: "<angle>";
-  initial-value: 0deg;
-  inherits: false;
+/* ---------- 自托管字体（public/fonts/） ----------
+   为什么不用 @fontsource：本机 npm 被安全策略拦死（会拉起 wsl.exe），装不了包。
+   直接放 woff2 到 public/ 效果等价：构建时原样拷进 dist，运行时不依赖任何 CDN。
+   只收 latin 两块（basic + latin-ext）；中文没有 woff2 子集，交给系统字体（Noto Sans SC / 微软雅黑）。
+   变量字体：一个文件覆盖 100–900 全字重，不用按字重分别下。 */
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/fonts/inter-basic.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
 }
 
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/fonts/inter-latin.woff2") format("woff2");
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304,
+    U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB,
+    U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 100 800;
+  font-display: swap;
+  src: url("/fonts/jetbrains-mono-basic.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 100 800;
+  font-display: swap;
+  src: url("/fonts/jetbrains-mono-latin.woff2") format("woff2");
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304,
+    U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB,
+    U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* ---------- 设计令牌（Tailwind v4 的 CSS-first 配置就在这里） ----------
+   没有 tailwind.config.ts —— v4 用 CSS 变量声明主题。这里给的是「语义名 → CSS 变量」的映射，
+   真正色值在下面 :root 里，改色只改一处。
+   配色遵循「极简专业浅色」：纯白底 / 近黑字 / 一个强调蓝，其余全是中性灰。 */
 @theme inline {
+  --font-sans: "Inter", -apple-system, "Segoe UI", "Noto Sans SC", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  /* 标题也走无衬线，只靠字重与字号分层 —— 这是规格里明确要求的 */
   --font-heading: var(--font-sans);
-  --font-sans: "Geist Variable", sans-serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  /* 强调蓝与弱化灰单独成令牌：
+     primary 是「按钮的实底色」（近黑），brand 才是「链接/关键高亮」（蓝）。
+     这两条规格不能合并成一个 primary，否则按钮和链接必有一方要错。 */
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-faint: var(--faint);
+
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -22,94 +98,52 @@
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --color-foreground: var(--foreground);
-  --color-background: var(--background);
-  /* 发光色注册成主题色，这样 ring-glow-blue/15 这类带透明度的写法能用 */
-  --color-glow-blue: var(--glow-blue);
-  --color-glow-purple: var(--glow-purple);
-  --color-tag-cyan: var(--tag-cyan);
-  --color-tag-green: var(--tag-green);
-  --color-tag-pink: var(--tag-pink);
-  --color-tag-orange: var(--tag-orange);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* 圆角：卡片 10px、按钮 7px（7 是显式写死的，不在刻度里） */
+  --radius: 8px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 10px;
+  --radius-2xl: 12px;
+  --radius-3xl: 14px;
+
+  /* 阴影：极轻，只用来把卡片从白底上"拎"起来 1px，不做发光 */
+  --shadow-card: 0 1px 3px rgb(0 0 0 / 0.05);
+  --shadow-pop: 0 4px 12px rgb(0 0 0 / 0.06);
 }
 
 :root {
-    /* 「晚霞动漫风」浅色主题：暖奶白底 + 白色毛玻璃卡片 + 玫瑰粉主色 + 薰衣草紫强调。
-       color-scheme 钉成 light，原生控件跟着走亮色。
-       色值按设计稿直接写 hex，不做 oklch 换算 —— 手算转换会引入肉眼可见的色差；
-       Tailwind 的 `bg-card/65` 这类透明度修饰符走 color-mix，对 hex 一样有效。 */
-    color-scheme: light;
-    --background: #fdf7f5; /* 暖奶白 */
-    --foreground: #4a3b48; /* 暖褐紫 */
-    /* 表面令牌给纯白，半透明与模糊交给组件层（Card 是 bg-card/65 + backdrop-blur-xl） */
-    --card: #ffffff;
-    --card-foreground: #4a3b48;
-    --popover: #ffffff;
-    --popover-foreground: #4a3b48;
-    --primary: #ec6ea3; /* 玫瑰粉 */
-    --primary-foreground: #ffffff;
-    --secondary: #f5ecf0;
-    --secondary-foreground: #4a3b48;
-    --muted: #f5ecf0;
-    --muted-foreground: #9a8596;
-    --accent: #a78bfa; /* 薰衣草紫 */
-    --accent-foreground: #ffffff;
-    --destructive: #f07070; /* 柔和珊瑚红 */
-    --border: #f0e2e8; /* 柔和粉灰 */
-    --input: #f0e2e8;
-    --ring: #ec6ea3;
-    /* 两个 glow 令牌的名字保留（页面/组件里已有大量引用，本次不动页面文件），
-       值换成主题的粉与紫 —— 原先的霓虹蓝紫随之退休。 */
-    --glow-blue: #ec6ea3;
-    --glow-purple: #a78bfa;
-    /* 标签分类色板（本次未要求改动，保持原值；它们是圆点小色块，浅底上仍可辨） */
-    --tag-cyan: oklch(0.75 0.13 200);
-    --tag-green: oklch(0.78 0.15 160);
-    --tag-pink: oklch(0.75 0.18 340);
-    --tag-orange: oklch(0.8 0.14 70);
-    --chart-1: oklch(0.62 0.22 295);
-    --chart-2: oklch(0.7 0.18 330);
-    --chart-3: oklch(0.75 0.15 250);
-    --chart-4: oklch(0.78 0.15 320);
-    --chart-5: oklch(0.55 0.18 280);
-    --radius: 1rem;
-    /* 侧栏也是毛玻璃，保留半透明（纯白 65%） */
-    --sidebar: rgb(255 255 255 / 0.65);
-    --sidebar-foreground: #4a3b48;
-    --sidebar-primary: #ec6ea3;
-    --sidebar-primary-foreground: #ffffff;
-    --sidebar-accent: #f5ecf0;
-    --sidebar-accent-foreground: #4a3b48;
-    --sidebar-border: #f0e2e8;
-    --sidebar-ring: #ec6ea3;
+  color-scheme: light;
+  --background: #ffffff;
+  --foreground: #18181b;
+  --card: #ffffff;
+  --card-foreground: #18181b;
+  --popover: #ffffff;
+  --popover-foreground: #18181b;
+  --primary: #18181b;
+  --primary-foreground: #ffffff;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #18181b;
+  --muted: #fafafa;
+  --muted-foreground: #52525b;
+  --faint: #a1a1aa;
+  --accent: #f4f4f5;
+  --accent-foreground: #18181b;
+  --brand: #2563eb;
+  --brand-hover: #1d4ed8;
+  --destructive: #dc2626;
+  --border: #e4e4e7;
+  --input: #e4e4e7;
+  --ring: #2563eb;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #18181b;
+  --sidebar-primary: #18181b;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f4f4f5;
+  --sidebar-accent-foreground: #18181b;
+  --sidebar-border: #e4e4e7;
+  --sidebar-ring: #2563eb;
 }
 
 @layer base {
@@ -122,66 +156,30 @@
   html {
     @apply scroll-smooth font-sans;
     scrollbar-gutter: stable;
-    /* 全局隐藏滚动条：只影响视觉，滚轮 / 触摸 / 键盘 / 代码滚动全部照常。
-       写在 base 层且不加容器限定，首页与内容页统一生效。 */
+    /* 全局隐藏滚动条：只影响视觉，滚轮 / 触摸 / 键盘 / 代码滚动全部照常。 */
     scrollbar-width: none;
   }
-  /* 无前缀写法覆盖页面与所有内部滚动容器（Chrome / Edge / Safari） */
   ::-webkit-scrollbar {
     display: none;
   }
   body {
     @apply min-w-80 bg-background text-foreground antialiased;
+    /* 白底上不做任何纹理/噪点；字距略微收紧一点，接近 Vercel 的观感 */
+    text-rendering: optimizeLegibility;
   }
   ::selection {
-    /* 浅色主题下白字落在 30% 玫瑰粉上几乎看不见，改用前景深色 */
-    @apply bg-primary/30 text-foreground;
+    /* 强调蓝的 12% 淡底 + 正常文字色，浅底上不刺眼 */
+    @apply bg-brand/15 text-foreground;
   }
 }
 
 @layer components {
-  /* ---------- 背景：柔和水彩渐变光斑 ----------
-     由 App.tsx 的 SiteBackground 使用； Kirameku 风格：粉/紫/蓝/绿模糊光斑缓缓漂移 */
-
-  /* 光斑共用：超大尺寸 / 超大模糊 / 高透明度，形成水彩晕染感 */
-  .cyber-blob {
-    position: absolute;
-    width: 42rem;
-    height: 42rem;
-    border-radius: 9999px;
-    opacity: 0.35;
-    filter: blur(100px);
-    will-change: transform;
-    animation-duration: 18s;
-    animation-timing-function: ease-in-out;
-    animation-iteration-count: infinite;
-  }
-
-  .cyber-blob-blue {
-    background-color: oklch(0.75 0.12 240);
-    animation-name: cyber-drift-blue;
-  }
-
-  .cyber-blob-purple {
-    background-color: oklch(0.78 0.14 310);
-    animation-name: cyber-drift-purple;
-    animation-delay: -4s;
-  }
-
-  .cyber-blob-purple-soft {
-    width: 32rem;
-    height: 32rem;
-    background-color: oklch(0.8 0.1 180);
-    animation-name: cyber-drift-purple-soft;
-    animation-delay: -9s;
-  }
-
   .article-content [data-rehype-pretty-code-figure] {
-    @apply my-7 overflow-hidden rounded-xl border bg-muted/35;
+    @apply my-7 overflow-hidden rounded-[10px] border border-border bg-secondary;
   }
 
   .article-content [data-rehype-pretty-code-figure] pre {
-    @apply overflow-x-auto py-4 text-sm leading-6;
+    @apply overflow-x-auto py-4 font-mono text-[13px] leading-6;
   }
 
   .article-content [data-rehype-pretty-code-figure] code {
@@ -193,104 +191,13 @@
   }
 
   .article-content [data-rehype-pretty-code-figure] [data-highlighted-line] {
-    @apply border-l-2 border-primary bg-primary/10;
+    @apply border-l-2 border-brand bg-brand/5;
   }
 
-  /* rehype-pretty-code 双主题：每个 token 上挂着 --shiki-light / --shiki-dark 两个变量，
-     data-theme 同时含两个主题名（中间有空格）时，由这条规则挑一个用。
-     暗色是唯一主题 ⇒ 直接用 --shiki-dark。
-     原先还有一条 `.dark .article-content …{ color: var(--shiki-dark) }` 覆盖规则，
-     删掉 .dark 后它永远不会命中，代码块会掉回浅色配色（浅色语法色 + 深色底），所以把
-     暗色值上提为默认值、并删掉那条条件规则。 */
+  /* rehype-pretty-code 双主题：每个 token 挂着 --shiki-light / --shiki-dark。
+     全站现在是浅色，取 light 那一套（以前这里取的是 dark，改亮色后必须先改这条，
+     否则会出现「浅色底 + 深色语法」的错配）。 */
   .article-content [data-theme*=" "] {
-    color: var(--shiki-dark);
-  }
-
-  /* ---------- 卡片流光边框 ----------
-     只画「边框那 2px」：伪元素 inset:0 + padding:2px，再用双层 mask（content-box 与整块做
-     exclude / xor）把中间掏空。渐变留透明段 ⇒ 观感是「一束光沿边框跑」，不是整圈常亮。
-     圆角用 inherit，才能跟上各卡不同的 rounded-xl / rounded-3xl。
-     颜色走主题令牌（primary 玫瑰粉 / accent 薰衣草紫），不写死色值。 */
-  .card-flow {
-    position: relative;
-  }
-
-  .card-flow::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    padding: 2px;
-    background: conic-gradient(
-      from var(--card-angle),
-      transparent 0deg,
-      var(--primary) 70deg,
-      var(--accent) 150deg,
-      transparent 230deg,
-      transparent 360deg
-    );
-    -webkit-mask:
-      linear-gradient(#000 0 0) content-box,
-      linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor;
-    mask:
-      linear-gradient(#000 0 0) content-box,
-      linear-gradient(#000 0 0);
-    mask-composite: exclude;
-    pointer-events: none;
-    animation: card-flow-spin 4s linear infinite;
-  }
-}
-
-/* 三团光斑的漂移路径：18s 一个来回，只动 transform（GPU 合成，不触发重排） */
-@keyframes cyber-drift-blue {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  50% {
-    transform: translate3d(80px, 60px, 0) scale(1.1);
-  }
-}
-
-@keyframes cyber-drift-purple {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  50% {
-    transform: translate3d(-70px, -60px, 0) scale(1.08);
-  }
-}
-
-@keyframes cyber-drift-purple-soft {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  50% {
-    transform: translate3d(60px, -50px, 0) scale(1.12);
-  }
-}
-
-/* 降级：不漂移；光斑仍静态可见 */
-@media (prefers-reduced-motion: reduce) {
-  .cyber-blob {
-    animation: none;
-  }
-}
-
-/* 卡片流光：一圈 4s。@property 让 --card-angle 可插值 ⇒ conic-gradient 的起始角真的在变。
-   注意这是「每帧重算渐变 + 重绘」，不走合成层；卡片多时占主线程（见台账性能备案）。 */
-@keyframes card-flow-spin {
-  to {
-    --card-angle: 360deg;
-  }
-}
-
-/* 降级：不转，但仍保留静态渐变（边框依旧可见，只是不流动） */
-@media (prefers-reduced-motion: reduce) {
-  .card-flow::before {
-    animation: none;
+    color: var(--shiki-light);
   }
 }

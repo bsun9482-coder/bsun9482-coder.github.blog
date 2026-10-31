@@ -1,7 +1,8 @@
-import { HomeIcon, MenuIcon } from "lucide-react"
+import { MenuIcon } from "lucide-react"
 import { Link, useLocation } from "react-router"
 
 import { Container } from "@/components/layout/container"
+import { PersonName } from "@/components/person-name"
 import { Button } from "@/components/ui/button"
 import {
   Sheet,
@@ -15,86 +16,64 @@ import {
 import { navigationItems, siteContent } from "@/config/site"
 import { cn } from "cn"
 
-const mobileNavigationItems = [
-  { href: "/", label: siteContent.ui.header.home, icon: HomeIcon },
+const allNavigationItems = [
+  { href: "/", label: siteContent.ui.header.home, icon: undefined },
   ...navigationItems,
 ]
 
 export function SiteHeader() {
   const { pathname } = useLocation()
 
-  /* 首页是深色视频背景，页头要跟着换成深色半透 + 亮色文字，
-     否则浅色导航压在深色画面上会割裂。其余路由维持浅色主题默认样式。 */
-  const isHome = pathname === "/"
-
-  /* 当前页高亮：精确匹配；文章详情 /resources/:slug 也算「资料」当前页 */
+  /* 当前页高亮：精确匹配；文章详情 /resources/:slug 也算「文章」当前页 */
   const isActive = (href: string) =>
     href === "/"
       ? pathname === "/"
       : pathname === href || pathname.startsWith(href + "/")
 
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-40 border-b backdrop-blur-md",
-        isHome
-          ? "border-white/10 bg-black/55 text-white"
-          : "border-border bg-white/70"
-      )}
-    >
-      <Container className="flex h-20 items-center gap-2">
-        <nav aria-label="主导航" className="hidden items-center gap-1 md:flex">
-          {navigationItems.map((item) => {
+    /* 白底 + 底部 1px 细线：不用半透明、不用毛玻璃 —— 极简风格靠这条线分隔层级。
+       sticky 保留（长文滚动时导航仍可用），高度从 20 收到 16，顶部不会显得厚重。 */
+    <header className="sticky top-0 z-40 border-b border-border bg-background">
+      <Container className="flex h-16 items-center gap-2">
+        <Link
+          className="rounded-sm text-[15px] font-semibold tracking-tight text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+          to="/"
+        >
+          <PersonName />
+        </Link>
+
+        <nav
+          aria-label="主导航"
+          className="ml-auto hidden items-center gap-1 md:flex"
+        >
+          {allNavigationItems.map((item) => {
             const active = isActive(item.href)
 
             return (
-              <Button
-                asChild
-                key={item.href}
-                size="lg"
-                variant="ghost"
+              /* 活跃态只加粗 + 变深，不加彩色底 —— 点开哪页看字重就知道。 */
+              <Link
                 className={cn(
-                  "gap-2 rounded-full px-4 text-sm",
-                  isHome
-                    ? "text-white/85 hover:text-white"
-                    : "text-foreground",
-                  active && (isHome ? "bg-white/15 text-white" : "bg-primary/10 text-primary")
+                  "rounded-[7px] px-2.5 py-1.5 text-sm transition-colors",
+                  active
+                    ? "font-semibold text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
                 )}
+                key={item.href}
+                to={item.href}
               >
-                <Link to={item.href}>
-                  <item.icon aria-hidden="true" className="size-4" />
-                  {item.label}
-                </Link>
-              </Button>
+                {item.label}
+              </Link>
             )
           })}
         </nav>
 
-        <div className="ml-auto flex items-center gap-2">
-          {/* 暗色是唯一主题，主题切换按钮不再渲染（组件文件保留） */}
-
-          <Button
-            asChild
-            className={cn(
-              "hidden gap-2 rounded-full px-4 text-sm md:inline-flex",
-              isHome ? "text-white/85 hover:text-white" : "text-foreground",
-              isActive("/") && (isHome ? "bg-white/15 text-white" : "bg-primary/10 text-primary")
-            )}
-            size="lg"
-            variant="ghost"
-          >
-            <Link to="/">
-              <HomeIcon aria-hidden="true" className="size-4" />
-              {siteContent.ui.header.home}
-            </Link>
-          </Button>
-
+        <div className="ml-auto flex items-center gap-2 md:ml-0">
           <Sheet>
             <SheetTrigger asChild>
               <Button
                 aria-label="打开导航菜单"
-                className={cn("md:hidden", isHome && "text-white hover:text-white")}
-                size="icon"
+                className="md:hidden"
+                size="icon-sm"
                 variant="ghost"
               >
                 <MenuIcon />
@@ -107,26 +86,23 @@ export function SiteHeader() {
                   {siteContent.ui.header.menuDescription}
                 </SheetDescription>
               </SheetHeader>
-              <nav aria-label="移动端导航" className="grid gap-1 px-4">
-                {mobileNavigationItems.map((item) => {
+              <nav aria-label="移动端导航" className="grid gap-0.5 px-3">
+                {allNavigationItems.map((item) => {
                   const active = isActive(item.href)
 
                   return (
                     <SheetClose asChild key={item.href}>
-                      <Button
-                        asChild
+                      <Link
                         className={cn(
-                          "justify-start gap-2 rounded-full px-4 text-sm",
-                          active && "bg-primary/10 text-primary"
+                          "rounded-[7px] px-3 py-2 text-sm transition-colors",
+                          active
+                            ? "bg-muted font-semibold text-foreground"
+                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
                         )}
-                        size="lg"
-                        variant="ghost"
+                        to={item.href}
                       >
-                        <Link to={item.href}>
-                          <item.icon aria-hidden="true" className="size-4" />
-                          {item.label}
-                        </Link>
-                      </Button>
+                        {item.label}
+                      </Link>
                     </SheetClose>
                   )
                 })}

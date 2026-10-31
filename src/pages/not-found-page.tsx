@@ -20,8 +20,8 @@ export function NotFoundPage({ compact = false }: NotFoundPageProps) {
     >
       <Card className="w-full py-12 text-center">
         <CardContent>
-          <FileQuestionIcon className="mx-auto mb-5 size-10 text-muted-foreground" />
-          <p className="text-sm font-medium text-primary">404</p>
+          <FileQuestionIcon className="mx-auto mb-5 size-10 text-faint" />
+          <p className="font-mono text-xs tracking-widest text-faint">404</p>
           <h1 className="mt-2 text-2xl font-semibold">
             {siteContent.ui.notFound.title}
           </h1>

@@ -16,9 +16,9 @@ function Note({
   title = siteContent.ui.article.noteDefaultTitle,
 }: NoteProps) {
   return (
-    <Card tilt={false} className="my-6 gap-3 border-primary/20 bg-primary/5">
+    <Card tilt={false} className="my-6 gap-3 bg-muted/40 shadow-none">
       <CardHeader className="flex-row items-center gap-2 pb-0">
-        <InfoIcon className="size-4 text-primary" />
+        <InfoIcon className="size-4 text-muted-foreground" />
         <CardTitle className="text-sm">{title}</CardTitle>
       </CardHeader>
       <CardContent className="text-sm leading-7 text-muted-foreground [&>p]:m-0">
@@ -54,15 +54,22 @@ function Heading3({ className, ...props }: ComponentProps<"h3">) {
 
 export const mdxComponents: MDXComponents = {
   Note,
-  a: ({ className, ...props }) => (
-    <a
-      className={cn(
-        "font-medium text-foreground underline decoration-border underline-offset-4 transition-colors hover:decoration-foreground",
-        className
-      )}
-      {...props}
-    />
-  ),
+  /* 标题锚点（rehype-autolink-headings 生成的 <a href="#…">）也走这个组件。
+     不区分处理的话，h2/h3 会整段变成蓝色带下划线的"链接"，标题层级全乱 ——
+     所以纯锚点链接只继承文字色、不加下划线，只有真正的正文外链才套蓝色。 */
+  a: ({ className, href, ...props }) =>
+    href?.startsWith("#") ? (
+      <a className="text-inherit no-underline" href={href} {...props} />
+    ) : (
+      <a
+        className={cn(
+          "font-medium text-brand underline decoration-brand/30 underline-offset-4 transition-colors hover:text-brand-hover hover:decoration-brand",
+          className
+        )}
+        href={href}
+        {...props}
+      />
+    ),
   blockquote: ({ className, ...props }) => (
     <blockquote
       className={cn(
@@ -86,7 +93,7 @@ export const mdxComponents: MDXComponents = {
   img: ({ className, alt = "", ...props }) => (
     <img
       alt={alt}
-      className={cn("my-8 rounded-xl border", className)}
+      className={cn("my-8 rounded-[10px] border border-border", className)}
       loading="lazy"
       {...props}
     />
@@ -107,16 +114,22 @@ export const mdxComponents: MDXComponents = {
     />
   ),
   table: ({ className, ...props }) => (
-    <div className="my-7 overflow-x-auto rounded-xl border">
+    <div className="my-7 overflow-x-auto rounded-[10px] border border-border">
       <table className={cn("w-full text-sm", className)} {...props} />
     </div>
   ),
   td: ({ className, ...props }) => (
-    <td className={cn("border-t px-4 py-3", className)} {...props} />
+    <td
+      className={cn("border-t border-border px-4 py-3", className)}
+      {...props}
+    />
   ),
   th: ({ className, ...props }) => (
     <th
-      className={cn("bg-muted/50 px-4 py-3 text-left font-medium", className)}
+      className={cn(
+        "border-b border-border bg-muted/50 px-4 py-3 text-left font-medium",
+        className
+      )}
       {...props}
     />
   ),

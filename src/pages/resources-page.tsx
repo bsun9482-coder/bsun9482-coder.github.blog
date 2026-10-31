@@ -33,7 +33,8 @@ export function ResourcesPage() {
         (post) =>
           (activeCategory === ALL_CATEGORIES ||
             post.category === activeCategory) &&
-          (deferredQuery.length === 0 || post.searchText.includes(deferredQuery))
+          (deferredQuery.length === 0 ||
+            post.searchText.includes(deferredQuery))
       ),
     [activeCategory, deferredQuery]
   )
@@ -43,15 +44,20 @@ export function ResourcesPage() {
       <section>
         <div className="mb-6">
           <div className="flex items-center gap-3">
-            <BookOpen aria-hidden="true" className="size-8 text-primary" />
-            <h1 className="text-3xl font-bold">{pageNameOf("/resources")}</h1>
+            <BookOpen
+              aria-hidden="true"
+              className="size-7 text-muted-foreground"
+            />
+            <h1 className="text-3xl font-semibold tracking-tight">
+              {pageNameOf("/resources")}
+            </h1>
           </div>
           <p className="mt-2 text-muted-foreground">
             {siteContent.ui.resources.subtitle}
           </p>
         </div>
 
-        <div className="flex flex-col gap-3 rounded-xl border bg-card p-2.5 sm:flex-row sm:items-center">
+        <div className="flex flex-col gap-3 rounded-[10px] border border-border bg-muted/40 p-2 sm:flex-row sm:items-center">
           <div
             aria-label="按分类筛选"
             className="flex flex-wrap gap-1.5"
@@ -96,7 +102,7 @@ export function ResourcesPage() {
           </div>
         </div>
 
-        <p className="mt-4 text-xs text-muted-foreground tabular-nums">
+        <p className="mt-4 font-mono text-xs text-faint tabular-nums">
           {deferredQuery.length > 0
             ? `“${query.trim()}” 匹配到 ${filteredPosts.length} 份`
             : `共 ${filteredPosts.length} 份`}

@@ -34,21 +34,6 @@ function EscapeToBack() {
   return null
 }
 
-/* Kirameku 风格固定背景：柔和水彩渐变光斑缓缓漂移，无网格无粒子。
-   三团大光斑：蓝紫 / 粉紫 / 青绿，超大模糊，半透明叠加在浅色底上。 */
-function SiteBackground() {
-  return (
-    <div
-      aria-hidden="true"
-      className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
-    >
-      <div className="cyber-blob cyber-blob-blue -top-40 -left-40" />
-      <div className="cyber-blob cyber-blob-purple -right-40 -bottom-40" />
-      <div className="cyber-blob cyber-blob-purple-soft bottom-24 left-[calc(50%-16rem)]" />
-    </div>
-  )
-}
-
 function SiteLayout() {
   const { pathname } = useLocation()
   /* 首页是整屏吸附式落地页，最后一屏自己收尾 —— 不挂页脚，页面滚到底就是最后那一屏。
@@ -69,7 +54,6 @@ function SiteLayout() {
 export function App() {
   return (
     <BrowserRouter>
-      <SiteBackground />
       <ScrollManager />
       <EscapeToBack />
       <Routes>

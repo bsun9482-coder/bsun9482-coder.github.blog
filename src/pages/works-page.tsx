@@ -12,8 +12,13 @@ export function WorksPage() {
     <Container className="py-10 sm:py-16">
       <div className="mb-6">
         <div className="flex items-center gap-3">
-          <FolderGit2Icon aria-hidden="true" className="size-8 text-primary" />
-          <h1 className="text-3xl font-bold">{pageNameOf("/works")}</h1>
+          <FolderGit2Icon
+            aria-hidden="true"
+            className="size-7 text-muted-foreground"
+          />
+          <h1 className="text-3xl font-semibold tracking-tight">
+            {pageNameOf("/works")}
+          </h1>
         </div>
         <p className="mt-2 text-muted-foreground">
           {siteContent.ui.works.subtitle}

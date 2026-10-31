@@ -20,7 +20,7 @@ type ArticleCardProps = {
 
 export function ArticleCard({ post }: ArticleCardProps) {
   return (
-    <Card className="group relative gap-4 transition-colors hover:ring-foreground/20">
+    <Card className="group relative gap-4">
       <CardHeader className="gap-3">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="secondary">{post.category}</Badge>
@@ -30,7 +30,7 @@ export function ArticleCard({ post }: ArticleCardProps) {
             </Badge>
           ))}
         </div>
-        <CardTitle className="text-xl leading-snug sm:text-2xl">
+        <CardTitle className="text-lg leading-snug sm:text-xl">
           <Link
             className="outline-none after:absolute after:inset-0 focus-visible:underline"
             to={`/resources/${post.slug}`}
@@ -43,7 +43,7 @@ export function ArticleCard({ post }: ArticleCardProps) {
         </CardDescription>
       </CardHeader>
       <CardContent className="sr-only">打开资料：{post.title}</CardContent>
-      <CardFooter className="justify-between border-t-0 bg-transparent pt-0 text-xs text-muted-foreground">
+      <CardFooter className="justify-between bg-transparent pt-3 font-mono text-[11px] text-faint">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
           <span className="inline-flex items-center gap-1.5">
             <CalendarDaysIcon className="size-3.5" />

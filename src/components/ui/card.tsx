@@ -32,13 +32,11 @@ function Card({
         if (tilt) handleTiltLeave(event)
       }}
       className={cn(
-        /* 毛玻璃卡片：白色半透明底（bg-card/65，令牌是纯白）+ 背景模糊 + 白色描边，
-           hover 时描边变亮并投出一圈柔和的粉紫阴影 —— 不再是霓虹发光。
-           描边仍用 ring（box-shadow 实现）而不是真 border：真 border 会把盒子撑大 2px，
-           那就动了各屏的布局尺寸。所以是 ring-white/60，不是 border-white/60。
-           card-flow = 内圈 2px 流光边框（conic-gradient 旋转），规则在 src/index.css；
-           它画在卡内、用 border-radius: inherit，所以不动尺寸也不抢外圈 ring。 */
-        "card-flow group/card flex flex-col gap-(--card-spacing) overflow-hidden rounded-xl bg-card/65 py-(--card-spacing) text-sm text-card-foreground ring-1 ring-white/60 backdrop-blur-xl transition-[box-shadow] duration-300 hover:ring-white/85 hover:shadow-[0_8px_24px_color-mix(in_oklab,var(--glow-purple)_22%,transparent)] [--card-spacing:--spacing(4)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
+        /* 极简卡片：白底 + 1px 描边 + 极轻阴影，圆角 10px。
+           描边用真 border（不再用 ring）：这一版没有流光/外圈高亮抢位置，border 更直白，
+           hover 时只换颜色，不会多出 1px 尺寸。
+           hover 只做两件小事：描边变深、阴影加一层 —— 不加渐变、不加发光、不缩放。 */
+        "group/card flex flex-col gap-(--card-spacing) overflow-hidden rounded-[10px] border border-border bg-card py-(--card-spacing) text-sm text-card-foreground shadow-card transition-[box-shadow,border-color] duration-200 hover:border-foreground/15 hover:shadow-pop has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-[10px] *:[img:last-child]:rounded-b-[10px]",
         className
       )}
       {...props}
@@ -51,7 +49,7 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card-header"
       className={cn(
-        "group/card-header @container/card-header grid auto-rows-min items-start gap-1 rounded-t-xl px-(--card-spacing) has-data-[slot=card-action]:grid-cols-[1fr_auto] has-data-[slot=card-description]:grid-rows-[auto_auto] [.border-b]:pb-(--card-spacing)",
+        "group/card-header @container/card-header grid auto-rows-min items-start gap-1 rounded-t-[10px] px-(--card-spacing) has-data-[slot=card-action]:grid-cols-[1fr_auto] has-data-[slot=card-description]:grid-rows-[auto_auto] [.border-b]:pb-(--card-spacing)",
         className
       )}
       {...props}
@@ -64,7 +62,7 @@ function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card-title"
       className={cn(
-        "font-heading text-base leading-snug font-medium group-data-[size=sm]/card:text-sm",
+        "font-heading text-base leading-snug font-semibold tracking-tight group-data-[size=sm]/card:text-sm",
         className
       )}
       {...props}
@@ -76,7 +74,7 @@ function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-description"
-      className={cn("text-sm text-muted-foreground", className)}
+      className={cn("text-sm leading-6 text-muted-foreground", className)}
       {...props}
     />
   )
@@ -110,7 +108,7 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card-footer"
       className={cn(
-        "flex items-center rounded-b-xl border-t bg-muted/50 p-(--card-spacing)",
+        "flex items-center rounded-b-[10px] border-t border-border p-(--card-spacing)",
         className
       )}
       {...props}
