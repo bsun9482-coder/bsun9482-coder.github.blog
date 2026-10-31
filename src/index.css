@@ -3,6 +3,14 @@
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
 
+/* 卡片流光边框：conic-gradient 的起始角必须注册成 @property 才能被 animation 插值
+   （直接动画 background-image 无法平滑过渡）。本块必须留在最顶层 —— 塞进 @layer 里不生效。 */
+@property --card-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
 @theme inline {
   --font-heading: var(--font-sans);
   --font-sans: "Geist Variable", sans-serif;
@@ -197,6 +205,41 @@
   .article-content [data-theme*=" "] {
     color: var(--shiki-dark);
   }
+
+  /* ---------- 卡片流光边框 ----------
+     只画「边框那 2px」：伪元素 inset:0 + padding:2px，再用双层 mask（content-box 与整块做
+     exclude / xor）把中间掏空。渐变留透明段 ⇒ 观感是「一束光沿边框跑」，不是整圈常亮。
+     圆角用 inherit，才能跟上各卡不同的 rounded-xl / rounded-3xl。
+     颜色走主题令牌（primary 玫瑰粉 / accent 薰衣草紫），不写死色值。 */
+  .card-flow {
+    position: relative;
+  }
+
+  .card-flow::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 2px;
+    background: conic-gradient(
+      from var(--card-angle),
+      transparent 0deg,
+      var(--primary) 70deg,
+      var(--accent) 150deg,
+      transparent 230deg,
+      transparent 360deg
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+    animation: card-flow-spin 4s linear infinite;
+  }
 }
 
 /* 三团光斑的漂移路径：18s 一个来回，只动 transform（GPU 合成，不触发重排） */
@@ -233,6 +276,21 @@
 /* 降级：不漂移；光斑仍静态可见 */
 @media (prefers-reduced-motion: reduce) {
   .cyber-blob {
+    animation: none;
+  }
+}
+
+/* 卡片流光：一圈 4s。@property 让 --card-angle 可插值 ⇒ conic-gradient 的起始角真的在变。
+   注意这是「每帧重算渐变 + 重绘」，不走合成层；卡片多时占主线程（见台账性能备案）。 */
+@keyframes card-flow-spin {
+  to {
+    --card-angle: 360deg;
+  }
+}
+
+/* 降级：不转，但仍保留静态渐变（边框依旧可见，只是不流动） */
+@media (prefers-reduced-motion: reduce) {
+  .card-flow::before {
     animation: none;
   }
 }

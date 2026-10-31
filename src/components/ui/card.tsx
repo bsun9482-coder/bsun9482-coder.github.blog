@@ -14,8 +14,10 @@ function Card({
         /* 毛玻璃卡片：白色半透明底（bg-card/65，令牌是纯白）+ 背景模糊 + 白色描边，
            hover 时描边变亮并投出一圈柔和的粉紫阴影 —— 不再是霓虹发光。
            描边仍用 ring（box-shadow 实现）而不是真 border：真 border 会把盒子撑大 2px，
-           那就动了各屏的布局尺寸。所以是 ring-white/60，不是 border-white/60。 */
-        "group/card flex flex-col gap-(--card-spacing) overflow-hidden rounded-xl bg-card/65 py-(--card-spacing) text-sm text-card-foreground ring-1 ring-white/60 backdrop-blur-xl transition-[box-shadow] duration-300 hover:ring-white/85 hover:shadow-[0_8px_24px_color-mix(in_oklab,var(--glow-purple)_22%,transparent)] [--card-spacing:--spacing(4)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
+           那就动了各屏的布局尺寸。所以是 ring-white/60，不是 border-white/60。
+           card-flow = 内圈 2px 流光边框（conic-gradient 旋转），规则在 src/index.css；
+           它画在卡内、用 border-radius: inherit，所以不动尺寸也不抢外圈 ring。 */
+        "card-flow group/card flex flex-col gap-(--card-spacing) overflow-hidden rounded-xl bg-card/65 py-(--card-spacing) text-sm text-card-foreground ring-1 ring-white/60 backdrop-blur-xl transition-[box-shadow] duration-300 hover:ring-white/85 hover:shadow-[0_8px_24px_color-mix(in_oklab,var(--glow-purple)_22%,transparent)] [--card-spacing:--spacing(4)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
         className
       )}
       {...props}
