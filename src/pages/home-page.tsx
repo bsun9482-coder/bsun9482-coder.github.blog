@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { ArrowRightIcon, ChevronDownIcon } from "lucide-react"
 import { Link, useNavigate } from "react-router"
 
+import { TerminalTyper } from "@/components/fx/terminal-typer"
 import { Container } from "@/components/layout/container"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -174,6 +175,16 @@ export function HomePage() {
           >
             {siteContent.ui.home.heroSubtitle}
           </p>
+
+          {/* 终端打字机：夹在简介和按钮之间。rise(300) 与 startDelay={300} 对齐 ——
+              先淡入、再开始逐字打，不会出现"还没看见就打了半句"。 */}
+          <div className="mt-7 max-w-md" style={rise(300)}>
+            <TerminalTyper
+              command={siteContent.ui.home.terminalCommand}
+              result={siteContent.ui.home.terminalResult}
+              startDelay={300}
+            />
+          </div>
 
           <div
             className="mt-8 flex flex-wrap items-center gap-3"

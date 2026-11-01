@@ -1,5 +1,6 @@
 import { FolderGit2Icon } from "lucide-react"
 
+import { Reveal } from "@/components/fx/reveal"
 import { Container } from "@/components/layout/container"
 import { Card, CardContent } from "@/components/ui/card"
 import { pageNameOf, siteContent } from "@/config/site"
@@ -29,17 +30,19 @@ export function WorksPage() {
         <h2 className="sr-only" id="works-list">
           {siteContent.ui.works.listTitle}
         </h2>
-        <Card className="border-dashed py-16 text-center">
-          <CardContent>
-            <FolderGit2Icon className="mx-auto size-10 text-muted-foreground" />
-            <h3 className="mt-5 text-lg font-medium">
-              {siteContent.ui.works.emptyTitle}
-            </h3>
-            <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
-              {siteContent.ui.works.emptyDescription}
-            </p>
-          </CardContent>
-        </Card>
+        <Reveal delay={100}>
+          <Card className="border-dashed py-16 text-center">
+            <CardContent>
+              <FolderGit2Icon className="mx-auto size-10 text-muted-foreground" />
+              <h3 className="mt-5 text-lg font-medium">
+                {siteContent.ui.works.emptyTitle}
+              </h3>
+              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
+                {siteContent.ui.works.emptyDescription}
+              </p>
+            </CardContent>
+          </Card>
+        </Reveal>
       </section>
     </Container>
   )

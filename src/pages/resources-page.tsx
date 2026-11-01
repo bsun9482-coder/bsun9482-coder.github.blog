@@ -2,6 +2,7 @@ import { useDeferredValue, useMemo, useState } from "react"
 import { BookOpen, SearchIcon, XIcon } from "lucide-react"
 
 import { ArticleCard } from "@/components/article/article-card"
+import { Reveal } from "@/components/fx/reveal"
 import { Container } from "@/components/layout/container"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -9,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import { pageNameOf, siteContent } from "@/config/site"
 import { useDocumentTitle } from "@/hooks/use-document-title"
 import { posts } from "@/lib/posts"
+import { staggerDelay } from "@/lib/reveal"
 
 const ALL_CATEGORIES = "全部"
 
@@ -110,8 +112,16 @@ export function ResourcesPage() {
 
         {filteredPosts.length > 0 ? (
           <div className="mt-4 grid gap-4 lg:grid-cols-2">
-            {filteredPosts.map((post) => (
-              <ArticleCard key={post.slug} post={post} />
+            {filteredPosts.map((post, index) => (
+              /* 外层包壳负责入场（0 / 100 / 200 错落）；用 grid 让里面的卡片照旧等高撑满，
+                 这样加了一层 DOM 也不会让两列的卡片高度参差。 */
+              <Reveal
+                className="grid"
+                delay={staggerDelay(index)}
+                key={post.slug}
+              >
+                <ArticleCard post={post} />
+              </Reveal>
             ))}
           </div>
         ) : (

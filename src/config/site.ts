@@ -101,6 +101,9 @@ export const siteContent = {
       heroSubtitle: "或许有天会发现，有些告别不是错付",
       ctaPrimary: "读文章",
       ctaSecondary: "关于我",
+      /* 首页 hero 的终端打字机：先打命令，打完再打结果（两行，55ms/字） */
+      terminalCommand: "$ npm run build",
+      terminalResult: "→ 部署成功，欢迎来到我的数字花园。",
     },
     article: {
       tocTitle: "资料目录",

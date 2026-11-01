@@ -10,6 +10,7 @@ import {
 import { Link, useLocation } from "react-router"
 
 import { ArticleCard } from "@/components/article/article-card"
+import { Reveal } from "@/components/fx/reveal"
 import { Container } from "@/components/layout/container"
 import { StatusBar } from "@/components/layout/status-bar"
 import { PersonName } from "@/components/person-name"
@@ -26,6 +27,7 @@ import {
 import { musicPlaylist, pageNameOf, siteContent } from "@/config/site"
 import { useDocumentTitle } from "@/hooks/use-document-title"
 import { posts } from "@/lib/posts"
+import { staggerDelay } from "@/lib/reveal"
 
 /* 音乐播放器占位卡 */
 function MusicPlaceholderCard() {
@@ -236,32 +238,35 @@ export function ProfilePage() {
         <LyricsBar />
 
         {/* 轮播状态卡：箭头定位到卡片外侧（负偏移），所以卡片本身要去掉 overflow-hidden
-            让箭头露出来；轮播内容由 CarouselContent 自带的 overflow-hidden 兜住，不会溢出圆角。 */}
-        <Card className="overflow-visible">
-          <Carousel opts={{ loop: true }}>
-            <CarouselContent>
-              {siteContent.profileSlides.map((slide) => (
-                <CarouselItem key={slide.eyebrow}>
-                  <CardContent className="p-7 sm:p-9">
-                    <p className="font-mono text-[11px] tracking-[0.18em] text-faint uppercase">
-                      {slide.eyebrow}
-                    </p>
-                    <h2 className="mt-3 text-2xl font-semibold">
-                      {slide.title}
-                    </h2>
-                    <p className="mt-2 text-base leading-7 text-muted-foreground">
-                      {slide.description}
-                    </p>
-                  </CardContent>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            {/* 箭头在卡片外侧：偏移量随容器内边距收放。
-                手机屏幕太窄，任何"外侧"位置都会压住文字或顶出视口 —— 直接隐藏，靠手势滑动。 */}
-            <CarouselPrevious className="-left-2 hidden sm:-left-4 sm:flex lg:-left-8" />
-            <CarouselNext className="-right-2 hidden sm:-right-4 sm:flex lg:-right-8" />
-          </Carousel>
-        </Card>
+            让箭头露出来；轮播内容由 CarouselContent 自带的 overflow-hidden 兜住，不会溢出圆角。
+            外层 Reveal 只负责滚动入场（延迟 200ms，排在两张顶部卡之后）。 */}
+        <Reveal delay={200}>
+          <Card className="overflow-visible">
+            <Carousel opts={{ loop: true }}>
+              <CarouselContent>
+                {siteContent.profileSlides.map((slide) => (
+                  <CarouselItem key={slide.eyebrow}>
+                    <CardContent className="p-7 sm:p-9">
+                      <p className="font-mono text-[11px] tracking-[0.18em] text-faint uppercase">
+                        {slide.eyebrow}
+                      </p>
+                      <h2 className="mt-3 text-2xl font-semibold">
+                        {slide.title}
+                      </h2>
+                      <p className="mt-2 text-base leading-7 text-muted-foreground">
+                        {slide.description}
+                      </p>
+                    </CardContent>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              {/* 箭头在卡片外侧：偏移量随容器内边距收放。
+                  手机屏幕太窄，任何"外侧"位置都会压住文字或顶出视口 —— 直接隐藏，靠手势滑动。 */}
+              <CarouselPrevious className="-left-2 hidden sm:-left-4 sm:flex lg:-left-8" />
+              <CarouselNext className="-right-2 hidden sm:-right-4 sm:flex lg:-right-8" />
+            </Carousel>
+          </Card>
+        </Reveal>
 
         {/* 最新文章 */}
         <section aria-labelledby="latest-posts">
@@ -283,13 +288,9 @@ export function ProfilePage() {
           {posts.length > 0 ? (
             <div className="space-y-4">
               {posts.map((post, index) => (
-                <div
-                  className="animate-in duration-500 fill-mode-backwards fade-in slide-in-from-bottom-3 motion-reduce:animate-none"
-                  key={post.slug}
-                  style={{ animationDelay: `${index * 60}ms` }}
-                >
+                <Reveal delay={staggerDelay(index)} key={post.slug}>
                   <ArticleCard post={post} />
-                </div>
+                </Reveal>
               ))}
             </div>
           ) : (

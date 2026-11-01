@@ -403,6 +403,87 @@
       opacity: 0;
     }
   }
+
+  /* ---------- 滚动进度条（第 13 轮） ----------
+     固定在最上层的一条 3px 蓝线。z-index 要压过 header(z-40) 与博客页黑幕(z-100)。
+     宽度由 JS 每帧写 width（不是 scaleX）：fixed 定位、没有兄弟节点，
+     改宽度只影响它自己，不会牵动别的元素重排。 */
+  .scroll-progress {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 120;
+    height: 3px;
+    pointer-events: none;
+  }
+
+  .scroll-progress__bar {
+    width: 0;
+    height: 100%;
+    background-color: var(--brand);
+  }
+
+  /* ---------- 滚动入场（第 13 轮） ----------
+     ⚠️ 这两条只在 JS 给元素补了 .reveal-armed 之后才生效 —— 基础样式是「正常显示」，
+     所以没有 JS 时内容不会被藏起来。也不要把它加到 .card-lift 的卡片上：
+     两边都写 transition-property: transform，必然互相覆盖。 */
+  .reveal-armed {
+    opacity: 0;
+    transform: translateY(22px);
+    transition:
+      opacity 600ms cubic-bezier(0.4, 0, 0.2, 1) var(--reveal-delay, 0ms),
+      transform 600ms cubic-bezier(0.4, 0, 0.2, 1) var(--reveal-delay, 0ms);
+  }
+
+  .reveal-armed.is-revealed {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* ---------- 终端光标（第 13 轮） ----------
+     step-end + 单个 50% 关键帧 = 硬切闪烁（淡入淡出在打字机里会显得发飘）。 */
+  .terminal-ghost {
+    display: inline;
+  }
+
+  /* 逐字那份默认不显示；JS 给根节点补 .terminal-typing 之后才替换过来。
+     顺序很重要：基础样式里 ghost 可见 ⇒ 没 JS 时读得到完整句子。 */
+  .terminal-live {
+    display: none;
+  }
+
+  .terminal-typing .terminal-ghost {
+    display: none;
+  }
+
+  .terminal-typing .terminal-live {
+    display: inline;
+  }
+
+  .terminal-caret {
+    display: inline-block;
+    width: 7px;
+    height: 0.95em;
+    margin-left: 2px;
+    vertical-align: -0.12em;
+    background-color: var(--brand);
+    animation: caret-blink 1s step-end infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    /* 系统开了「减少动态」时 JS 根本不会挂 .reveal-armed；这条是兜底：
+       用户中途改设置、或类被别处加上时，也直接显示。 */
+    .reveal-armed {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+
+    .terminal-caret {
+      animation: none;
+    }
+  }
 }
 
 @keyframes ambience-drift {
@@ -432,5 +513,11 @@
 @keyframes border-beam {
   to {
     --beam-angle: 360deg;
+  }
+}
+
+@keyframes caret-blink {
+  50% {
+    opacity: 0;
   }
 }
