@@ -200,4 +200,61 @@
   .article-content [data-theme*=" "] {
     color: var(--shiki-light);
   }
+
+  /* ---------- 背景氛围（全站唯一的装饰层，挂在 SiteLayout 里） ----------
+     网格：1px #e9e9ee、38px 间距；用径向遮罩让它在页面顶部中间最清楚、
+     向左右和下方自然淡出，底部完全透明 —— 这样内容区永远是干净白底。
+     ⚠️ 遮罩写在网格层自己身上，不是写在外层：外层还要放光斑，不能一起被裁。 */
+  .site-ambience-grid {
+    background-image:
+      linear-gradient(to right, #e9e9ee 1px, transparent 1px),
+      linear-gradient(to bottom, #e9e9ee 1px, transparent 1px);
+    background-size: 38px 38px;
+    /* 椭圆的竖直半径取满整个层高（100%），淡出点放到 88% ——
+       半径给 62% 时网格只活到 250px 就没了，视觉上像"顶部一小条灰"，
+       不像一整片氛围。中心实、42% 处还有 72%，到 88% 才完全透明。 */
+    -webkit-mask-image: radial-gradient(
+      ellipse 85% 100% at 50% 0%,
+      #000 0%,
+      rgb(0 0 0 / 0.72) 42%,
+      transparent 88%
+    );
+    mask-image: radial-gradient(
+      ellipse 85% 100% at 50% 0%,
+      #000 0%,
+      rgb(0 0 0 / 0.72) 42%,
+      transparent 88%
+    );
+  }
+
+  /* 光斑：14s 一周期，位移只走 ±20px 量级（200px 的圆 + 60px 模糊下几乎察觉不到"在动"，
+     只留下呼吸感）。第二个用负延迟错开相位，而不是 animation-delay: 6s ——
+     正延迟会让它在头 6 秒里完全静止，观感上是"突然开始动"。 */
+  .site-ambience-blob {
+    animation: ambience-drift 14s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  .site-ambience-blob--delayed {
+    animation-delay: -6s;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .site-ambience-blob {
+      animation: none;
+    }
+  }
+}
+
+@keyframes ambience-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  35% {
+    transform: translate3d(20px, -16px, 0);
+  }
+  70% {
+    transform: translate3d(-14px, 10px, 0);
+  }
 }

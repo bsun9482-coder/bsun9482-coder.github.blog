@@ -1,6 +1,7 @@
 import { useEffect } from "react"
 import { BrowserRouter, Outlet, Route, Routes, useLocation } from "react-router"
 
+import { SiteAmbience } from "@/components/layout/site-ambience"
 import { SiteFooter } from "@/components/layout/site-footer"
 import { SiteHeader } from "@/components/layout/site-header"
 import { useEscapeBack } from "@/hooks/use-escape-back"
@@ -42,6 +43,9 @@ function SiteLayout() {
 
   return (
     <div className="relative z-10 flex min-h-svh flex-col">
+      {/* 背景氛围：绝对定位、负 z、不占流。必须是这个容器的子元素 ——
+          容器带 z-10 已建立层叠上下文，-z-10 才会落在「容器之上、内容之下」这一层。 */}
+      <SiteAmbience />
       <SiteHeader />
       <main className="flex-1">
         <Outlet />
