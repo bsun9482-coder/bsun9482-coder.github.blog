@@ -63,7 +63,10 @@ export const mdxComponents: MDXComponents = {
     ) : (
       <a
         className={cn(
-          "font-medium text-brand underline decoration-brand/30 underline-offset-4 transition-colors hover:text-brand-hover hover:decoration-brand",
+          /* 正文外链：默认无下划线，hover 时 1px 下划线从左往右滑入（.link-underline）。
+             不要在这里加 transition-colors —— 它会盖掉 .link-underline 的
+             background-size 补间，下划线会变成硬切换。 */
+          "link-underline font-medium text-brand hover:text-brand-hover",
           className
         )}
         href={href}

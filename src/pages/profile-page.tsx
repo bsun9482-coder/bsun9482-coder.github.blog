@@ -273,7 +273,7 @@ export function ProfilePage() {
               最新文章
             </h2>
             <Link
-              className="text-sm text-brand transition-colors hover:text-brand-hover"
+              className="link-underline text-sm text-brand hover:text-brand-hover"
               to="/resources"
             >
               查看全部 →

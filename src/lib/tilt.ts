@@ -15,6 +15,11 @@ const PERSPECTIVE_PX = 1200
 const FOLLOW_MS = 80
 const RESET_MS = 420
 
+/* hover 抬升量，必须和 index.css 里 .card-lift 的 translateY(-4px) 保持一致。
+   为什么要在 JS 里也写一遍：倾斜时 inline transform 会整体覆盖 CSS 的 hover 位移，
+   光标只要在卡内移动过，卡片就只歪不抬。所以把抬升拼进同一条 inline transform 里。 */
+const LIFT_PX = 4
+
 /* 量矩形要在卡片还没歪的时候量：倾斜后 getBoundingClientRect 会把旋转后的外接框算进去，
    每帧重算会越算越偏。所以进卡第一次移动时缓存，离开时丢弃。 */
 const rectCache = new WeakMap<HTMLElement, DOMRect>()
@@ -46,8 +51,11 @@ export function handleTiltMove(event: ReactPointerEvent<HTMLElement>) {
   const x = clampUnit(((event.clientX - rect.left) / rect.width - 0.5) * 2)
   const y = clampUnit(((event.clientY - rect.top) / rect.height - 0.5) * 2)
 
-  el.style.transition = `transform ${FOLLOW_MS}ms linear`
-  el.style.transform = `perspective(${PERSPECTIVE_PX}px) rotateX(${(y * MAX_TILT_DEG).toFixed(2)}deg) rotateY(${(-x * MAX_TILT_DEG).toFixed(2)}deg)`
+  /* inline transition 只覆盖 transform 的话，卡片本身的阴影/描边过渡会被一起顶掉
+     （style 上写的是整条 transition 属性，不是追加）。这里把另外两条也带上，
+     保证倾斜进行中 hover 的阴影仍然是 0.25s 渐入，而不是瞬间跳变。 */
+  el.style.transition = `transform ${FOLLOW_MS}ms linear, box-shadow 250ms ease-out, border-color 250ms ease-out`
+  el.style.transform = `perspective(${PERSPECTIVE_PX}px) translateY(${-LIFT_PX}px) rotateX(${(y * MAX_TILT_DEG).toFixed(2)}deg) rotateY(${(-x * MAX_TILT_DEG).toFixed(2)}deg)`
   el.style.zIndex = "1"
 }
 

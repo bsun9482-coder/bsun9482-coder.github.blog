@@ -35,8 +35,10 @@ function Card({
         /* 极简卡片：白底 + 1px 描边 + 极轻阴影，圆角 10px。
            描边用真 border（不再用 ring）：这一版没有流光/外圈高亮抢位置，border 更直白，
            hover 时只换颜色，不会多出 1px 尺寸。
-           hover 只做两件小事：描边变深、阴影加一层 —— 不加渐变、不加发光、不缩放。 */
-        "group/card flex flex-col gap-(--card-spacing) overflow-hidden rounded-[10px] border border-border bg-card py-(--card-spacing) text-sm text-card-foreground shadow-card transition-[box-shadow,border-color] duration-200 hover:border-foreground/15 hover:shadow-pop has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-[10px] *:[img:last-child]:rounded-b-[10px]",
+           hover 三件事：上浮 4px（.card-lift，0.25s）、描边加深、阴影加一层。
+           不加渐变、不加发光、不缩放，也不改 padding/尺寸 —— 位移只用 transform，
+           不触发重排，相邻卡片不会被顶开。 */
+        "card-lift group/card flex flex-col gap-(--card-spacing) overflow-hidden rounded-[10px] border border-border bg-card py-(--card-spacing) text-sm text-card-foreground shadow-card hover:border-foreground/25 hover:shadow-lift has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-[10px] *:[img:last-child]:rounded-b-[10px]",
         className
       )}
       {...props}

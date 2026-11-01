@@ -4,13 +4,20 @@ import { cn } from "cn"
 import { Slot } from "radix-ui"
 
 const buttonVariants = cva(
-  /* 按钮：圆角 7px、无阴影、无渐变。主按钮是近黑实底（--primary = #18181b），
-     强调蓝只出现在 link 变体（--brand = #2563eb）—— 两条规格各管一处，不要合并。 */
-  "group/button inline-flex shrink-0 items-center justify-center rounded-[7px] border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-colors outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/25 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive/50 aria-invalid:ring-3 aria-invalid:ring-destructive/20 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  /* 按钮：圆角 8px、无阴影、无渐变。主按钮是近黑实底（--primary = #18181b），
+     强调蓝只出现在 link 变体（--brand = #2563eb）—— 两条规格各管一处，不要合并。
+     transition 显式列出属性：只让颜色和 translate 走动画，不用 transition-all
+     （all 会把 width/padding 也带上，某些布局切换时会顺带抖一下）。
+     ⚠️ 必须写 translate 而不是 transform —— Tailwind v4 的 translate-* 生成的是
+     独立的 `translate` 属性（不是 transform 的一部分），写错属性名位移会变成硬跳。 */
+  "group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-[background-color,border-color,color,translate,background-size] duration-200 ease-out outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/25 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive/50 aria-invalid:ring-3 aria-invalid:ring-destructive/20 motion-reduce:transition-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        /* 主按钮 hover：底色亮一档到 #2a2a31 + 上浮 1px。上浮用 transform，
+           不占布局空间；motion-reduce 时归零，避免"减少动态"下还在动。 */
+        default:
+          "bg-primary text-primary-foreground hover:-translate-y-px hover:bg-primary-hover motion-reduce:hover:translate-y-0",
         /* 次按钮：白底描边。hover 只加一层浅灰底，不加阴影。 */
         outline:
           "border-border bg-background text-foreground hover:bg-muted hover:text-foreground",
@@ -18,7 +25,7 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/70",
         ghost: "text-foreground hover:bg-muted hover:text-foreground",
         destructive: "bg-destructive text-white hover:bg-destructive/90",
-        link: "text-brand underline-offset-4 hover:text-brand-hover hover:underline",
+        link: "link-underline text-brand hover:text-brand-hover",
       },
       size: {
         default:

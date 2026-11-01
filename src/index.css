@@ -88,6 +88,7 @@
      这两条规格不能合并成一个 primary，否则按钮和链接必有一方要错。 */
   --color-brand: var(--brand);
   --color-brand-hover: var(--brand-hover);
+  --color-primary-hover: var(--primary-hover);
   --color-faint: var(--faint);
 
   --color-sidebar-ring: var(--sidebar-ring);
@@ -111,6 +112,9 @@
   /* 阴影：极轻，只用来把卡片从白底上"拎"起来 1px，不做发光 */
   --shadow-card: 0 1px 3px rgb(0 0 0 / 0.05);
   --shadow-pop: 0 4px 12px rgb(0 0 0 / 0.06);
+  /* hover 抬升：单独一个令牌，别改 --shadow-pop —— 那个还被 Sheet/Popover 用着，
+     面板弹出来用 30px 的扩散会显得糊。 */
+  --shadow-lift: 0 14px 30px rgb(0 0 0 / 0.08);
 }
 
 :root {
@@ -123,6 +127,9 @@
   --popover-foreground: #18181b;
   --primary: #18181b;
   --primary-foreground: #ffffff;
+  /* 主按钮 hover 的实底色：比 --primary 亮一档，白字对比度仍有 14:1 以上。
+     单独成令牌而不是写死 #2a2a31 在 class 里，是为了「改色只改一处」。 */
+  --primary-hover: #2a2a31;
   --secondary: #f4f4f5;
   --secondary-foreground: #18181b;
   --muted: #fafafa;
@@ -242,6 +249,63 @@
   @media (prefers-reduced-motion: reduce) {
     .site-ambience-blob {
       animation: none;
+    }
+  }
+
+  /* ---------- 微交互（第 11 轮） ----------
+     两条规则都写成组件类而不是 Tailwind 的 hover: 工具类，原因：
+     ① 卡片身上有 3D 倾斜（lib/tilt.ts）会写 inline transform，抬升量必须在同一处合并；
+     ② 「prefers-reduced-motion 时取消位移」这条必须稳定压过 hover 态 ——
+        写在同一个 @layer components 里、位置靠后，天然生效，不用赌 Tailwind 变体排序。 */
+
+  /* 卡片 hover：上浮 4px + 阴影加深（阴影/描边由 card.tsx 的 hover: 工具类负责）。
+     名称 .card-lift 只表达「会做位移」，不含任何配色，换肤时不用改这里。 */
+  .card-lift {
+    transition-property: transform, box-shadow, border-color;
+    transition-duration: 250ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-lift:hover {
+    transform: translateY(-4px);
+  }
+
+  /* 链接下划线从左到右滑入：用 background 而不是 text-decoration，
+     因为 text-decoration 无法「只画一段」也无法补间。currentColor 保证
+     下划线颜色永远等于当前文字色（默认 brand，hover 变 brand-hover）。
+     ⚠️ 用这个类的地方不要同时加 transition-colors —— 工具类的 transition-property
+     会把这里的 background-size 覆盖掉，下划线会变成硬切换。 */
+  .link-underline {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 0% 1px;
+    text-decoration: none;
+    transition:
+      background-size 200ms cubic-bezier(0.4, 0, 0.2, 1),
+      color 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .link-underline:hover,
+  .link-underline:focus-visible {
+    background-size: 100% 1px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card-lift,
+    .link-underline {
+      transition: none;
+    }
+
+    /* 位移全部取消，但描边/阴影/下划线这类「非运动」反馈保留 ——
+       减少动态不等于减少可用性。下划线直接给到全宽，不做滑入。 */
+    .card-lift:hover {
+      transform: none;
+    }
+
+    .link-underline:hover,
+    .link-underline:focus-visible {
+      background-size: 100% 1px;
     }
   }
 }
