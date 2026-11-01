@@ -1,11 +1,13 @@
 import * as React from "react"
 import { cn } from "cn"
+import { handleSpotlightLeave, handleSpotlightMove } from "@/lib/spotlight"
 import { handleTiltLeave, handleTiltMove } from "@/lib/tilt"
 
 function Card({
   className,
   size = "default",
   tilt = true,
+  fx = tilt,
   onPointerMove,
   onPointerLeave,
   onPointerCancel,
@@ -14,6 +16,8 @@ function Card({
   size?: "default" | "sm"
   /** 鼠标跟随倾斜开关。正文里的提示框（mdx Note）传 false。 */
   tilt?: boolean
+  /** 聚光灯 + 边光开关，默认跟随 tilt —— 正文里的卡片不需要鼠标特效。 */
+  fx?: boolean
 }) {
   return (
     <div
@@ -21,14 +25,18 @@ function Card({
       data-size={size}
       onPointerMove={(event) => {
         onPointerMove?.(event)
+        /* 先写坐标再倾斜：spotlight 读的是倾斜前的干净矩形（见 lib/spotlight.ts）。 */
+        if (fx) handleSpotlightMove(event)
         if (tilt) handleTiltMove(event)
       }}
       onPointerLeave={(event) => {
         onPointerLeave?.(event)
+        if (fx) handleSpotlightLeave(event)
         if (tilt) handleTiltLeave(event)
       }}
       onPointerCancel={(event) => {
         onPointerCancel?.(event)
+        if (fx) handleSpotlightLeave(event)
         if (tilt) handleTiltLeave(event)
       }}
       className={cn(
@@ -37,8 +45,10 @@ function Card({
            hover 时只换颜色，不会多出 1px 尺寸。
            hover 三件事：上浮 4px（.card-lift，0.25s）、描边加深、阴影加一层。
            不加渐变、不加发光、不缩放，也不改 padding/尺寸 —— 位移只用 transform，
-           不触发重排，相邻卡片不会被顶开。 */
+           不触发重排，相邻卡片不会被顶开。
+           .card-fx 是第 12 轮加的鼠标特效（聚光灯 + 流动边光），开关见上面的 fx。 */
         "card-lift group/card flex flex-col gap-(--card-spacing) overflow-hidden rounded-[10px] border border-border bg-card py-(--card-spacing) text-sm text-card-foreground shadow-card hover:border-foreground/25 hover:shadow-lift has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-[10px] *:[img:last-child]:rounded-b-[10px]",
+        fx && "card-fx",
         className
       )}
       {...props}

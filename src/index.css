@@ -308,6 +308,101 @@
       background-size: 100% 1px;
     }
   }
+
+  /* ---------- 卡片鼠标特效（第 12 轮）：聚光灯 + 流动边光 ----------
+     两个效果各占一个伪元素：::before 聚光灯（垫在内容下面）、::after 边光（压在内容上面）。
+     为什么整卡都要 isolation: isolate：
+     聚光灯用 z-index:-1 才能「在卡片白底之上、文字之下」。但负 z 只有在元素自身
+     建立了层叠上下文时才不会被丢到 body 底色后面 —— isolation 就是最轻的那个开关。 */
+  .card-fx {
+    position: relative;
+    isolation: isolate;
+  }
+
+  /* 聚光灯：圆心坐标由 JS 写进 --spot-x/--spot-y（px），半径固定 420px。
+     用 px 而不是百分比：百分比会让圆心随卡片尺寸漂移，光斑在大小卡上观感不一致。
+     淡蓝色只给 8% —— 白底上再高就开始发灰，看不出「极简」了。 */
+  .card-fx::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    background-image: radial-gradient(
+      420px circle at var(--spot-x, 50%) var(--spot-y, 0%),
+      rgb(37 99 235 / 0.08),
+      transparent 70%
+    );
+    opacity: 0;
+    transition: opacity 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* 边光：conic-gradient 的一小段亮弧 + mask 挖空内部，只留 1px 那圈。
+     mask 两次 linear-gradient（content-box / border-box）做 xor，是唯一
+     不依赖 SVG 就能挖出「环」的写法；padding:1px 决定环的粗细。
+     默认 opacity 0 + 暂停：不 hover 时它连一帧都不画，不是「常驻但看不见」。 */
+  .card-fx::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+    padding: 1px;
+    pointer-events: none;
+    background-image: conic-gradient(
+      from var(--beam-angle),
+      transparent 0deg,
+      rgb(37 99 235 / 0.1) 26deg,
+      rgb(37 99 235 / 0.85) 34deg,
+      rgb(37 99 235 / 0.1) 42deg,
+      transparent 56deg,
+      transparent 360deg
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 250ms ease-out;
+    animation: border-beam 4s linear infinite;
+    animation-play-state: paused;
+  }
+
+  /* 触屏 / 没有精确指针的设备：两样都不出现（hover 媒体查询直接把它们关在门外），
+     同时不写任何变量、不跑动画 —— 移动端等于零开销。 */
+  @media (hover: hover) and (pointer: fine) {
+    .card-fx:hover::before {
+      opacity: 1;
+    }
+
+    .card-fx:hover::after {
+      opacity: 1;
+      animation-play-state: running;
+    }
+  }
+
+  /* 减少动态：聚光灯保留（它是静态光，只是跟着指针移动，且关掉淡入），
+     边光的旋转动画彻底停掉 —— 那才是真正的「动」。 */
+  @media (prefers-reduced-motion: reduce) {
+    .card-fx::before,
+    .card-fx::after {
+      transition: none;
+    }
+
+    .card-fx::after {
+      animation: none;
+      opacity: 0;
+    }
+
+    .card-fx:hover::after {
+      opacity: 0;
+    }
+  }
 }
 
 @keyframes ambience-drift {
@@ -320,5 +415,22 @@
   }
   70% {
     transform: translate3d(-14px, 10px, 0);
+  }
+}
+
+/* ---------- 边光角度（第 12 轮） ----------
+   ⚠️ 这条 @property 不能省：自定义属性默认是「字符串」，补间不了，
+   动画会变成每帧硬跳（等于没有动画）。注册成 <angle> 之后浏览器才肯
+   在 0deg→360deg 之间插值。initial-value 必须是合法角度，否则整条失效。
+   @property 只能写在顶层，塞进 @layer 里不保证生效。 */
+@property --beam-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes border-beam {
+  to {
+    --beam-angle: 360deg;
   }
 }
