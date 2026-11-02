@@ -25,25 +25,25 @@ export function ArticleCard({ post }: ArticleCardProps) {
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="secondary">{post.category}</Badge>
           {post.tags.slice(0, 2).map((tag) => (
-            <Badge key={tag} variant="outline">
+            <Badge key={tag} variant="ghost">
               {tag}
             </Badge>
           ))}
         </div>
-        <CardTitle className="text-lg leading-snug sm:text-xl">
+        <CardTitle className="text-xl leading-snug font-bold sm:text-2xl">
           <Link
-            className="outline-none after:absolute after:inset-0 focus-visible:underline"
+            className="outline-none after:absolute after:inset-0 transition-colors group-hover:text-brand focus-visible:underline"
             to={`/resources/${post.slug}`}
           >
             {post.title}
           </Link>
         </CardTitle>
-        <CardDescription className="text-sm leading-6">
+        <CardDescription className="line-clamp-2 text-sm leading-6">
           {post.description}
         </CardDescription>
       </CardHeader>
       <CardContent className="sr-only">打开资料：{post.title}</CardContent>
-      <CardFooter className="justify-between bg-transparent pt-3 font-mono text-[11px] text-faint">
+      <CardFooter className="justify-between border-t-0 bg-transparent pt-1 font-mono text-[11px] text-faint">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
           <span className="inline-flex items-center gap-1.5">
             <CalendarDaysIcon className="size-3.5" />
