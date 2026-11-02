@@ -38,7 +38,9 @@ export function ArticleCard({ post }: ArticleCardProps) {
             {post.title}
           </Link>
         </CardTitle>
-        <CardDescription className="line-clamp-2 text-sm leading-6">
+        {/* line-clamp-2 只管「最多两行」，不管「至少两行」：摘要短一行的卡
+            内容会整体上移 24px，同一行的日期栏就对不齐。min-h 固定按两行占位。 */}
+        <CardDescription className="line-clamp-2 min-h-[3rem] text-sm leading-6">
           {post.description}
         </CardDescription>
       </CardHeader>
