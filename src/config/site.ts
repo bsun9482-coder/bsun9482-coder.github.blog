@@ -107,6 +107,7 @@ export const siteContent = {
     },
     article: {
       tocTitle: "资料目录",
+      tocKicker: "当前教程",
       noteDefaultTitle: "提示",
       minutesSuffix: "分钟阅读",
     },

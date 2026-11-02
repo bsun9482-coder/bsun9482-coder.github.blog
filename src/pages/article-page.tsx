@@ -35,7 +35,13 @@ export function ArticlePage() {
         </Link>
       </Button>
 
-      <div className="mt-7 grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_17rem]">
+      <div className="mt-7 grid items-start gap-10 lg:grid-cols-[17rem_minmax(0,1fr)]">
+        {/* 目录在左栏（窄屏隐藏，靠正文顺序阅读）。
+            DOM 里也放最前：键盘 Tab 会先过目录，再进正文，与视觉顺序一致。 */}
+        <aside className="hidden lg:sticky lg:top-24 lg:block">
+          <TableOfContents items={post.tableOfContents} title={post.title} />
+        </aside>
+
         <article className="min-w-0">
           <header>
             <div className="flex flex-wrap items-center gap-2">
@@ -82,10 +88,6 @@ export function ArticlePage() {
             </Suspense>
           </div>
         </article>
-
-        <aside className="hidden lg:sticky lg:top-24 lg:block">
-          <TableOfContents items={post.tableOfContents} />
-        </aside>
       </div>
     </Container>
   )
