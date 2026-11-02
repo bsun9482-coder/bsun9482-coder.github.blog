@@ -20,8 +20,8 @@ type ArticleCardProps = {
 
 export function ArticleCard({ post }: ArticleCardProps) {
   return (
-    <Card className="group relative gap-4">
-      <CardHeader className="gap-3">
+    <Card className="group relative gap-5 p-6">
+      <CardHeader className="gap-4">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="secondary">{post.category}</Badge>
           {post.tags.slice(0, 2).map((tag) => (
@@ -45,7 +45,11 @@ export function ArticleCard({ post }: ArticleCardProps) {
         </CardDescription>
       </CardHeader>
       <CardContent className="sr-only">打开资料：{post.title}</CardContent>
-      <CardFooter className="justify-between border-t-0 bg-transparent pt-1 font-mono text-[11px] text-faint">
+      {/* 卡片根节点 p-6 的 padding-bottom 会被 card.tsx 的
+          has-data-[slot=card-footer]:pb-0 压成 0（footer 在场时的既定行为），
+          所以这里**不能**再叠 -mb-6 —— 那会把 footer 推到卡片底边外 24px，
+          被 overflow:hidden 裁掉（实测箭头图标被削掉 2px）。底部留白由 pb-5 承担。 */}
+      <CardFooter className="-mx-6 mt-1 justify-between border-t-0 bg-transparent px-6 pt-4 pb-5 font-mono text-[11px] text-faint">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
           <span className="inline-flex items-center gap-1.5">
             <CalendarDaysIcon className="size-3.5" />
