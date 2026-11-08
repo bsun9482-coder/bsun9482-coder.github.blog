@@ -61,6 +61,33 @@ function runNpmScript(name) {
   }
 }
 
+/* ---------- 检查 0：typecheck 的调用方式本身是否有效 ---------- */
+
+/* 根 tsconfig.json 是「解决方案文件」（files: [] + 只有 references），它自己不含任何
+   源文件。不带 -b 时 tsc 只读这个空壳，编译 0 个文件、永远退出 0 —— 等于没检查。
+   实测：--listFiles 对根配置输出 0 行，对 tsconfig.app.json 输出 252 行。
+   守这里而不是守「结果」，是因为一旦写法错了，下面所有 PASS 都失去了意义。 */
+function checkTypecheckContract() {
+  const pkg = JSON.parse(readFileSync(path.join(ROOT, "package.json"), "utf8"))
+  const script = pkg.scripts?.typecheck ?? ""
+  const usesBuildMode = /(^|\s)(-b|--build)(\s|$)/.test(script)
+
+  if (usesBuildMode) {
+    record("PASS", "类型检查契约", `typecheck 走 build 模式（${script}）`)
+    return
+  }
+
+  record(
+    "FAIL",
+    "类型检查契约",
+    `typecheck 没有走 build 模式（当前：${script || "未定义"}）`,
+    [
+      "根 tsconfig.json 不含任何源文件，这样调用会编译 0 个文件并永远通过",
+      "改回 tsc -b --noEmit（TS 5.x 早期不支持 --noEmit 与 -b 同用，退化成 tsc -b）",
+    ].join("\n")
+  )
+}
+
 /* ---------- 检查 1：typecheck / lint / build ---------- */
 
 function checkScripts() {
@@ -466,6 +493,7 @@ function checkFavicon() {
 
 /* ---------- 输出 ---------- */
 
+checkTypecheckContract()
 checkScripts()
 checkAssetReferences()
 checkContent()
