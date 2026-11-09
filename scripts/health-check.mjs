@@ -88,12 +88,16 @@ function checkTypecheckContract() {
   )
 }
 
-/* ---------- 检查 1：typecheck / lint / build ---------- */
+/* ---------- 检查 1：typecheck / lint / format / build ---------- */
 
 function checkScripts() {
   const targets = [
     ["typecheck", "TypeScript 类型检查"],
     ["lint", "ESLint 代码规范"],
+    /* 格式也当门禁：format 是「改」，format:check 是「查」，两个脚本的覆盖范围都是全仓，
+       和 prettier --check . 这个裁判完全一致 —— 以前 format 只覆盖 ts/tsx 两类文件，
+       跑完 format 仍然是红的，等于没有。 */
+    ["format:check", "代码格式"],
   ]
   if (!FAST) targets.push(["build", "生产构建"])
 
