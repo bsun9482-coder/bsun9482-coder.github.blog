@@ -96,7 +96,7 @@ export const mdxComponents: MDXComponents = {
   img: ({ className, alt = "", ...props }) => (
     <img
       alt={alt}
-      className={cn("my-8 rounded-[10px] border border-border", className)}
+      className={cn("my-8 rounded-xl border border-border", className)}
       loading="lazy"
       {...props}
     />
@@ -117,7 +117,7 @@ export const mdxComponents: MDXComponents = {
     />
   ),
   table: ({ className, ...props }) => (
-    <div className="my-7 overflow-x-auto rounded-[10px] border border-border">
+    <div className="my-7 overflow-x-auto rounded-xl border border-border">
       <table className={cn("w-full text-sm", className)} {...props} />
     </div>
   ),

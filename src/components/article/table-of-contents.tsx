@@ -130,7 +130,7 @@ export function TableOfContents({ items, title }: TableOfContentsProps) {
   return (
     <nav
       aria-label={siteContent.ui.article.tocTitle}
-      className="rounded-[10px] border border-border p-4"
+      className="rounded-xl border border-border p-4"
     >
       <p className="flex items-center gap-2 font-mono text-[11px] tracking-wide text-faint uppercase">
         <ListTreeIcon className="size-3.5" />

@@ -47,7 +47,7 @@ function Card({
            不加渐变、不加发光、不缩放，也不改 padding/尺寸 —— 位移只用 transform，
            不触发重排，相邻卡片不会被顶开。
            .card-fx 是第 12 轮加的鼠标特效（聚光灯 + 流动边光），开关见上面的 fx。 */
-        "card-lift group/card flex flex-col gap-(--card-spacing) overflow-hidden rounded-[10px] border border-border bg-card py-(--card-spacing) text-sm text-card-foreground shadow-card hover:border-foreground/25 hover:shadow-lift has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-[10px] *:[img:last-child]:rounded-b-[10px]",
+        "card-lift group/card flex flex-col gap-(--card-spacing) overflow-hidden rounded-xl border border-border bg-card py-(--card-spacing) text-sm text-card-foreground shadow-card hover:border-foreground/25 hover:shadow-lift has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
         fx && "card-fx",
         className
       )}
@@ -61,7 +61,7 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card-header"
       className={cn(
-        "group/card-header @container/card-header grid auto-rows-min items-start gap-1 rounded-t-[10px] px-(--card-spacing) has-data-[slot=card-action]:grid-cols-[1fr_auto] has-data-[slot=card-description]:grid-rows-[auto_auto] [.border-b]:pb-(--card-spacing)",
+        "group/card-header @container/card-header grid auto-rows-min items-start gap-1 rounded-t-xl px-(--card-spacing) has-data-[slot=card-action]:grid-cols-[1fr_auto] has-data-[slot=card-description]:grid-rows-[auto_auto] [.border-b]:pb-(--card-spacing)",
         className
       )}
       {...props}
@@ -120,7 +120,7 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card-footer"
       className={cn(
-        "flex items-center rounded-b-[10px] border-t border-border p-(--card-spacing)",
+        "flex items-center rounded-b-xl border-t border-border p-(--card-spacing)",
         className
       )}
       {...props}

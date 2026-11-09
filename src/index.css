@@ -182,7 +182,7 @@
 
 @layer components {
   .article-content [data-rehype-pretty-code-figure] {
-    @apply my-7 overflow-hidden rounded-[10px] border border-border bg-secondary;
+    @apply my-7 overflow-hidden rounded-xl border border-border bg-secondary;
   }
 
   .article-content [data-rehype-pretty-code-figure] pre {

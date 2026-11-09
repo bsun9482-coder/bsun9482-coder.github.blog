@@ -32,7 +32,7 @@ export function StatusBar() {
   return (
     /* 极简状态条：白底 + 1px 描边 + 分段竖线，全部等宽字。
        不再用深色渐变块 / 玻璃拟态 / 彩色 ring —— 这一段只是信息，不抢视觉。 */
-    <div className="flex flex-wrap items-stretch overflow-hidden rounded-[10px] border border-border">
+    <div className="flex flex-wrap items-stretch overflow-hidden rounded-xl border border-border">
       {/* 1. 时间 */}
       <div className="flex items-center px-5 py-4">
         <span className="font-mono text-xl font-semibold tracking-tight tabular-nums sm:text-2xl">

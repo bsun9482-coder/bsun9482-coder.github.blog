@@ -59,7 +59,7 @@ export function ResourcesPage() {
           </p>
         </div>
 
-        <div className="flex flex-col gap-3 rounded-[10px] border border-border bg-muted/40 p-2 sm:flex-row sm:items-center">
+        <div className="flex flex-col gap-3 rounded-xl border border-border bg-muted/40 p-2 sm:flex-row sm:items-center">
           <div
             aria-label="按分类筛选"
             className="flex flex-wrap gap-1.5"

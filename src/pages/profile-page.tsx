@@ -79,7 +79,7 @@ function LyricsBar() {
   return (
     <div
       aria-label={siteContent.ui.lyricsBar.regionLabel}
-      className="flex items-center gap-4 rounded-[10px] border border-border bg-muted/60 px-4 py-3"
+      className="flex items-center gap-4 rounded-xl border border-border bg-muted/60 px-4 py-3"
       role="status"
     >
       {/* 左侧装饰：5 个小圆点 */}

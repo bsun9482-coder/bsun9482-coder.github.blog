@@ -53,7 +53,7 @@ export function TerminalTyper({
   return (
     <div
       className={cn(
-        "terminal overflow-hidden rounded-[10px] border border-border bg-secondary",
+        "terminal overflow-hidden rounded-xl border border-border bg-secondary",
         className
       )}
       ref={rootRef}
