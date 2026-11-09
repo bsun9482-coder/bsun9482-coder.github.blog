@@ -1,0 +1,19 @@
+# 行尾统一：仓库里一律存 LF，检出到 Windows 也保持 LF。
+#
+# 为什么需要这条：不加它，Git 默认会把文本文件按平台转换（Windows 检出成 CRLF），
+# 而 .prettierrc 里写着 endOfLine: "lf" —— 于是同一份文件在 Git 眼里没变、
+# 在 prettier 眼里却是错的，每次 git diff 还会警告 "LF will be replaced by CRLF"。
+# 加完这条要跑一次 `git add --renormalize .`，把已入库的 CRLF 也改写成 LF。
+* text=auto eol=lf
+
+# 二进制文件显式标出来：别让 Git 去猜，猜错会把文件内容「规范化」坏掉
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.webp  binary
+*.gif   binary
+*.ico   binary
+*.woff  binary
+*.woff2 binary
+*.mp4   binary
+*.pdf   binary
