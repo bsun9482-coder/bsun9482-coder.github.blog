@@ -1,9 +1,10 @@
-import { BookOpen, FolderGit2, Library } from "lucide-react"
+import { BookOpen, FolderGit2, Library, NotebookPen } from "lucide-react"
 
 export const navigationItems = [
   { href: "/profile", label: "博客", icon: BookOpen },
   { href: "/works", label: "项目", icon: FolderGit2 },
   { href: "/resources", label: "文章", icon: Library },
+  { href: "/journal", label: "日记", icon: NotebookPen },
 ] as const
 
 /* 页面名（即导航标签）的唯一来源：document.title 与导航标签共用它，
@@ -161,6 +162,13 @@ export const siteContent = {
       weatherUnavailable: "天气不可用",
       humidity: "湿度",
       unknownWeather: "未知",
+    },
+    /* 日记页：短内容聚合，没有详情路由 */
+    journal: {
+      subtitle: "随手记下的片段，按日子倒着排",
+      countSuffix: "则",
+      emptyTitle: "还没有日记",
+      emptyDescription: "往 content/journal/ 放一个 .mdx，这里就会出现第一则。",
     },
   },
 } as const

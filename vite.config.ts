@@ -11,6 +11,7 @@ import remarkGfm from "remark-gfm"
 import { defineConfig, type Plugin } from "vite"
 
 import { getPostMetadata } from "./vite-plugins/remark-post-metadata.ts"
+import { journalFrontmatterPlugin } from "./vite-plugins/journal-frontmatter.ts"
 
 const POST_METADATA_MODULE_ID = "virtual:post-metadata"
 const RESOLVED_POST_METADATA_MODULE_ID = `\0${POST_METADATA_MODULE_ID}`
@@ -67,6 +68,8 @@ function postMetadataPlugin(): Plugin {
 export default defineConfig({
   plugins: [
     postMetadataPlugin(),
+    /* 必须在 mdx() 之前：把 content/journal 的 YAML 头改写成 ESM 导出。 */
+    journalFrontmatterPlugin(),
     {
       enforce: "pre",
       ...mdx({

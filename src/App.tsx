@@ -8,6 +8,7 @@ import { ScrollProgress } from "@/components/layout/scroll-progress"
 import { useEscapeBack } from "@/hooks/use-escape-back"
 import { ArticlePage } from "@/pages/article-page"
 import { HomePage } from "@/pages/home-page"
+import { JournalPage } from "@/pages/journal-page"
 import { NotFoundPage } from "@/pages/not-found-page"
 import { ProfilePage } from "@/pages/profile-page"
 import { ResourcesPage } from "@/pages/resources-page"
@@ -70,6 +71,7 @@ export function App() {
           <Route element={<WorksPage />} path="/works" />
           <Route element={<ResourcesPage />} path="/resources" />
           <Route element={<ArticlePage />} path="/resources/:slug" />
+          <Route element={<JournalPage />} path="/journal" />
           <Route element={<NotFoundPage />} path="*" />
         </Route>
       </Routes>
