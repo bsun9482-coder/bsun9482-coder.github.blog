@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, useState } from "react"
 
-import { cn } from "cn"
+import { cn } from "@/lib/utils"
 
 /* 终端打字机：逐字打出 command + result，末尾跟一个闪烁的蓝色光标。
 

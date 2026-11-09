@@ -1,5 +1,5 @@
 import * as React from "react"
-import { cn } from "cn"
+import { cn } from "@/lib/utils"
 import { handleSpotlightLeave, handleSpotlightMove } from "@/lib/spotlight"
 import { handleTiltLeave, handleTiltMove } from "@/lib/tilt"
 

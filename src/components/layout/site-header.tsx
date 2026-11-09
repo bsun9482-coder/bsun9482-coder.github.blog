@@ -14,7 +14,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { navigationItems, siteContent } from "@/config/site"
-import { cn } from "cn"
+import { cn } from "@/lib/utils"
 
 const allNavigationItems = [
   { href: "/", label: siteContent.ui.header.home, icon: undefined },

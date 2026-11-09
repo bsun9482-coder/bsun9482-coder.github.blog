@@ -1,4 +1,4 @@
-import { cn } from "cn"
+import { cn } from "@/lib/utils"
 
 type ContainerProps = React.ComponentProps<"div"> & {
   as?: React.ElementType
