@@ -55,7 +55,8 @@ type TocNode = {
    要修得复现 GFM 的「按引用出现先后编号」规则，为一个不会出现的写法不值得。
    脚注定义里的标题是另一回事，见下面 collectHeadings。 */
 function headingText(node: TocNode): string {
-  if (node.type === "text" || node.type === "inlineCode") return node.value ?? ""
+  if (node.type === "text" || node.type === "inlineCode")
+    return node.value ?? ""
   if (!Array.isArray(node.children)) return ""
   return node.children.map(headingText).join("")
 }
@@ -90,7 +91,13 @@ function getTableOfContents(rawContent: string) {
 
     /* 注意：slug 用未 trim 的原文，跟 rehype-slug 完全一致；
        展示用 trim 过的，别让目录里出现多余空白。 */
-    return [{ id: slugger.slug(text), title: text.trim(), level: node.depth as 2 | 3 }]
+    return [
+      {
+        id: slugger.slug(text),
+        title: text.trim(),
+        level: node.depth as 2 | 3,
+      },
+    ]
   })
 }
 

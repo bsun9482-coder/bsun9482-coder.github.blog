@@ -1,7 +1,11 @@
 node_modules/
+dist/
 coverage/
 .pnpm-store/
 pnpm-lock.yaml
 package-lock.json
-pnpm-lock.yaml
 yarn.lock
+
+# 历史讨论稿（2026-09-20 的产品/设计记录）：不是代码、不参与构建，
+# 格式化它们只会让文档的 diff 变噪音，所以排除在格式检查之外。
+notes/

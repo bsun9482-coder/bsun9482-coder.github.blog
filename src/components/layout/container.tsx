@@ -4,7 +4,12 @@ type ContainerProps = React.ComponentProps<"div"> & {
   as?: React.ElementType
 }
 
-export function Container({ as, className, children, ...props }: ContainerProps) {
+export function Container({
+  as,
+  className,
+  children,
+  ...props
+}: ContainerProps) {
   const Component = as ?? "div"
 
   return (

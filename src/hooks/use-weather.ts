@@ -139,11 +139,10 @@ export function useWeather() {
     return () => controller.abort()
   }, [location])
 
-  const presentation =
-    WEATHER_BY_CODE[weather?.weatherCode ?? -1] ?? {
-      description: siteContent.ui.sidebar.unknownWeather,
-      icon: CloudIcon,
-    }
+  const presentation = WEATHER_BY_CODE[weather?.weatherCode ?? -1] ?? {
+    description: siteContent.ui.sidebar.unknownWeather,
+    icon: CloudIcon,
+  }
 
   return { location, weather, hasError, presentation }
 }

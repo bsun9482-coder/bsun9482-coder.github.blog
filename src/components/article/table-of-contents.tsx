@@ -35,7 +35,9 @@ export function TableOfContents({ items, title }: TableOfContentsProps) {
       if (headings.length > 0) return headings
       headings = items
         .map((item) => ({ id: item.id, el: document.getElementById(item.id) }))
-        .filter((entry): entry is { id: string; el: HTMLElement } => entry.el !== null)
+        .filter(
+          (entry): entry is { id: string; el: HTMLElement } => entry.el !== null
+        )
       return headings
     }
 
@@ -48,7 +50,8 @@ export function TableOfContents({ items, title }: TableOfContentsProps) {
       /* 标题滚过 140px（大概在 sticky 头部下沿）就算「已到达」。 */
       let current = resolved[0].id
       for (const heading of resolved) {
-        if (heading.el.getBoundingClientRect().top - 140 <= 0) current = heading.id
+        if (heading.el.getBoundingClientRect().top - 140 <= 0)
+          current = heading.id
         else break
       }
 

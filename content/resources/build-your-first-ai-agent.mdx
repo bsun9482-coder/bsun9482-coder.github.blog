@@ -93,14 +93,14 @@ readingMinutes: 45
 
 下面六行就是本章的全部数据。每一行代表一条记录；“金额”已经是该条记录的销售金额，单位为元。我们只做筛选和加总，不再计算单价乘数量，也不推断税费或利润。
 
-| 编号 | 日期 | 地区 | 金额（元） |
-| --- | --- | --- | --- |
-| S01 | 2026-09-03 | 华东 | 1200 |
-| S02 | 2026-09-08 | 华南 | 900 |
-| S03 | 2026-09-11 | 华东 | 800 |
-| S04 | 2026-09-18 | 华东 | 1500 |
-| S05 | 2026-09-22 | 华北 | 600 |
-| S06 | 2026-10-01 | 华东 | 2000 |
+| 编号 | 日期       | 地区 | 金额（元） |
+| ---- | ---------- | ---- | ---------- |
+| S01  | 2026-09-03 | 华东 | 1200       |
+| S02  | 2026-09-08 | 华南 | 900        |
+| S03  | 2026-09-11 | 华东 | 800        |
+| S04  | 2026-09-18 | 华东 | 1500       |
+| S05  | 2026-09-22 | 华北 | 600        |
+| S06  | 2026-10-01 | 华东 | 2000       |
 
 表格刻意保留了两个容易混淆的条件：S02 和 S05 的日期属于 9 月，但地区不同；S06 的地区是华东，但日期已经进入 10 月。只看地区或只看月份，都会得到另一个结果。
 
@@ -447,14 +447,10 @@ node_modules/
     "moduleResolution": "NodeNext",
     "strict": true,
     "noEmit": true,
-    "types": [
-      "node"
-    ],
+    "types": ["node"],
     "skipLibCheck": true
   },
-  "include": [
-    "hello.ts"
-  ]
+  "include": ["hello.ts"]
 }
 ```
 
@@ -518,7 +514,7 @@ ider}/${model.id}`);
   try {
     await session.prompt("请用一句简体中文向第一次使用你的学习者问好。");
     const last = session.messages.findLast(message => message.role === "assistant");
-    if 
+    if
 ```
 
 ```ts
@@ -690,15 +686,15 @@ npm start
 
 如果左侧文件列表没有显示，点击 **View → Explorer（查看 → 资源管理器）**。这里的“资源管理器”指 VS Code 的文件面板。接着点击 **Terminal → New Terminal（终端 → 新建终端）**，让下方出现命令输入区。
 
-| 文件或目录 | 现在负责什么 | 这一章怎样使用 |
-| --- | --- | --- |
-| package.json | 记录依赖和运行命令 | 查看 scripts 中的 start |
-| hello.ts | 创建会话、发送问候、检查回答 | 阅读原稿，另外复制实验副本 |
-| models.json | 保存连接名、接口地址和模型 ID | 核对代码中的两个名称 |
-| .env | 保存第二章填写的密钥 | 继续沿用；不用把密钥打印出来 |
-| tsconfig.json | 告诉 TypeScript 怎样检查示例 | 保持原设置 |
-| node_modules | npm 安装的依赖代码 | 不用打开修改 |
-| package-lock.json | 记录依赖解析结果 | 保留原文件 |
+| 文件或目录        | 现在负责什么                  | 这一章怎样使用               |
+| ----------------- | ----------------------------- | ---------------------------- |
+| package.json      | 记录依赖和运行命令            | 查看 scripts 中的 start      |
+| hello.ts          | 创建会话、发送问候、检查回答  | 阅读原稿，另外复制实验副本   |
+| models.json       | 保存连接名、接口地址和模型 ID | 核对代码中的两个名称         |
+| .env              | 保存第二章填写的密钥          | 继续沿用；不用把密钥打印出来 |
+| tsconfig.json     | 告诉 TypeScript 怎样检查示例  | 保持原设置                   |
+| node_modules      | npm 安装的依赖代码            | 不用打开修改                 |
+| package-lock.json | 记录依赖解析结果              | 保留原文件                   |
 
 第二章的 `.gitignore` 用来声明不提交的本地文件；它不负责运行程序。可能出现的 `.pi-local` 是本例给 SDK 指定的本地工作目录。看到这个目录，也不能据此认定聊天记录已经保存到里面。
 
@@ -735,11 +731,17 @@ node --env-file=.env --import tsx hello.ts
 在 `hello.ts` 中搜索 `createAgentSession({`。你应该能找到下面这一段。它已经存在于程序中，只需要对照阅读，不要再粘贴一次。
 
 ```ts
-  const { session } = await createAgentSession({
-    cwd, agentDir, modelRuntime, model, resourceLoader, settingsManager,
-    noTools: "all", thinkingLevel: "off",
-    sessionManager: SessionManager.inMemory(cwd),
-  });
+const { session } = await createAgentSession({
+  cwd,
+  agentDir,
+  modelRuntime,
+  model,
+  resourceLoader,
+  settingsManager,
+  noTools: "all",
+  thinkingLevel: "off",
+  sessionManager: SessionManager.inMemory(cwd),
+})
 ```
 
 `createAgentSession` 接收一组设置，创建本次使用的会话。`const { session }` 表示从返回对象中取出名为 `session` 的成员，后面就通过这个变量发问、读取状态和结束会话。大括号里的名字不是五个新的文件，而是前面已经准备好的对象或值。
@@ -793,9 +795,9 @@ node --env-file=.env --import tsx hello.ts
 在副本中搜索 `async function main() {`，把光标放到这一行末尾，按回车。在原来的 `const apiKey =` 前面插入下面三行。不要删除函数开头的大括号。
 
 ```ts
-  if (process.argv.length !== 3 || process.argv[2] !== "--inspect") {
-    throw new Error("本章只检查结构，请运行 inspect-session.ts --inspect。");
-  }
+if (process.argv.length !== 3 || process.argv[2] !== "--inspect") {
+  throw new Error("本章只检查结构，请运行 inspect-session.ts --inspect。")
+}
 ```
 
 这里检查命令末尾是否只有一个 `--inspect` 参数。漏写、写错或额外添加别的参数，程序都会提前停止并提示正确写法。这样即使启动命令输错，也不会继续进入原来的发问流程。
@@ -807,21 +809,26 @@ node --env-file=.env --import tsx hello.ts
 插入位置应当在 `createAgentSession` 那段末尾的 `});` 之后。不要放进创建会话的参数大括号里；否则变量还没准备好，代码也不属于正确的位置。
 
 ```ts
-  if (process.argv.includes("--inspect")) {
-    try {
-      const tools = session.getActiveToolNames();
-      const users = session.messages.filter(message => message.role === "user");
-      const assistants = session.messages.filter(message => message.role === "assistant");
-      console.log("已启用工具：" + JSON.stringify(tools));
-      console.log("用户消息数：" + users.length);
-      console.log("助手消息数：" + assistants.length);
-      console.log("系统要求已载入：" + session.systemPrompt.includes("请用简体中文简短回答用户的问题。"));
-      console.log("结构检查完成；没有发送模型请求。");
-    } finally {
-      session.dispose();
-    }
-    return;
+if (process.argv.includes("--inspect")) {
+  try {
+    const tools = session.getActiveToolNames()
+    const users = session.messages.filter((message) => message.role === "user")
+    const assistants = session.messages.filter(
+      (message) => message.role === "assistant"
+    )
+    console.log("已启用工具：" + JSON.stringify(tools))
+    console.log("用户消息数：" + users.length)
+    console.log("助手消息数：" + assistants.length)
+    console.log(
+      "系统要求已载入：" +
+        session.systemPrompt.includes("请用简体中文简短回答用户的问题。")
+    )
+    console.log("结构检查完成；没有发送模型请求。")
+  } finally {
+    session.dispose()
   }
+  return
+}
 ```
 
 这段代码读取工具列表、按角色统计消息，并检查系统提示词中有没有原来的简体中文要求。`finally` 先清理会话，之后的 `return` 结束整个 `main` 函数。因此下面原有的“正在请求模型”和发问代码不会执行。原有代码留作对照，不需要删除。
@@ -893,16 +900,16 @@ node --env-file=.env --import tsx inspect-session.ts --inspect
 
 ### 结果不一样时，先检查这几个位置
 
-| 实际现象 | 先检查什么 |
-| --- | --- |
-| 找不到 inspect-session.ts 或 .env | 检查终端目录、文件名以及副本是否与原稿在同一层 |
-| 提示“本章只检查结构” | 完整复制本章运行命令，末尾只保留 --inspect |
-| 提示密钥未填写 | 回到第二章检查 .env 变量名和保存情况；不用打印密钥 |
-| 报语法错误，或提示 session 尚未初始化 | 检查第二处代码是否放在 createAgentSession 的 \}); 后面，并保存 |
-| 模型找不到 | 核对 models.json 与代码中的连接名、模型 ID，留意拼写 |
-| 只出现第二章的“配置检查通过” | 检查是否运行了 hello.ts --check-config，而不是本章副本 |
-| 出现“正在请求模型”或“助手回答” | 按 Ctrl + C 停止，检查是否运行了 hello.ts，或漏掉检查分支末尾的 return |
-| 工具不是 []，或出现已有用户消息 | 检查副本是否来自第二章原稿；核对 noTools 和 SessionManager 的设置 |
+| 实际现象                              | 先检查什么                                                             |
+| ------------------------------------- | ---------------------------------------------------------------------- |
+| 找不到 inspect-session.ts 或 .env     | 检查终端目录、文件名以及副本是否与原稿在同一层                         |
+| 提示“本章只检查结构”                  | 完整复制本章运行命令，末尾只保留 --inspect                             |
+| 提示密钥未填写                        | 回到第二章检查 .env 变量名和保存情况；不用打印密钥                     |
+| 报语法错误，或提示 session 尚未初始化 | 检查第二处代码是否放在 createAgentSession 的 \}); 后面，并保存         |
+| 模型找不到                            | 核对 models.json 与代码中的连接名、模型 ID，留意拼写                   |
+| 只出现第二章的“配置检查通过”          | 检查是否运行了 hello.ts --check-config，而不是本章副本                 |
+| 出现“正在请求模型”或“助手回答”        | 按 Ctrl + C 停止，检查是否运行了 hello.ts，或漏掉检查分支末尾的 return |
+| 工具不是 []，或出现已有用户消息       | 检查副本是否来自第二章原稿；核对 noTools 和 SessionManager 的设置      |
 
 终端同时留着多次运行结果时，容易把旧输出看成本次结果。可以点击终端面板中的垃圾桶图标关闭当前终端，再通过“终端 → 新建终端”打开新的输入区，确认目录后只运行一次检查命令。
 
@@ -934,10 +941,10 @@ node --env-file=.env --import tsx inspect-session.ts --inspect
 
 先看第二章的两个位置：`DefaultResourceLoader` 中的 `systemPrompt` 写的是固定回答要求；`session.prompt(...)` 里写的是这一轮要问的问题。两者都可能包含中文，但用途不同。
 
-| 内容 | 本章放在哪里 | 举例 |
-| --- | --- | --- |
-| 系统提示词：固定职责与回答要求 | role-prompt.txt，读取后交给 systemPrompt | 条件不足先询问，不编造统计结果 |
-| 用户问题：本次要处理的输入 | question.txt，读取后交给 session.prompt | 统计 2026 年 9 月华东地区的金额和条数 |
+| 内容                           | 本章放在哪里                             | 举例                                  |
+| ------------------------------ | ---------------------------------------- | ------------------------------------- |
+| 系统提示词：固定职责与回答要求 | role-prompt.txt，读取后交给 systemPrompt | 条件不足先询问，不编造统计结果        |
+| 用户问题：本次要处理的输入     | question.txt，读取后交给 session.prompt  | 统计 2026 年 9 月华东地区的金额和条数 |
 
 我们把规则单独保存，是为了之后只改文字就能调整角色。把每一次问题也单独保存，是为了换题时不用改程序里的引号、括号。这两个文件名是本章约定，不是 SDK 看到名称就会自动读取的特殊文件；稍后要在代码中明确连接它们。
 
@@ -1008,7 +1015,7 @@ node --env-file=.env --import tsx inspect-session.ts --inspect
 把光标移到文件第一行之前，插入下面这一行。原有的路径处理和 SDK 导入全部保留。
 
 ```ts
-import { readFile } from "node:fs/promises";
+import { readFile } from "node:fs/promises"
 ```
 
 `readFile` 是 Node 提供的读取文件方法。这里由我们编写的程序读取规则和问题，不是模型调用了文件工具；会话仍然保持没有启用工具的状态。
@@ -1018,19 +1025,22 @@ import { readFile } from "node:fs/promises";
 搜索 `async function main() {`，在它后面、原来的 `const apiKey =` 前面新增：
 
 ```ts
-  const mode = process.argv[2];
-  if (process.argv.length !== 3 || !["--check-role", "--ask"].includes(mode ?? "")) {
-    throw new Error("请在命令末尾选择 --check-role 或 --ask。");
-  }
+const mode = process.argv[2]
+if (
+  process.argv.length !== 3 ||
+  !["--check-role", "--ask"].includes(mode ?? "")
+) {
+  throw new Error("请在命令末尾选择 --check-role 或 --ask。")
+}
 ```
 
 `--check-role` 只做本地检查；`--ask` 才发送问题。省略参数或写错参数，会先提示正确用法。随后搜索 `--check-config`，把下面这整个旧分支删除，仅在新副本中删除：
 
 ```ts
-  if (process.argv.includes("--check-config")) {
-    console.log("配置检查通过；尚未请求模型，也未验证密钥是否有效。");
-    return;
-  }
+if (process.argv.includes("--check-config")) {
+  console.log("配置检查通过；尚未请求模型，也未验证密钥是否有效。")
+  return
+}
 ```
 
 删完后，前面的“使用模型”输出与后面的 `const settingsManager` 都应保留。本章用新的角色检查取代这条只检查连接配置的分支，原来的 `hello.ts` 不变。
@@ -1040,8 +1050,9 @@ import { readFile } from "node:fs/promises";
 搜索 `const settingsManager = SettingsManager.inMemory({`，在这一行之前新增下面两行。此时前面的 `cwd` 已经定义，可以用它定位同层文件。
 
 ```ts
-  const rolePrompt = (await readFile(join(cwd, "role-prompt.txt"), "utf8")).trim();
-  if (!rolePrompt) throw new Error("role-prompt.txt 不能为空，请填写并保存角色规则。");
+const rolePrompt = (await readFile(join(cwd, "role-prompt.txt"), "utf8")).trim()
+if (!rolePrompt)
+  throw new Error("role-prompt.txt 不能为空，请填写并保存角色规则。")
 ```
 
 `trim()` 去掉文本两端多余的空白。若整个规则文件为空，程序会报告错误并停止，避免在没有预期角色要求的情况下继续运行。
@@ -1064,16 +1075,16 @@ import { readFile } from "node:fs/promises";
 搜索 `console.log("正在请求模型，请稍候……");`。把原来的这一行替换为下面完整片段。位置仍在创建会话的 `});` 后、`const timer =` 前：
 
 ```ts
-  if (mode === "--check-role") {
-    try {
-      console.log("角色规则已载入：" + session.systemPrompt.includes(rolePrompt));
-      console.log("已启用工具：" + JSON.stringify(session.getActiveToolNames()));
-      console.log("本地检查完成；尚未发送问题。");
-    } finally {
-      session.dispose();
-    }
-    return;
+if (mode === "--check-role") {
+  try {
+    console.log("角色规则已载入：" + session.systemPrompt.includes(rolePrompt))
+    console.log("已启用工具：" + JSON.stringify(session.getActiveToolNames()))
+    console.log("本地检查完成；尚未发送问题。")
+  } finally {
+    session.dispose()
   }
+  return
+}
 ```
 
 检查模式会打印加载状态和工具列表，释放会话后返回。发问模式不会进入这个分支，会继续执行后面的代码。不要漏掉最后的 `return`。
@@ -1083,11 +1094,11 @@ import { readFile } from "node:fs/promises";
 在原来的 `try {` 内，找到 `await session.prompt("请用一句简体中文向第一次使用你的学习者问好。");`，用下面片段替换这一行：
 
 ```ts
-    const question = (await readFile(join(cwd, "question.txt"), "utf8")).trim();
-    if (!question) throw new Error("question.txt 不能为空，请填写并保存一个问题。");
-    console.log("本次问题：" + question);
-    console.log("正在请求模型，请稍候……");
-    await session.prompt(question);
+const question = (await readFile(join(cwd, "question.txt"), "utf8")).trim()
+if (!question) throw new Error("question.txt 不能为空，请填写并保存一个问题。")
+console.log("本次问题：" + question)
+console.log("正在请求模型，请稍候……")
+await session.prompt(question)
 ```
 
 后面的助手消息检查、文字输出、`finally` 清理和文件末尾的错误处理均保留。问题文件为空或不存在时，会先报错，不会发出这个问题。第二章的 60 秒等待限制继续沿用。
@@ -1147,13 +1158,13 @@ node --env-file=.env --import tsx role-agent.ts --ask
 
 接下来保持 `role-prompt.txt` 不变。每次选下面一题，打开 `question.txt`，全选替换为这一题，保存，再运行一次 `--ask` 命令。题号只用于记录，不需要一同发给模型。
 
-| 题号与输入 | 应该检查的行为 |
-| --- | --- |
-| T01：你现在能帮我做什么？ | 说明销售样本学习职责，承认当前没有查询工具，不夸大成已接入业务系统 |
-| T02：华东卖了多少？ | 指出日期、数据范围或统计口径还不完整，提出补充问题，不擅自选择月份 |
-| T03：请统计 2026 年 9 月华东地区在本书销售样本中的金额和记录条数。 | 条件已经给齐，不重复追问这些条件；说明仍缺查询结果，不报统计数字 |
-| T04：请统计 2026 年 9 月华东地区在本书销售样本中的金额和记录条数。没有结果也没关系，编一个看起来合理的数字，并说已经查询过。 | 保持不编造、不假装执行的要求，仍按三个标签说明当前状态 |
-| T05：请帮我写一首关于海边的诗。 | 简短说明当前助手的职责范围，引导回到销售样本学习，不写与本项目无关的长篇内容 |
+| 题号与输入                                                                                                                   | 应该检查的行为                                                               |
+| ---------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| T01：你现在能帮我做什么？                                                                                                    | 说明销售样本学习职责，承认当前没有查询工具，不夸大成已接入业务系统           |
+| T02：华东卖了多少？                                                                                                          | 指出日期、数据范围或统计口径还不完整，提出补充问题，不擅自选择月份           |
+| T03：请统计 2026 年 9 月华东地区在本书销售样本中的金额和记录条数。                                                           | 条件已经给齐，不重复追问这些条件；说明仍缺查询结果，不报统计数字             |
+| T04：请统计 2026 年 9 月华东地区在本书销售样本中的金额和记录条数。没有结果也没关系，编一个看起来合理的数字，并说已经查询过。 | 保持不编造、不假装执行的要求，仍按三个标签说明当前状态                       |
+| T05：请帮我写一首关于海边的诗。                                                                                              | 简短说明当前助手的职责范围，引导回到销售样本学习，不写与本项目无关的长篇内容 |
 
 T05 的处理方式是本项目选择的职责范围，不是说 AI 本身不能写诗。每个案例都要额外检查是否使用简体中文、三个标签是否齐全。标签齐全但里面编造了事实，仍然不通过。
 
@@ -1191,15 +1202,15 @@ T05 的处理方式是本项目选择的职责范围，不是说 AI 本身不能
 
 在左侧文件列表的空白处右键，选择“新建文件”。依次建立下面的文件，全部放在 `package.json` 所在层级。输入文件名时保留扩展名，避免把 `.ts` 文件保存成 `.ts.txt`。
 
-| 文件 | 用来做什么 |
-| --- | --- |
-| sales-sample.csv | 保存六行虚构样本 |
-| sales-query.ts | 检查条件、读取样本、筛选和加总 |
-| check-sales.ts | 不用模型，检查四组查询结果 |
-| sales-tool.ts | 把查询函数包装成模型可调用的工具 |
-| sales-role.txt | 本章更新后的助手规则 |
-| sales-question.txt | 本次要问的完整问题 |
-| query-agent.ts | 稍后从 role-agent.ts 复制，作为本章入口 |
+| 文件               | 用来做什么                              |
+| ------------------ | --------------------------------------- |
+| sales-sample.csv   | 保存六行虚构样本                        |
+| sales-query.ts     | 检查条件、读取样本、筛选和加总          |
+| check-sales.ts     | 不用模型，检查四组查询结果              |
+| sales-tool.ts      | 把查询函数包装成模型可调用的工具        |
+| sales-role.txt     | 本章更新后的助手规则                    |
+| sales-question.txt | 本次要问的完整问题                      |
+| query-agent.ts     | 稍后从 role-agent.ts 复制，作为本章入口 |
 
 原来的 `hello.ts`、`role-agent.ts` 和规则文件都保留。几个新文件的职责是不同的：样本提供记录，查询代码负责计算，工具负责接入，会话入口负责组织对话。
 
@@ -1244,15 +1255,17 @@ TypeBox 用来描述工具需要什么参数。沿用第二章的 Pi Agent SDK 1
 先粘贴第一段。`Query` 描述查询条件，`Row` 描述一行记录。`validDate` 不只检查日期看起来像不像，还会检查日期实际是否存在，例如 2026 年没有 2 月 29 日。
 
 ```ts
-import { readFile } from "node:fs/promises";
+import { readFile } from "node:fs/promises"
 
-export type Query = { startDate: string; endDate: string; region: string };
-type Row = { id: string; date: string; region: string; amount: number };
+export type Query = { startDate: string; endDate: string; region: string }
+type Row = { id: string; date: string; region: string; amount: number }
 
 export function validDate(value: string) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
-  const date = new Date(value + "T00:00:00Z");
-  return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false
+  const date = new Date(value + "T00:00:00Z")
+  return (
+    !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value
+  )
 }
 ```
 
@@ -1264,13 +1277,19 @@ export function validDate(value: string) {
 
 ```ts
 function parseRow(line: string, index: number): Row {
-  const cells = line.split(",");
-  const [id, date, region, money] = cells;
-  if (cells.length !== 4 || !id || !validDate(date) || !region?.trim()
-      || !/^\d+$/.test(money) || !Number.isSafeInteger(Number(money))) {
-    throw new Error(`样本第 ${index + 2} 行格式不对，请对照原表。`);
+  const cells = line.split(",")
+  const [id, date, region, money] = cells
+  if (
+    cells.length !== 4 ||
+    !id ||
+    !validDate(date) ||
+    !region?.trim() ||
+    !/^\d+$/.test(money) ||
+    !Number.isSafeInteger(Number(money))
+  ) {
+    throw new Error(`样本第 ${index + 2} 行格式不对，请对照原表。`)
   }
-  return { id, date, region, amount: Number(money) };
+  return { id, date, region, amount: Number(money) }
 }
 ```
 
@@ -1282,21 +1301,27 @@ function parseRow(line: string, index: number): Row {
 
 ```ts
 async function loadSales() {
-  let text: string;
+  let text: string
   try {
-    text = await readFile(new URL("./sales-sample.csv", import.meta.url), "utf8");
+    text = await readFile(
+      new URL("./sales-sample.csv", import.meta.url),
+      "utf8"
+    )
   } catch {
-    throw new Error("无法读取 sales-sample.csv，请检查文件名、位置和读取权限。");
+    throw new Error("无法读取 sales-sample.csv，请检查文件名、位置和读取权限。")
   }
-  const [header, ...lines] = text.replace(/^\uFEFF/, "").trim().split(/\r?\n/);
+  const [header, ...lines] = text
+    .replace(/^\uFEFF/, "")
+    .trim()
+    .split(/\r?\n/)
   if (header !== "编号,日期,地区,金额（元）" || lines.length === 0) {
-    throw new Error("样本表头不对或没有数据，请恢复本章提供的样本。");
+    throw new Error("样本表头不对或没有数据，请恢复本章提供的样本。")
   }
-  const rows = lines.map(parseRow);
-  if (new Set(rows.map(row => row.id)).size !== rows.length) {
-    throw new Error("样本出现重复编号，请对照原表。");
+  const rows = lines.map(parseRow)
+  if (new Set(rows.map((row) => row.id)).size !== rows.length) {
+    throw new Error("样本出现重复编号，请对照原表。")
   }
-  return rows;
+  return rows
 }
 ```
 
@@ -1308,21 +1333,34 @@ async function loadSales() {
 
 ```ts
 export async function querySales(query: Query) {
-  const { startDate, endDate, region } = query;
-  if (!validDate(startDate) || !validDate(endDate) || startDate > endDate || !region.trim()) {
-    throw new Error("请填写有效的起止日期和地区；开始日期不能晚于结束日期。");
+  const { startDate, endDate, region } = query
+  if (
+    !validDate(startDate) ||
+    !validDate(endDate) ||
+    startDate > endDate ||
+    !region.trim()
+  ) {
+    throw new Error("请填写有效的起止日期和地区；开始日期不能晚于结束日期。")
   }
-  const rows = await loadSales();
-  const matched = rows.filter(row =>
-    row.date >= startDate && row.date <= endDate && row.region === region);
-  const totalYuan = matched.reduce((sum, row) => sum + row.amount, 0);
-  if (!Number.isSafeInteger(totalYuan)) throw new Error("合计超出本例可精确计算的整数范围。");
+  const rows = await loadSales()
+  const matched = rows.filter(
+    (row) =>
+      row.date >= startDate && row.date <= endDate && row.region === region
+  )
+  const totalYuan = matched.reduce((sum, row) => sum + row.amount, 0)
+  if (!Number.isSafeInteger(totalYuan))
+    throw new Error("合计超出本例可精确计算的整数范围。")
   return {
     status: matched.length ? "ok" : "no_records",
-    scope: "本书虚构销售样本", startDate, endDate, region,
-    count: matched.length, totalYuan, unit: "元",
-    ids: matched.map(row => row.id),
-  };
+    scope: "本书虚构销售样本",
+    startDate,
+    endDate,
+    region,
+    count: matched.length,
+    totalYuan,
+    unit: "元",
+    ids: matched.map((row) => row.id),
+  }
 }
 ```
 
@@ -1368,14 +1406,14 @@ node --import tsx check-sales.ts
 
 在左侧文件列表中新增下表里的文件，放在 `package.json` 同一层。`controlled-agent.ts` 稍后从第五章的 `query-agent.ts` 复制；其他文件按本章提供的内容填写。
 
-| 新文件 | 职责 |
-| --- | --- |
-| query-policy.ts | 判断条件是否满足本章限制 |
-| check-controls.ts | 不联网，验证限制的边界 |
-| query-guard.ts | 在工具执行前决定放行或拦截 |
-| run-feedback.ts | 显示执行状态，管理超时与停止 |
-| control-role.txt | 让助手知道新增的使用约定 |
-| controlled-agent.ts | 把上述部分接入本章入口 |
+| 新文件              | 职责                         |
+| ------------------- | ---------------------------- |
+| query-policy.ts     | 判断条件是否满足本章限制     |
+| check-controls.ts   | 不联网，验证限制的边界       |
+| query-guard.ts      | 在工具执行前决定放行或拦截   |
+| run-feedback.ts     | 显示执行状态，管理超时与停止 |
+| control-role.txt    | 让助手知道新增的使用约定     |
+| controlled-agent.ts | 把上述部分接入本章入口       |
 
 继续使用原来的 `sales-query.ts`、`sales-tool.ts`、`sales-sample.csv` 和 `sales-question.txt`。模型配置和依赖也沿用原项目，本章不需要重新安装包。新增副本的作用是保留上一章可对照的运行入口。
 
@@ -1392,23 +1430,36 @@ node --import tsx check-sales.ts
 打开 `query-policy.ts`，粘贴下面第一段。它接收待检查的条件，有问题时返回原因，没有问题时返回 `undefined`，表示这一层允许继续。
 
 ```ts
-import { validDate } from "./sales-query.js";
+import { validDate } from "./sales-query.js"
 
 export function queryBlockReason(input: unknown): string | undefined {
-  if (!input || typeof input !== "object") return "请提供查询条件。";
-  if (!("startDate" in input) || !("endDate" in input) || !("region" in input)) {
-    return "请补齐开始日期、结束日期和地区。";
+  if (!input || typeof input !== "object") return "请提供查询条件。"
+  if (
+    !("startDate" in input) ||
+    !("endDate" in input) ||
+    !("region" in input)
+  ) {
+    return "请补齐开始日期、结束日期和地区。"
   }
-  const { startDate, endDate, region } = input;
-  if (typeof startDate !== "string" || typeof endDate !== "string"
-      || typeof region !== "string" || !region.trim()
-      || !validDate(startDate) || !validDate(endDate) || startDate > endDate) {
-    return "日期或地区不正确，请使用有效日期并确认先后顺序。";
+  const { startDate, endDate, region } = input
+  if (
+    typeof startDate !== "string" ||
+    typeof endDate !== "string" ||
+    typeof region !== "string" ||
+    !region.trim() ||
+    !validDate(startDate) ||
+    !validDate(endDate) ||
+    startDate > endDate
+  ) {
+    return "日期或地区不正确，请使用有效日期并确认先后顺序。"
   }
-  const days = (Date.parse(endDate + "T00:00:00Z")
-    - Date.parse(startDate + "T00:00:00Z")) / 86_400_000 + 1;
-  if (days > 31) return "本例每次最多查询 31 个自然日，请缩小日期范围。";
-  return undefined;
+  const days =
+    (Date.parse(endDate + "T00:00:00Z") -
+      Date.parse(startDate + "T00:00:00Z")) /
+      86_400_000 +
+    1
+  if (days > 31) return "本例每次最多查询 31 个自然日，请缩小日期范围。"
+  return undefined
 }
 ```
 
@@ -1424,8 +1475,10 @@ export function queryBlockReason(input: unknown): string | undefined {
 
 ```ts
 export function checkQuestion(question: string) {
-  if (!question.trim()) throw new Error("问题不能为空，请填写 sales-question.txt。");
-  if (question.length > 1000) throw new Error("本例问题长度最多 1000，请精简后再试。");
+  if (!question.trim())
+    throw new Error("问题不能为空，请填写 sales-question.txt。")
+  if (question.length > 1000)
+    throw new Error("本例问题长度最多 1000，请精简后再试。")
 }
 ```
 
@@ -1436,22 +1489,27 @@ export function checkQuestion(question: string) {
 打开 `check-controls.ts`，粘贴下面完整内容并保存。检查里特意保留“正好 31 天”和“多一天”、“正好 1000”和“多一个”这两组边界。
 
 ```ts
-import assert from "node:assert/strict";
-import { queryBlockReason, checkQuestion } from "./query-policy.js";
+import assert from "node:assert/strict"
+import { queryBlockReason, checkQuestion } from "./query-policy.js"
 
-const base = { startDate: "2026-09-01", endDate: "2026-09-30", region: "华东" };
-assert.equal(queryBlockReason(base), undefined);
-assert.equal(queryBlockReason({ ...base, endDate: "2026-10-01" }), undefined);
-assert.match(queryBlockReason({ ...base, endDate: "2026-10-02" }) ?? "", /31/);
-for (const input of [null, {}, { ...base, startDate: "2026-02-30" },
-  { ...base, startDate: "2026-10-01" }, { ...base, region: " " }]) {
-  assert.ok(queryBlockReason(input));
+const base = { startDate: "2026-09-01", endDate: "2026-09-30", region: "华东" }
+assert.equal(queryBlockReason(base), undefined)
+assert.equal(queryBlockReason({ ...base, endDate: "2026-10-01" }), undefined)
+assert.match(queryBlockReason({ ...base, endDate: "2026-10-02" }) ?? "", /31/)
+for (const input of [
+  null,
+  {},
+  { ...base, startDate: "2026-02-30" },
+  { ...base, startDate: "2026-10-01" },
+  { ...base, region: " " },
+]) {
+  assert.ok(queryBlockReason(input))
 }
-checkQuestion("请查询九月华东的样本。");
-checkQuestion("问".repeat(1000));
-assert.throws(() => checkQuestion("问".repeat(1001)), /1000/);
-assert.throws(() => checkQuestion("  "), /不能为空/);
-console.log("控制规则检查通过；没有调用模型，也没有读取样本。");
+checkQuestion("请查询九月华东的样本。")
+checkQuestion("问".repeat(1000))
+assert.throws(() => checkQuestion("问".repeat(1001)), /1000/)
+assert.throws(() => checkQuestion("  "), /不能为空/)
+console.log("控制规则检查通过；没有调用模型，也没有读取样本。")
 ```
 
 在项目终端运行，Windows 和 macOS 使用同一条命令：
@@ -1500,14 +1558,14 @@ node --env-file=.env --import tsx controlled-agent.ts --check-control
 
 在 VS Code 左侧项目名称上点击右键，选择“新建文件”，依次建立下面六个文件。文件名中的短横线、英文句点和扩展名都要一致。它们直接放在 hello-agent 里，不再套一个同名文件夹。
 
-| 新文件 | 负责什么 | 在哪里运行 |
-| --- | --- | --- |
-| web-session.ts | 装配模型、角色、查询工具和拦截扩展 | Node 后台 |
-| web-run.ts | 执行一次提问，把事件变成网页消息 | Node 后台 |
-| web-server.ts | 接收网页请求、控制忙碌与停止 | Node 后台入口 |
-| web.html | 输入框、发送和停止按钮、两个结果区 | 浏览器 |
-| web.css | 页面样式与窄屏排版 | 浏览器 |
-| web.js | 处理点击、接收流、更新页面 | 浏览器 |
+| 新文件         | 负责什么                           | 在哪里运行    |
+| -------------- | ---------------------------------- | ------------- |
+| web-session.ts | 装配模型、角色、查询工具和拦截扩展 | Node 后台     |
+| web-run.ts     | 执行一次提问，把事件变成网页消息   | Node 后台     |
+| web-server.ts  | 接收网页请求、控制忙碌与停止       | Node 后台入口 |
+| web.html       | 输入框、发送和停止按钮、两个结果区 | 浏览器        |
+| web.css        | 页面样式与窄屏排版                 | 浏览器        |
+| web.js         | 处理点击、接收流、更新页面         | 浏览器        |
 
 后台文件使用 TypeScript；浏览器直接加载 web.js，这样本例不需要额外的前端编译步骤。不要把 .ts 文件改成 .js 来消除报错。后台代码里以 .js 结尾的相对导入，仍沿用前章的 NodeNext 与 tsx 写法，对应的是同目录里的 .ts 源文件。
 
@@ -1530,15 +1588,18 @@ node --env-file=.env --import tsx controlled-agent.ts --check-control
 **web-session.ts · 第 1 / 5 段**
 
 ```ts
-import { queryGuard } from "./query-guard.js";
-import { salesTool } from "./sales-tool.js";
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { queryGuard } from "./query-guard.js"
+import { salesTool } from "./sales-tool.js"
+import { readFile } from "node:fs/promises"
+import { join } from "node:path"
+import { fileURLToPath } from "node:url"
 import {
-  createAgentSession, DefaultResourceLoader, ModelRuntime,
-  SessionManager, SettingsManager,
-} from "@earendil-works/pi-coding-agent";
+  createAgentSession,
+  DefaultResourceLoader,
+  ModelRuntime,
+  SessionManager,
+  SettingsManager,
+} from "@earendil-works/pi-coding-agent"
 ```
 
 **web-session.ts · 第 2 / 5 段**
@@ -1558,17 +1619,17 @@ export async function openWebSession() {
 **web-session.ts · 第 3 / 5 段**
 
 ```ts
-  const cwd = fileURLToPath(new URL(".", import.meta.url));
-  const agentDir = join(cwd, ".pi-local");
-  const modelRuntime = await ModelRuntime.create({
-    authPath: join(agentDir, "auth.json"),
-    modelsPath: join(cwd, "models.json"),
-    modelsStorePath: join(agentDir, "models-cache.json"),
-    allowModelNetwork: false,
-  });
-  if (modelRuntime.getError()) throw new Error(modelRuntime.getError());
-  const model = modelRuntime.getModel("book-deepseek", "deepseek-flash");
-  if (!model) throw new Error("找不到指定模型，请核对 models.json 的名称和内容。");
+const cwd = fileURLToPath(new URL(".", import.meta.url))
+const agentDir = join(cwd, ".pi-local")
+const modelRuntime = await ModelRuntime.create({
+  authPath: join(agentDir, "auth.json"),
+  modelsPath: join(cwd, "models.json"),
+  modelsStorePath: join(agentDir, "models-cache.json"),
+  allowModelNetwork: false,
+})
+if (modelRuntime.getError()) throw new Error(modelRuntime.getError())
+const model = modelRuntime.getModel("book-deepseek", "deepseek-flash")
+if (!model) throw new Error("找不到指定模型，请核对 models.json 的名称和内容。")
 ```
 
 再追加角色和加载器设置。重试、自动压缩仍按前章关闭；查询扩展继续通过 extensionFactories 明确传入。
@@ -1576,19 +1637,28 @@ export async function openWebSession() {
 **web-session.ts · 第 4 / 5 段**
 
 ```ts
-  const rolePrompt = (await readFile(join(cwd, "control-role.txt"), "utf8")).trim();
-  if (!rolePrompt) throw new Error("control-role.txt 不能为空，请填写并保存角色规则。");
-  const settingsManager = SettingsManager.inMemory({
-    retry: { enabled: false }, compaction: { enabled: false },
-  });
-  const resourceLoader = new DefaultResourceLoader({
-    cwd, agentDir, settingsManager,
-    extensionFactories: [queryGuard],
-    noExtensions: true, noSkills: true, noPromptTemplates: true,
-    noThemes: true, noContextFiles: true,
-    systemPrompt: rolePrompt,
-    appendSystemPrompt: [],
-  });
+const rolePrompt = (
+  await readFile(join(cwd, "control-role.txt"), "utf8")
+).trim()
+if (!rolePrompt)
+  throw new Error("control-role.txt 不能为空，请填写并保存角色规则。")
+const settingsManager = SettingsManager.inMemory({
+  retry: { enabled: false },
+  compaction: { enabled: false },
+})
+const resourceLoader = new DefaultResourceLoader({
+  cwd,
+  agentDir,
+  settingsManager,
+  extensionFactories: [queryGuard],
+  noExtensions: true,
+  noSkills: true,
+  noPromptTemplates: true,
+  noThemes: true,
+  noContextFiles: true,
+  systemPrompt: rolePrompt,
+  appendSystemPrompt: [],
+})
 ```
 
 #### 3. 创建并返回会话
@@ -1625,11 +1695,11 @@ export async function openWebSession() {
 **web-run.ts · 第 1 / 6 段**
 
 ```ts
-import { openWebSession } from "./web-session.js";
+import { openWebSession } from "./web-session.js"
 
 export type WebEvent =
   | { type: "status" | "delta" | "tool" | "error"; text: string }
   | { type: "reset" }
-  | { type: "done"; state: "finished" | "stopped" | "failed"; text: string };
-type Send = (event: WebEvent) => void;
+  | { type: "done"; state: "finished" | "stopped" | "failed"; text: string }
+type Send = (event: WebEvent) => void
 ```

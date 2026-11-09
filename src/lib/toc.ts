@@ -30,7 +30,10 @@ export function groupTocItems(items: TableOfContentsItem[]): TocGroup[] {
 
 /* 当前高亮项属于哪一章：节命中时返回它所在的章，章自身命中时返回自己。
    目录要在滚动时自动展开这一章。 */
-export function groupIdOf(groups: TocGroup[], itemId: string): string | undefined {
+export function groupIdOf(
+  groups: TocGroup[],
+  itemId: string
+): string | undefined {
   for (const group of groups) {
     if (group.id === itemId) return group.id
     if (group.children.some((child) => child.id === itemId)) return group.id

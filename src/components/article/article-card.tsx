@@ -66,7 +66,8 @@ export function ArticleCard({ post }: ArticleCardProps) {
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-0 h-px opacity-0 transition-opacity duration-300 group-hover:opacity-100 motion-reduce:transition-none"
         style={{
-          background: "linear-gradient(90deg, transparent, rgba(37, 99, 235, 0.55), transparent)",
+          background:
+            "linear-gradient(90deg, transparent, rgba(37, 99, 235, 0.55), transparent)",
         }}
       />
 
@@ -75,7 +76,10 @@ export function ArticleCard({ post }: ArticleCardProps) {
           {/* 3. 分类用品牌淡底（三件套一起换：底、字、描边），
               和后面透明底的标签拉开层级 —— 全页仍然只有这一个强调蓝。
               色值走 --brand 令牌（= #2563eb），别在这里写死 hex。 */}
-          <Badge variant="secondary" className="border-brand/25 bg-brand/10 text-brand">
+          <Badge
+            variant="secondary"
+            className="border-brand/25 bg-brand/10 text-brand"
+          >
             {post.category}
           </Badge>
           {post.tags.slice(0, 2).map((tag) => (
@@ -86,7 +90,7 @@ export function ArticleCard({ post }: ArticleCardProps) {
         </div>
         <CardTitle className="text-xl leading-snug font-bold sm:text-2xl">
           <Link
-            className="outline-none after:absolute after:inset-0 transition-colors group-hover:text-brand focus-visible:underline"
+            className="transition-colors outline-none group-hover:text-brand after:absolute after:inset-0 focus-visible:underline"
             to={`/resources/${post.slug}`}
           >
             {post.title}
@@ -118,7 +122,7 @@ export function ArticleCard({ post }: ArticleCardProps) {
             位移用 motion-safe: 包住而不是 motion-reduce: 覆盖 —— 两条规则抢同一个
             translate 属性时，谁生效取决于样式表顺序；motion-safe 让「减少动态」下
             这两条工具类压根不存在，不赌顺序。 */}
-        <ArrowUpRightIcon className="size-4 transition motion-safe:group-hover:translate-x-0.5 motion-safe:group-hover:-translate-y-0.5 group-hover:text-brand motion-reduce:transition-none" />
+        <ArrowUpRightIcon className="size-4 transition group-hover:text-brand motion-safe:group-hover:translate-x-0.5 motion-safe:group-hover:-translate-y-0.5 motion-reduce:transition-none" />
       </CardFooter>
     </Card>
   )

@@ -10,5 +10,7 @@ export function isEditableTarget(target: EventTarget | null) {
     return true
   }
 
-  return target.closest("input, textarea, select, [contenteditable='true']") !== null
+  return (
+    target.closest("input, textarea, select, [contenteditable='true']") !== null
+  )
 }

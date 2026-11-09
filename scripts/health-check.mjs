@@ -112,7 +112,8 @@ function checkScripts() {
 
 /* 只认"像文件路径"的以 / 开头的字面量（带扩展名），
    这样 /profile、/resources 这类路由不会被误报成缺失资源。 */
-const ASSET_REF = /(?:src|url|avatarUrl|href|srcSet)\s*:\s*"(\/[^"]*\.[a-z0-9]{2,5})"/gi
+const ASSET_REF =
+  /(?:src|url|avatarUrl|href|srcSet)\s*:\s*"(\/[^"]*\.[a-z0-9]{2,5})"/gi
 
 function checkAssetReferences() {
   const sources = walk(
@@ -177,7 +178,12 @@ function checkContent() {
     try {
       frontmatter = parseYaml(match[1])
     } catch (error) {
-      record("FAIL", "文章内容", `${where} frontmatter YAML 解析失败`, String(error))
+      record(
+        "FAIL",
+        "文章内容",
+        `${where} frontmatter YAML 解析失败`,
+        String(error)
+      )
       problems++
       continue
     }
@@ -219,7 +225,11 @@ function checkContent() {
   }
 
   if (problems === 0) {
-    record("PASS", "文章内容", `${files.length} 篇文章 frontmatter 与 slug 均正常`)
+    record(
+      "PASS",
+      "文章内容",
+      `${files.length} 篇文章 frontmatter 与 slug 均正常`
+    )
   }
 }
 
@@ -238,7 +248,8 @@ const articleProcessor = createProcessor({
 /* 下面两个函数与插件里的 headingText / collectHeadings 同逻辑，改一处要改两处。
    脚本不能 import TS 插件，这份重复是刻意的。 */
 function articleHeadingText(node) {
-  if (node.type === "text" || node.type === "inlineCode") return node.value ?? ""
+  if (node.type === "text" || node.type === "inlineCode")
+    return node.value ?? ""
   if (!Array.isArray(node.children)) return ""
   return node.children.map(articleHeadingText).join("")
 }
@@ -257,7 +268,8 @@ function collectArticleHeadings(node, out) {
 
 function walkNodes(node, visit) {
   visit(node)
-  if (Array.isArray(node.children)) for (const child of node.children) walkNodes(child, visit)
+  if (Array.isArray(node.children))
+    for (const child of node.children) walkNodes(child, visit)
 }
 
 function checkArticleStructure() {
@@ -275,7 +287,12 @@ function checkArticleStructure() {
     try {
       tree = articleProcessor.parse(raw)
     } catch (error) {
-      record("FAIL", "文章结构", `${where} 解析失败`, String(error?.message ?? error))
+      record(
+        "FAIL",
+        "文章结构",
+        `${where} 解析失败`,
+        String(error?.message ?? error)
+      )
       problems++
       continue
     }
@@ -285,7 +302,8 @@ function checkArticleStructure() {
        这种正常情况：拿代码块自己的首尾两行比一下，闭合围栏得是同种字符且不短于开启。 */
     const lines = raw.split(/\r?\n/)
     let lastContentLine = lines.length
-    while (lastContentLine > 0 && lines[lastContentLine - 1].trim() === "") lastContentLine--
+    while (lastContentLine > 0 && lines[lastContentLine - 1].trim() === "")
+      lastContentLine--
 
     const FENCE_ONLY = /^[ \t]*(`{3,}|~{3,})[ \t]*$/
     const FENCE_ANY = /^[ \t]*(`{3,}|~{3,})/
@@ -300,7 +318,9 @@ function checkArticleStructure() {
          于是误报「未闭合」卡住合法提交。position.start.column 给的是围栏自身那一列，
          从那里切掉容器前缀再比。 */
       const cut = node.position.start.column - 1
-      const open = (lines[node.position.start.line - 1] ?? "").slice(cut).match(FENCE_ANY)
+      const open = (lines[node.position.start.line - 1] ?? "")
+        .slice(cut)
+        .match(FENCE_ANY)
       const close = (lines[endLine - 1] ?? "").slice(cut).match(FENCE_ONLY)
       const closed =
         open &&
@@ -476,7 +496,8 @@ function checkFavicon() {
   if (!existsSync(htmlPath)) return
 
   const html = readFileSync(htmlPath, "utf8")
-  const declared = /<link[^>]+rel=["'](?:shortcut icon|icon|apple-touch-icon)["']/i.test(html)
+  const declared =
+    /<link[^>]+rel=["'](?:shortcut icon|icon|apple-touch-icon)["']/i.test(html)
   const hasIco = existsSync(path.join(ROOT, "public", "favicon.ico"))
 
   if (declared || hasIco) {
