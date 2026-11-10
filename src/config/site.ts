@@ -47,19 +47,11 @@ export const siteContent = {
     location: "济南",
   },
   blog: {
-    publicResources: "第一篇在路上",
     latestResources: "还在写第一篇，很快见。",
-  },
-  links: {
-    douyin: {
-      label: "抖音：bingziyuyang",
-      url: "https://www.douyin.com/search/bingziyuyang?type=user",
-    },
   },
   weather: {
     storageKey: "blog-weather-location",
     forecastApiUrl: "https://api.open-meteo.com/v1/forecast",
-    geocodingApiUrl: "https://geocoding-api.open-meteo.com/v1/search",
     defaultLocation: {
       name: "济南",
       latitude: 36.65,
@@ -118,22 +110,12 @@ export const siteContent = {
     works: {
       subtitle: "从零到一，用代码构建的每一个项目",
       listTitle: "项目列表",
-      description:
-        "用来展示完成的项目、实验和其他创作。当前先保留页面结构，项目内容稍后添加。",
       emptyTitle: "暂无项目",
       emptyDescription:
         "后续添加项目时，这里会展示项目名称、简介、状态和访问入口。",
     },
     profile: {
-      heroEyebrow: "BLOG / NOTES",
-      heroTitle: "博客 · 记录与发现",
-      heroSubtitle: "把学习、创作和建设过程整理成可以回看的片段。",
-      contact: "联系方式",
-      writing: "WRITING",
-      latestResources: "最新资料",
       emptyResources: "暂无资料",
-      emptyResourcesDescription: "新资料发布后会显示在这里。",
-      noTagResults: "没有找到带该标签的文章",
       /* 顶部个人资料卡三个统计项的小字标签（数字/短横线本身在组件里拼） */
       statArticles: "文章",
       statMoments: "说说",
@@ -158,7 +140,9 @@ export const siteContent = {
       emptyResourcesDescription: "资料内容已清空，之后可以添加新的 MDX 资料。",
       noResultsDescription: "换一个关键词，或者清除当前搜索条件。",
     },
-    sidebar: {
+    /* 底部「时间天气横条」（StatusBar）的文案。
+       这里原先叫 sidebar，但站上早就没有侧边栏了，改名避免让人去找一个不存在的组件。 */
+    statusBar: {
       weatherUnavailable: "天气不可用",
       humidity: "湿度",
       unknownWeather: "未知",

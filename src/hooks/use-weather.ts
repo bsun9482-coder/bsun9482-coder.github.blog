@@ -140,7 +140,7 @@ export function useWeather() {
   }, [location])
 
   const presentation = WEATHER_BY_CODE[weather?.weatherCode ?? -1] ?? {
-    description: siteContent.ui.sidebar.unknownWeather,
+    description: siteContent.ui.statusBar.unknownWeather,
     icon: CloudIcon,
   }
 

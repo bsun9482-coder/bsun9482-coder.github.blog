@@ -49,8 +49,8 @@ export function StatusBar() {
           </p>
           <p className="font-mono text-[11px] text-faint">
             {hasError
-              ? siteContent.ui.sidebar.weatherUnavailable
-              : `${presentation.description} · ${siteContent.ui.sidebar.humidity} ${weather ? Math.round(weather.relativeHumidity) : "--"}%`}
+              ? siteContent.ui.statusBar.weatherUnavailable
+              : `${presentation.description} · ${siteContent.ui.statusBar.humidity} ${weather ? Math.round(weather.relativeHumidity) : "--"}%`}
           </p>
         </div>
       </div>
