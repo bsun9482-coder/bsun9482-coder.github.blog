@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="学习日志">
+  <!--
+    站点图标。按 32×32 画，浏览器缩到 16px 也不会糊：
+    · 底色取 primary 的近黑 #18181b，标签栏（浅灰或深灰）上都立得出来；
+    · 图形是终端提示符「❯ + 下划线」，对应首页的打字机效果，比缩到 16px 的汉字清楚得多；
+    · 下划线用品牌蓝 #2563eb，和正文链接、滚动进度条是同一个蓝。
+    改色时同步改这里；这三个颜色在 src/index.css 里都有对应的设计令牌。
+    注意：XML 注释里不能出现两个连续连字符，令牌名要写成人话（写成带连字符的形式会让整个 SVG 解码失败）。
+  -->
+  <rect
+    x="0.5"
+    y="0.5"
+    width="31"
+    height="31"
+    rx="6.5"
+    fill="#18181b"
+    stroke="#52525b"
+    stroke-width="1"
+  />
+  <path
+    d="M10 10.5 L15.5 16 L10 21.5"
+    fill="none"
+    stroke="#fafafa"
+    stroke-width="2.6"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <path d="M17.5 21.5 H23" fill="none" stroke="#2563eb" stroke-width="2.6" stroke-linecap="round" />
+</svg>
