@@ -1,18 +1,32 @@
-import { useEffect } from "react"
+import { Suspense, lazy, useEffect } from "react"
 import { BrowserRouter, Outlet, Route, Routes, useLocation } from "react-router"
 
 import { SiteAmbience } from "@/components/layout/site-ambience"
 import { SiteFooter } from "@/components/layout/site-footer"
 import { SiteHeader } from "@/components/layout/site-header"
 import { ScrollProgress } from "@/components/layout/scroll-progress"
+import { ErrorBoundary } from "@/components/system/error-boundary"
+import { PageLoading } from "@/components/system/page-loading"
+import { siteContent } from "@/config/site"
+import { useDocumentTitle } from "@/hooks/use-document-title"
 import { useEscapeBack } from "@/hooks/use-escape-back"
-import { ArticlePage } from "@/pages/article-page"
 import { HomePage } from "@/pages/home-page"
 import { JournalPage } from "@/pages/journal-page"
 import { NotFoundPage } from "@/pages/not-found-page"
 import { ProfilePage } from "@/pages/profile-page"
 import { ResourcesPage } from "@/pages/resources-page"
-import { WorksPage } from "@/pages/works-page"
+
+/* 两个页面按需下载：文章详情（带整篇 MDX 正文与目录解析）和项目页。
+   为什么值得拆：主包会被「进站第一屏根本用不到的代码」撑大，而首屏只认
+   下载速度。拆出去之后，进站不点文章就不下载这些。
+   ⚠️ 拆包的代价是「chunk 没下载下来就白屏」，所以外面必须有 ErrorBoundary
+   （见 SiteLayout）—— 这两件事要一起做，单做前者只会把风险放大。 */
+const ArticlePage = lazy(() =>
+  import("@/pages/article-page").then((m) => ({ default: m.ArticlePage }))
+)
+const WorksPage = lazy(() =>
+  import("@/pages/works-page").then((m) => ({ default: m.WorksPage }))
+)
 
 function ScrollManager() {
   const { hash, pathname } = useLocation()
@@ -37,6 +51,15 @@ function EscapeToBack() {
   return null
 }
 
+/* 404 也要有页面标题：直接用 <NotFoundPage /> 当路由元素的话，
+   这个页面组件本身不设标题（它还有个嵌在文章页里的 compact 用法，
+   在那里抢标题会盖掉文章标题）。所以在这里包一层，只在「独立成页」时设。 */
+function NotFoundRoute() {
+  useDocumentTitle(siteContent.ui.notFound.title)
+
+  return <NotFoundPage />
+}
+
 function SiteLayout() {
   const { pathname } = useLocation()
   /* 首页是整屏吸附式落地页，最后一屏自己收尾 —— 不挂页脚，页面滚到底就是最后那一屏。
@@ -52,7 +75,14 @@ function SiteLayout() {
       <ScrollProgress />
       <SiteHeader />
       <main className="flex-1">
-        <Outlet />
+        {/* key=pathname：换路由就重建兜底层，错误状态不会粘在后续页面上。
+            Suspense 在里层：它只管「页面 chunk 还没到」的那一小段，
+            兜底层只管「真的崩了」。 */}
+        <ErrorBoundary key={pathname}>
+          <Suspense fallback={<PageLoading />}>
+            <Outlet />
+          </Suspense>
+        </ErrorBoundary>
       </main>
       {withFooter && <SiteFooter />}
     </div>
@@ -72,7 +102,7 @@ export function App() {
           <Route element={<ResourcesPage />} path="/resources" />
           <Route element={<ArticlePage />} path="/resources/:slug" />
           <Route element={<JournalPage />} path="/journal" />
-          <Route element={<NotFoundPage />} path="*" />
+          <Route element={<NotFoundRoute />} path="*" />
         </Route>
       </Routes>
     </BrowserRouter>

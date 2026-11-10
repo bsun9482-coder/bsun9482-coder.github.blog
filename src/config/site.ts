@@ -117,6 +117,14 @@ export const siteContent = {
       description: "页面可能已被移动，或者链接地址有误。",
       backHome: "返回首页",
     },
+    /* 页面级懒加载与出错兜底（见 App.tsx 的 Suspense / ErrorBoundary）：
+       懒加载的页面在下载期间显示的占位提示、以及页面彻底崩了之后的说明与操作。 */
+    page: {
+      loading: "正在加载页面",
+      errorTitle: "页面没能加载出来",
+      errorHint: "可能是网络波动，或者站点刚更新过。重新加载一次通常就好了。",
+      retry: "重新加载",
+    },
     works: {
       subtitle: "从零到一，用代码构建的每一个项目",
       listTitle: "项目列表",
