@@ -3,8 +3,8 @@ import { Link } from "react-router"
 import type { MouseEvent as ReactMouseEvent } from "react"
 
 import { Badge } from "@/components/ui/badge"
+import { TiltCard } from "@/components/fx/tilt-card"
 import {
-  Card,
   CardContent,
   CardDescription,
   CardFooter,
@@ -35,7 +35,7 @@ export function ArticleCard({ post }: ArticleCardProps) {
   }
 
   return (
-    <Card
+    <TiltCard
       /* [&::before]:hidden 关掉 .card-fx 自带的那层聚光灯（420px / 8% / 70% 淡出）。
          为什么不是「再叠一层」：两层 8% 叠起来中心约 15.7%，白底会发灰，
          和「极简专业」相冲。这层新的（520px / 42%）就是它的替代，
@@ -129,6 +129,6 @@ export function ArticleCard({ post }: ArticleCardProps) {
             这两条工具类压根不存在，不赌顺序。 */}
         <ArrowUpRightIcon className="size-4 transition group-hover:text-brand motion-safe:group-hover:translate-x-0.5 motion-safe:group-hover:-translate-y-0.5 motion-reduce:transition-none" />
       </CardFooter>
-    </Card>
+    </TiltCard>
   )
 }

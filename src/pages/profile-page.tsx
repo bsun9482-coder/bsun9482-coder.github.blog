@@ -11,12 +11,13 @@ import { Link, useLocation } from "react-router"
 
 import { ArticleCard } from "@/components/article/article-card"
 import { Reveal } from "@/components/fx/reveal"
+import { TiltCard } from "@/components/fx/tilt-card"
 import { Container } from "@/components/layout/container"
 import { StatusBar } from "@/components/layout/status-bar"
 import { PersonName } from "@/components/person-name"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { CardContent } from "@/components/ui/card"
 import {
   Carousel,
   CarouselContent,
@@ -37,7 +38,7 @@ function MusicPlaceholderCard() {
   const canPlay = Boolean(firstTrack?.src)
 
   return (
-    <Card>
+    <TiltCard>
       <CardContent className="flex h-full flex-col">
         <div className="flex items-center gap-4">
           <div className="size-16 shrink-0 rounded-full bg-muted" />
@@ -64,7 +65,7 @@ function MusicPlaceholderCard() {
           </Button>
         </div>
       </CardContent>
-    </Card>
+    </TiltCard>
   )
 }
 
@@ -147,7 +148,7 @@ export function ProfilePage() {
           {/* 个人信息卡 */}
           {/* 个人信息卡：内边距比常规卡大（28px / sm 起 36px），只改卡片的 --card-spacing，
               子节点不用各写一份 p-7 sm:p-9 */}
-          <Card className="[--card-spacing:--spacing(7)] sm:[--card-spacing:--spacing(9)]">
+          <TiltCard className="[--card-spacing:--spacing(7)] sm:[--card-spacing:--spacing(9)]">
             <CardContent className="flex h-full flex-col">
               <div className="flex items-start gap-6">
                 <Avatar className="size-20 shrink-0 ring-1 ring-border">
@@ -230,7 +231,7 @@ export function ProfilePage() {
                 </div>
               </div>
             </CardContent>
-          </Card>
+          </TiltCard>
 
           {/* 音乐占位卡 */}
           <MusicPlaceholderCard />
@@ -243,7 +244,7 @@ export function ProfilePage() {
             让箭头露出来；轮播内容由 CarouselContent 自带的 overflow-hidden 兜住，不会溢出圆角。
             外层 Reveal 只负责滚动入场（延迟 200ms，排在两张顶部卡之后）。 */}
         <Reveal delay={200}>
-          <Card className="overflow-visible [--card-spacing:--spacing(7)] sm:[--card-spacing:--spacing(9)]">
+          <TiltCard className="overflow-visible [--card-spacing:--spacing(7)] sm:[--card-spacing:--spacing(9)]">
             <Carousel opts={{ loop: true }}>
               <CarouselContent>
                 {siteContent.profileSlides.map((slide) => (
@@ -267,7 +268,7 @@ export function ProfilePage() {
               <CarouselPrevious className="-left-2 hidden sm:-left-4 sm:flex lg:-left-8" />
               <CarouselNext className="-right-2 hidden sm:-right-4 sm:flex lg:-right-8" />
             </Carousel>
-          </Card>
+          </TiltCard>
         </Reveal>
 
         {/* 最新文章 */}
@@ -296,7 +297,7 @@ export function ProfilePage() {
               ))}
             </div>
           ) : (
-            <Card className="border-dashed py-10 text-center">
+            <TiltCard className="border-dashed py-10 text-center">
               <CardContent>
                 <BookOpenIcon className="mx-auto size-8 text-muted-foreground" />
                 <h3 className="mt-4 font-medium">
@@ -306,7 +307,7 @@ export function ProfilePage() {
                   {siteContent.ui.profile.emptyPostsHint}
                 </p>
               </CardContent>
-            </Card>
+            </TiltCard>
           )}
         </section>
 

@@ -1,8 +1,9 @@
 import { FolderGit2Icon } from "lucide-react"
 
 import { Reveal } from "@/components/fx/reveal"
+import { TiltCard } from "@/components/fx/tilt-card"
 import { Container } from "@/components/layout/container"
-import { Card, CardContent } from "@/components/ui/card"
+import { CardContent } from "@/components/ui/card"
 import { pageNameOf, siteContent } from "@/config/site"
 import { useDocumentTitle } from "@/hooks/use-document-title"
 
@@ -31,7 +32,7 @@ export function WorksPage() {
           {siteContent.ui.works.listTitle}
         </h2>
         <Reveal delay={100}>
-          <Card className="border-dashed py-16 text-center">
+          <TiltCard className="border-dashed py-16 text-center">
             <CardContent>
               <FolderGit2Icon className="mx-auto size-10 text-muted-foreground" />
               <h3 className="mt-5 text-lg font-medium">
@@ -41,7 +42,7 @@ export function WorksPage() {
                 {siteContent.ui.works.emptyDescription}
               </p>
             </CardContent>
-          </Card>
+          </TiltCard>
         </Reveal>
       </section>
     </Container>

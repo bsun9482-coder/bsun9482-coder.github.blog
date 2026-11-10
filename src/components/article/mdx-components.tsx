@@ -16,7 +16,7 @@ function Note({
   title = siteContent.ui.article.noteDefaultTitle,
 }: NoteProps) {
   return (
-    <Card tilt={false} className="my-6 gap-3 bg-muted/40 shadow-none">
+    <Card className="my-6 gap-3 bg-muted/40 shadow-none">
       <CardHeader className="flex-row items-center gap-2 pb-0">
         <InfoIcon className="size-4 text-muted-foreground" />
         <CardTitle className="text-sm">{title}</CardTitle>

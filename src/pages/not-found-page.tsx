@@ -1,8 +1,9 @@
 import { FileQuestionIcon } from "lucide-react"
 import { Link } from "react-router"
 
+import { TiltCard } from "@/components/fx/tilt-card"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { CardContent } from "@/components/ui/card"
 import { siteContent } from "@/config/site"
 import { cn } from "@/lib/utils"
 
@@ -18,7 +19,7 @@ export function NotFoundPage({ compact = false }: NotFoundPageProps) {
         !compact && "min-h-[65vh]"
       )}
     >
-      <Card className="w-full py-12 text-center">
+      <TiltCard className="w-full py-12 text-center">
         <CardContent>
           <FileQuestionIcon className="mx-auto mb-5 size-10 text-faint" />
           <p className="font-mono text-xs tracking-widest text-faint">404</p>
@@ -32,7 +33,7 @@ export function NotFoundPage({ compact = false }: NotFoundPageProps) {
             <Link to="/">{siteContent.ui.notFound.backHome}</Link>
           </Button>
         </CardContent>
-      </Card>
+      </TiltCard>
     </div>
   )
 }

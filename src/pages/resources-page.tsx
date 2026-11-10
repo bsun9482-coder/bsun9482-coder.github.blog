@@ -3,9 +3,10 @@ import { BookOpen, SearchIcon, XIcon } from "lucide-react"
 
 import { ArticleCard } from "@/components/article/article-card"
 import { Reveal } from "@/components/fx/reveal"
+import { TiltCard } from "@/components/fx/tilt-card"
 import { Container } from "@/components/layout/container"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { pageNameOf, siteContent } from "@/config/site"
 import { useDocumentTitle } from "@/hooks/use-document-title"
@@ -132,7 +133,7 @@ export function ResourcesPage() {
             ))}
           </div>
         ) : (
-          <Card className="mt-4 py-12 text-center">
+          <TiltCard className="mt-4 py-12 text-center">
             <CardContent>
               <SearchIcon className="mx-auto mb-4 size-8 text-muted-foreground" />
               <h3 className="text-lg font-medium">
@@ -158,7 +159,7 @@ export function ResourcesPage() {
                 </Button>
               )}
             </CardContent>
-          </Card>
+          </TiltCard>
         )}
       </section>
     </Container>
