@@ -26,10 +26,10 @@ export function NotFoundPage({ compact = false }: NotFoundPageProps) {
             {siteContent.ui.notFound.title}
           </h1>
           <p className="mt-3 text-sm text-muted-foreground">
-            页面可能已被移动，或者链接地址有误。
+            {siteContent.ui.notFound.description}
           </p>
           <Button asChild className="mt-6">
-            <Link to="/">返回首页</Link>
+            <Link to="/">{siteContent.ui.notFound.backHome}</Link>
           </Button>
         </CardContent>
       </Card>

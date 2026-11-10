@@ -102,7 +102,9 @@ export function ArticleCard({ post }: ArticleCardProps) {
           {post.description}
         </CardDescription>
       </CardHeader>
-      <CardContent className="sr-only">打开资料：{post.title}</CardContent>
+      <CardContent className="sr-only">
+        {siteContent.ui.article.openLabel}：{post.title}
+      </CardContent>
       {/* 卡片根节点 p-6 的 padding-bottom 会被 card.tsx 的
           has-data-[slot=card-footer]:pb-0 压成 0（footer 在场时的既定行为），
           所以这里**不能**再叠 -mb-6 —— 那会把 footer 推到卡片底边外 24px，

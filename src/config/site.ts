@@ -46,9 +46,6 @@ export const siteContent = {
     introduction: "泪水打湿猪脚饭，发誓要挣100万",
     location: "济南",
   },
-  blog: {
-    latestResources: "还在写第一篇，很快见。",
-  },
   weather: {
     storageKey: "blog-weather-location",
     forecastApiUrl: "https://api.open-meteo.com/v1/forecast",
@@ -83,6 +80,10 @@ export const siteContent = {
       home: "首页",
       menuTitle: "导航菜单",
       menuDescription: "选择要访问的页面",
+      /* 无障碍标签：读屏器会念出来，页面上看不见，仍是文案的一部分 */
+      navLabel: "主导航",
+      mobileNavLabel: "移动端导航",
+      menuOpen: "打开导航菜单",
     },
     footer: {
       subtitle: "内容持续更新",
@@ -97,15 +98,24 @@ export const siteContent = {
       /* 首页 hero 的终端打字机：先打命令，打完再打结果（两行，55ms/字） */
       terminalCommand: "$ npm run build",
       terminalResult: "→ 部署成功，欢迎来到我的数字花园。",
+      /* 首屏底部那个下滑箭头按钮的无障碍标签（图标按钮，页面上没有可见文字） */
+      scrollHint: "向下滚动进入博客",
     },
     article: {
-      tocTitle: "资料目录",
+      tocTitle: "文章目录",
       tocKicker: "当前教程",
       noteDefaultTitle: "提示",
       minutesSuffix: "分钟阅读",
+      /* 下面三条原来写死在 article-page.tsx / article-card.tsx 里 */
+      missingTitle: "文章不存在",
+      backToList: "返回文章列表",
+      loading: "正在加载文章",
+      openLabel: "打开文章",
     },
     notFound: {
       title: "没有找到这个页面",
+      description: "页面可能已被移动，或者链接地址有误。",
+      backHome: "返回首页",
     },
     works: {
       subtitle: "从零到一，用代码构建的每一个项目",
@@ -115,7 +125,15 @@ export const siteContent = {
         "后续添加项目时，这里会展示项目名称、简介、状态和访问入口。",
     },
     profile: {
-      emptyResources: "暂无资料",
+      /* 「最新文章」区块：标题、右上角「查看全部」、以及没有文章时的两条占位文案。
+         注意这里不再另存一份「暂无文章」—— 与 ui.resources.emptyResources 是同一句话，
+         两处各写一份正是之前「资料 / 文章」分叉的起因。 */
+      latestPosts: "最新文章",
+      viewAll: "查看全部 →",
+      emptyPostsHint: "还在写第一篇，很快见。",
+      /* 个人卡右下角两个图标按钮的无障碍标签（未接功能，另有 TODO 跟踪） */
+      externalLink: "外部链接",
+      music: "音乐",
       /* 顶部个人资料卡三个统计项的小字标签（数字/短横线本身在组件里拼） */
       statArticles: "文章",
       statMoments: "说说",
@@ -133,11 +151,22 @@ export const siteContent = {
       regionLabel: "歌词展示",
       empty: "暂无歌词",
     },
+    /* 文章列表页（/resources）：筛选条、搜索框、计数与两种空状态。
+       计数文案用 {query} / {count} 占位，由 lib/text.ts 的 fillTemplate 填 ——
+       别在组件里拿字符串拼，中文语序一旦要调就得改 JSX。 */
     resources: {
       subtitle: "记录技术探索、学术研究与生活感悟",
-      emptyResources: "暂无资料",
-      noResults: "没有找到相关资料",
-      emptyResourcesDescription: "资料内容已清空，之后可以添加新的 MDX 资料。",
+      allCategories: "全部",
+      filterLabel: "按分类筛选",
+      searchLabel: "搜索文章",
+      searchPlaceholder: "搜索标题、标签或正文…",
+      clearSearch: "清除搜索",
+      matchedCount: "“{query}” 匹配到 {count} 篇",
+      totalCount: "共 {count} 篇",
+      clearFilters: "清除筛选条件",
+      emptyResources: "暂无文章",
+      noResults: "没有找到相关文章",
+      emptyResourcesDescription: "文章内容已清空，之后可以添加新的 MDX 文章。",
       noResultsDescription: "换一个关键词，或者清除当前搜索条件。",
     },
     /* 底部「时间天气横条」（StatusBar）的文案。
@@ -146,6 +175,9 @@ export const siteContent = {
       weatherUnavailable: "天气不可用",
       humidity: "湿度",
       unknownWeather: "未知",
+      /* 日期里的「周一」这类：名字按 Date.getDay() 的 0~6 索引取 */
+      weekdayPrefix: "周",
+      weekdays: ["日", "一", "二", "三", "四", "五", "六"],
     },
     /* 日记页：短内容聚合，没有详情路由 */
     journal: {

@@ -11,12 +11,14 @@ import { pageNameOf, siteContent } from "@/config/site"
 import { useDocumentTitle } from "@/hooks/use-document-title"
 import { posts } from "@/lib/posts"
 import { staggerDelay } from "@/lib/reveal"
+import { fillTemplate } from "@/lib/text"
 
-const ALL_CATEGORIES = "全部"
+/* 「全部」是筛选条的第一项，也是「没选任何分类」的哨兵值 —— 文案进配置，值本身不变 */
+const ALL_CATEGORIES = siteContent.ui.resources.allCategories
 
 export function ResourcesPage() {
   const [query, setQuery] = useState("")
-  const [activeCategory, setActiveCategory] = useState(ALL_CATEGORIES)
+  const [activeCategory, setActiveCategory] = useState<string>(ALL_CATEGORIES)
   const deferredQuery = useDeferredValue(query.trim().toLocaleLowerCase())
 
   useDocumentTitle(pageNameOf("/resources"))
@@ -61,7 +63,7 @@ export function ResourcesPage() {
 
         <div className="flex flex-col gap-3 rounded-xl border border-border bg-muted/40 p-2 sm:flex-row sm:items-center">
           <div
-            aria-label="按分类筛选"
+            aria-label={siteContent.ui.resources.filterLabel}
             className="flex flex-wrap gap-1.5"
             role="group"
           >
@@ -82,16 +84,16 @@ export function ResourcesPage() {
           <div className="relative w-full sm:ml-auto sm:w-64">
             <SearchIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              aria-label="搜索资料"
+              aria-label={siteContent.ui.resources.searchLabel}
               className="pr-9 pl-9"
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="搜索标题、标签或正文…"
+              placeholder={siteContent.ui.resources.searchPlaceholder}
               type="search"
               value={query}
             />
             {query && (
               <Button
-                aria-label="清除搜索"
+                aria-label={siteContent.ui.resources.clearSearch}
                 className="absolute top-1/2 right-1 -translate-y-1/2"
                 onClick={() => setQuery("")}
                 size="icon-sm"
@@ -106,8 +108,13 @@ export function ResourcesPage() {
 
         <p className="mt-4 font-mono text-xs text-faint tabular-nums">
           {deferredQuery.length > 0
-            ? `“${query.trim()}” 匹配到 ${filteredPosts.length} 份`
-            : `共 ${filteredPosts.length} 份`}
+            ? fillTemplate(siteContent.ui.resources.matchedCount, {
+                query: query.trim(),
+                count: filteredPosts.length,
+              })
+            : fillTemplate(siteContent.ui.resources.totalCount, {
+                count: filteredPosts.length,
+              })}
         </p>
 
         {filteredPosts.length > 0 ? (
@@ -147,7 +154,7 @@ export function ResourcesPage() {
                   }}
                   variant="outline"
                 >
-                  清除筛选条件
+                  {siteContent.ui.resources.clearFilters}
                 </Button>
               )}
             </CardContent>

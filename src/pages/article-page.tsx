@@ -18,7 +18,7 @@ export function ArticlePage() {
   const { slug = "" } = useParams()
   const post = getPostBySlug(slug)
 
-  useDocumentTitle(post ? post.title : "资料不存在")
+  useDocumentTitle(post ? post.title : siteContent.ui.article.missingTitle)
 
   if (!post) {
     return <NotFoundPage compact />
@@ -31,7 +31,7 @@ export function ArticlePage() {
       <Button asChild className="-ml-2" variant="ghost">
         <Link to="/resources">
           <ArrowLeftIcon data-icon="inline-start" />
-          返回资料列表
+          {siteContent.ui.article.backToList}
         </Link>
       </Button>
 
@@ -80,7 +80,9 @@ export function ArticlePage() {
                   <Skeleton className="h-4 w-full" />
                   <Skeleton className="h-4 w-11/12" />
                   <Skeleton className="h-32 w-full" />
-                  <span className="sr-only">正在加载资料</span>
+                  <span className="sr-only">
+                    {siteContent.ui.article.loading}
+                  </span>
                 </div>
               }
             >

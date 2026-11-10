@@ -43,7 +43,7 @@ export function SiteHeader() {
         </Link>
 
         <nav
-          aria-label="主导航"
+          aria-label={siteContent.ui.header.navLabel}
           className="ml-auto hidden items-center gap-1 md:flex"
         >
           {allNavigationItems.map((item) => {
@@ -71,7 +71,7 @@ export function SiteHeader() {
           <Sheet>
             <SheetTrigger asChild>
               <Button
-                aria-label="打开导航菜单"
+                aria-label={siteContent.ui.header.menuOpen}
                 className="md:hidden"
                 size="icon-sm"
                 variant="ghost"
@@ -86,7 +86,10 @@ export function SiteHeader() {
                   {siteContent.ui.header.menuDescription}
                 </SheetDescription>
               </SheetHeader>
-              <nav aria-label="移动端导航" className="grid gap-0.5 px-3">
+              <nav
+                aria-label={siteContent.ui.header.mobileNavLabel}
+                className="grid gap-0.5 px-3"
+              >
                 {allNavigationItems.map((item) => {
                   const active = isActive(item.href)
 

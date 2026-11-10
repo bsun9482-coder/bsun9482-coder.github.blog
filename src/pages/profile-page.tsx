@@ -203,7 +203,7 @@ export function ProfilePage() {
                 <div className="flex items-center gap-2.5">
                   {/* TODO: 外部链接入口（暂未定目标地址，先留空） */}
                   <Button
-                    aria-label="外部链接"
+                    aria-label={siteContent.ui.profile.externalLink}
                     className="size-10"
                     onClick={() => {
                       /* TODO: 跳转外部链接 */
@@ -215,7 +215,7 @@ export function ProfilePage() {
                   </Button>
                   {/* TODO: 音乐入口（暂未接音乐页/播放器） */}
                   <Button
-                    aria-label="音乐"
+                    aria-label={siteContent.ui.profile.music}
                     className="size-10"
                     onClick={() => {
                       /* TODO: 打开音乐 */
@@ -275,13 +275,13 @@ export function ProfilePage() {
               className="text-xl font-semibold tracking-tight"
               id="latest-posts"
             >
-              最新文章
+              {siteContent.ui.profile.latestPosts}
             </h2>
             <Link
               className="link-underline text-sm text-brand hover:text-brand-hover"
               to="/resources"
             >
-              查看全部 →
+              {siteContent.ui.profile.viewAll}
             </Link>
           </div>
 
@@ -298,10 +298,10 @@ export function ProfilePage() {
               <CardContent>
                 <BookOpenIcon className="mx-auto size-8 text-muted-foreground" />
                 <h3 className="mt-4 font-medium">
-                  {siteContent.ui.profile.emptyResources}
+                  {siteContent.ui.resources.emptyResources}
                 </h3>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  {siteContent.blog.latestResources}
+                  {siteContent.ui.profile.emptyPostsHint}
                 </p>
               </CardContent>
             </Card>

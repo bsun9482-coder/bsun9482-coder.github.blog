@@ -13,8 +13,8 @@ function formatTime(date: Date) {
 function formatDate(date: Date) {
   const m = String(date.getMonth() + 1).padStart(2, "0")
   const d = String(date.getDate()).padStart(2, "0")
-  const weekdays = ["日", "一", "二", "三", "四", "五", "六"]
-  return `${m}/${d} 周${weekdays[date.getDay()]}`
+  const { weekdays, weekdayPrefix } = siteContent.ui.statusBar
+  return `${m}/${d} ${weekdayPrefix}${weekdays[date.getDay()]}`
 }
 
 export function StatusBar() {

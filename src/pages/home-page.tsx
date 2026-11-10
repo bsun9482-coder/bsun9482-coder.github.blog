@@ -203,7 +203,7 @@ export function HomePage() {
         </div>
 
         <button
-          aria-label="向下滚动进入博客"
+          aria-label={siteContent.ui.home.scrollHint}
           className="absolute bottom-8 left-1/2 -translate-x-1/2 rounded-md p-2 text-faint transition-colors hover:text-muted-foreground"
           onClick={goProfile}
           type="button"
