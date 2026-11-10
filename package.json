@@ -11,7 +11,8 @@
     "format:check": "prettier --check .",
     "typecheck": "tsc -b --noEmit",
     "preview": "vite preview",
-    "health": "node scripts/health-check.mjs"
+    "health": "node scripts/health-check.mjs",
+    "deploy:status": "node scripts/deploy-status.mjs"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.3.0",
