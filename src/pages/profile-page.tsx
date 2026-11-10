@@ -38,7 +38,7 @@ function MusicPlaceholderCard() {
 
   return (
     <Card>
-      <CardContent className="flex h-full flex-col p-6">
+      <CardContent className="flex h-full flex-col">
         <div className="flex items-center gap-4">
           <div className="size-16 shrink-0 rounded-full bg-muted" />
           <div className="min-w-0">
@@ -145,8 +145,10 @@ export function ProfilePage() {
       <div className="mx-auto max-w-none space-y-5">
         <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
           {/* 个人信息卡 */}
-          <Card>
-            <CardContent className="flex h-full flex-col p-7 sm:p-9">
+          {/* 个人信息卡：内边距比常规卡大（28px / sm 起 36px），只改卡片的 --card-spacing，
+              子节点不用各写一份 p-7 sm:p-9 */}
+          <Card className="[--card-spacing:--spacing(7)] sm:[--card-spacing:--spacing(9)]">
+            <CardContent className="flex h-full flex-col">
               <div className="flex items-start gap-6">
                 <Avatar className="size-20 shrink-0 ring-1 ring-border">
                   <AvatarImage
@@ -241,12 +243,12 @@ export function ProfilePage() {
             让箭头露出来；轮播内容由 CarouselContent 自带的 overflow-hidden 兜住，不会溢出圆角。
             外层 Reveal 只负责滚动入场（延迟 200ms，排在两张顶部卡之后）。 */}
         <Reveal delay={200}>
-          <Card className="overflow-visible">
+          <Card className="overflow-visible [--card-spacing:--spacing(7)] sm:[--card-spacing:--spacing(9)]">
             <Carousel opts={{ loop: true }}>
               <CarouselContent>
                 {siteContent.profileSlides.map((slide) => (
                   <CarouselItem key={slide.eyebrow}>
-                    <CardContent className="p-7 sm:p-9">
+                    <CardContent>
                       <p className="font-mono text-[11px] tracking-[0.18em] text-faint uppercase">
                         {slide.eyebrow}
                       </p>

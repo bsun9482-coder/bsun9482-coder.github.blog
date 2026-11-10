@@ -46,8 +46,14 @@ function Card({
            hover 三件事：上浮 4px（.card-lift，0.25s）、描边加深、阴影加一层。
            不加渐变、不加发光、不缩放，也不改 padding/尺寸 —— 位移只用 transform，
            不触发重排，相邻卡片不会被顶开。
-           .card-fx 是第 12 轮加的鼠标特效（聚光灯 + 流动边光），开关见上面的 fx。 */
-        "card-lift group/card flex flex-col gap-(--card-spacing) overflow-hidden rounded-xl border border-border bg-card py-(--card-spacing) text-sm text-card-foreground shadow-card hover:border-foreground/25 hover:shadow-lift has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
+           .card-fx 是第 12 轮加的鼠标特效（聚光灯 + 流动边光），开关见上面的 fx。
+
+           ⚠️ --card-spacing 必须有默认值：这个变量以前只在 [data-size=sm] 里定义，
+           默认尺寸下 py/px/p/gap 全是「引用了不存在的变量」的无效声明，浏览器按 0 处理
+           —— 于是每张卡都得在调用点自己写 p-6 / p-7 / p-9，新写一个裸 <Card> 直接贴边。
+           现在默认 6（24px），size=sm 覆盖成 3（12px）。
+           分工：根节点负责上下留白 + 卡片内各块之间的间距，header/content/footer 负责左右留白。 */
+        "card-lift group/card flex flex-col gap-(--card-spacing) overflow-hidden rounded-xl border border-border bg-card py-(--card-spacing) text-sm text-card-foreground shadow-card [--card-spacing:--spacing(6)] hover:border-foreground/25 hover:shadow-lift has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
         fx && "card-fx",
         className
       )}

@@ -42,7 +42,9 @@ export function ArticleCard({ post }: ArticleCardProps) {
          流动边光（.card-fx::after）保持不动。
          isolate 是给下面 -z-10 的高光层兜底用：负 z 的元素要有个层叠上下文
          才不会掉到卡片白底后面（.card-fx 本来也有 isolation，这里写明白）。 */
-      className="group relative isolate gap-5 overflow-hidden p-6 [&::before]:hidden"
+      /* 内边距交给 Card 的 --card-spacing（默认 24px）：根节点给上下、header/content 给左右。
+         这里只保留 gap-5 —— 卡内各块的间距要比 24px 紧一点（20px），是这张卡自己的调子。 */
+      className="group relative isolate gap-5 overflow-hidden [&::before]:hidden"
       onMouseMove={handleGlowMove}
     >
       {/* 1. 鼠标跟随高光：圆心跟着 --mx/--my 跑，默认透明，hover 才显形。
@@ -105,11 +107,12 @@ export function ArticleCard({ post }: ArticleCardProps) {
       <CardContent className="sr-only">
         {siteContent.ui.article.openLabel}：{post.title}
       </CardContent>
-      {/* 卡片根节点 p-6 的 padding-bottom 会被 card.tsx 的
-          has-data-[slot=card-footer]:pb-0 压成 0（footer 在场时的既定行为），
-          所以这里**不能**再叠 -mb-6 —— 那会把 footer 推到卡片底边外 24px，
-          被 overflow:hidden 裁掉（实测箭头图标被削掉 2px）。底部留白由 pb-5 承担。 */}
-      <CardFooter className="-mx-6 mt-1 justify-between border-t-0 bg-transparent px-6 pt-4 pb-5 font-mono text-[11px] text-faint">
+      {/* 底部分隔区。根节点的 --card-spacing 负责上下留白：
+         有 footer 时 card.tsx 的 has-data-[slot=card-footer]:pb-0 会把卡片底边内边距压成 0，
+         所以这里**不能**再叠负的底部外边距 —— 那会把 footer 推到卡片底边外，
+         被 overflow:hidden 裁掉（实测箭头图标被削掉 2px）。底部留白由 pb-5 承担。
+         横向不需要负边距：根节点早就不放左右内边距了，footer 自己铺满整宽、用 px-6 归位。 */}
+      <CardFooter className="mt-1 justify-between border-t-0 bg-transparent px-6 pt-4 pb-5 font-mono text-[11px] text-faint">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
           <span className="inline-flex items-center gap-1.5">
             <CalendarDaysIcon className="size-3.5" />
