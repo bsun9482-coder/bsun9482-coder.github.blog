@@ -33,6 +33,8 @@ export function HomePage() {
   const visible = useEnterTransition(!prefersReducedMotion())
   /* 退场：置 true 后内容层淡出上移（450ms），过渡结束再 navigate。 */
   const [leaving, setLeaving] = useState(false)
+  /* 退场结束后才跳转，所以要记住这个定时器，好在卸载时取消（见下面的 effect）。 */
+  const leavingTimer = useRef(0)
   /* 只有一页、触发一次即跳转，用 ref 挡掉触控板惯性连发的后续 wheel / 连续按键 */
   const navigatingRef = useRef(false)
 
@@ -48,11 +50,16 @@ export function HomePage() {
 
     setLeaving(true)
     /* 退场动画跑满 450ms 再跳；并把「从首页来」的标记带给博客页，供其播入场动画。 */
-    window.setTimeout(
+    leavingTimer.current = window.setTimeout(
       () => navigate("/profile", { state: { fromHome: true } }),
       450
     )
   }, [navigate])
+
+  /* 卸载时取消那个「450ms 后跳转」。不取消的话：用户按了浏览器后退（或者点了导航），
+     首页已经被卸载，450ms 后定时器照样执行 navigate，把用户从他刚去的地方再拽回博客页。
+     表现是「后退一下又自己跳回来」，很难复现也很难解释。 */
+  useEffect(() => () => window.clearTimeout(leavingTimer.current), [])
 
   /* 退场播放期间锁住页面滚动（防止动画中还能滚），组件卸载（跳转完成后）自动还原。 */
   useEffect(() => {
