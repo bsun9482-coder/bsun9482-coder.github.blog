@@ -8,11 +8,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { siteContent } from "@/config/site"
 import { useDocumentTitle } from "@/hooks/use-document-title"
+import { useEnterTransition } from "@/hooks/use-enter-transition"
 import { isEditableTarget } from "@/lib/dom"
-
-function prefersReducedMotion() {
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches
-}
+import { prefersReducedMotion } from "@/lib/reveal"
 
 /* 底部向下箭头的上下浮动循环动画；降级时停掉浮动（media query 见下方 style） */
 const CHEVRON_CSS = `
@@ -30,27 +28,13 @@ export function HomePage() {
   useDocumentTitle(siteContent.ui.header.home)
   const navigate = useNavigate()
 
-  const [visible, setVisible] = useState(prefersReducedMotion)
+  /* 首屏依次淡入：开启「减少动态效果」时直接是可见态，不播。
+     双 rAF 的细节在 hooks/use-enter-transition.ts 里（那里有为什么）。 */
+  const visible = useEnterTransition(!prefersReducedMotion())
   /* 退场：置 true 后内容层淡出上移（450ms），过渡结束再 navigate。 */
   const [leaving, setLeaving] = useState(false)
   /* 只有一页、触发一次即跳转，用 ref 挡掉触控板惯性连发的后续 wheel / 连续按键 */
   const navigatingRef = useRef(false)
-
-  useEffect(() => {
-    if (visible) return
-
-    /* 双 rAF：等首帧（隐藏态）真的画上去之后再翻状态，否则状态变更会和首帧合并成
-       同一次绘制，过渡被吃掉。 */
-    let second = 0
-    const first = requestAnimationFrame(() => {
-      second = requestAnimationFrame(() => setVisible(true))
-    })
-
-    return () => {
-      cancelAnimationFrame(first)
-      cancelAnimationFrame(second)
-    }
-  }, [visible])
 
   const goProfile = useCallback(() => {
     if (navigatingRef.current) return

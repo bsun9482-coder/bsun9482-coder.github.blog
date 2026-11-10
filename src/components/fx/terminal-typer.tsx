@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef, useState } from "react"
 
+import { prefersReducedMotion } from "@/lib/reveal"
 import { cn } from "@/lib/utils"
 
 /* 终端打字机：逐字打出 command + result，末尾跟一个闪烁的蓝色光标。
@@ -30,7 +31,7 @@ export function TerminalTyper({
     const el = rootRef.current
     if (!el) return
     /* 减少动态：不打字（也就没有光标），CSS 保持展示 ghost 的完整句。 */
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+    if (prefersReducedMotion()) return
 
     el.classList.add("terminal-typing")
 

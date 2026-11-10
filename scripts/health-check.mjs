@@ -10,14 +10,20 @@
  * 退出码：0 = 全部通过；1 = 存在 FAIL。
  */
 
-import { createProcessor } from "@mdx-js/mdx"
 import { execFileSync } from "node:child_process"
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs"
 import path from "node:path"
 import process from "node:process"
-import remarkFrontmatter from "remark-frontmatter"
-import remarkGfm from "remark-gfm"
-import { parse as parseYaml } from "yaml"
+
+/* 文章解析与站点用的是同一份实现（vite-plugins/post-parse.mjs）。
+   以前这里复制了一份，注释自己写着「改一处要改两处」——
+   一旦漂移，会出现「体检通过但站点目录锚点是错的」这种查不出来的坏法。 */
+import {
+  collectHeadings,
+  headingText,
+  parseArticle,
+  splitFrontmatter,
+} from "../vite-plugins/post-parse.mjs"
 
 const ROOT = path.resolve(import.meta.dirname, "..")
 const args = process.argv.slice(2)
@@ -169,19 +175,17 @@ function checkContent() {
   for (const name of files) {
     const full = path.join(dir, name)
     const raw = readFileSync(full, "utf8")
-    const match = raw.match(/^---\s*\r?\n([\s\S]*?)\r?\n---/)
     const where = `content/resources/${name}`
 
-    if (!match) {
+    const { found, data: frontmatter, error } = splitFrontmatter(raw)
+
+    if (!found) {
       record("FAIL", "文章内容", `${where} 缺少 frontmatter`)
       problems++
       continue
     }
 
-    let frontmatter
-    try {
-      frontmatter = parseYaml(match[1])
-    } catch (error) {
+    if (error) {
       record(
         "FAIL",
         "文章内容",
@@ -239,36 +243,11 @@ function checkContent() {
 
 /* ---------- 检查 4：文章结构（围栏闭合 / 目录标题重名） ---------- */
 
-/* 目录抽取和这里都走真解析器（插件见 vite-plugins/remark-post-metadata.ts），
+/* 目录抽取和这里都走真解析器（共用 vite-plugins/post-parse.mjs），
    所以「代码块里的 ## 会污染目录」这类手写扫描的老毛病已经不成立了。
    改盯两个真会出问题的点：
    1) 围栏没闭合 —— 之后整篇会被当成代码，正文和目录一起塌掉；
-   2) 同级标题重名 —— 目录里出现两条一模一样的项，读者分不清点哪个。
-   解析配置必须和插件保持一致，否则判出来的不是插件看到的那棵树。 */
-const articleProcessor = createProcessor({
-  remarkPlugins: [remarkFrontmatter, remarkGfm],
-})
-
-/* 下面两个函数与插件里的 headingText / collectHeadings 同逻辑，改一处要改两处。
-   脚本不能 import TS 插件，这份重复是刻意的。 */
-function articleHeadingText(node) {
-  if (node.type === "text" || node.type === "inlineCode")
-    return node.value ?? ""
-  if (!Array.isArray(node.children)) return ""
-  return node.children.map(articleHeadingText).join("")
-}
-
-function collectArticleHeadings(node, out) {
-  /* 脚注区渲染时另起一块，里面的标题不进目录，判重也一并跳过 */
-  if (node.type === "footnoteDefinition") return
-  if (node.type === "heading" && (node.depth === 2 || node.depth === 3)) {
-    out.push(node)
-    return
-  }
-  if (Array.isArray(node.children)) {
-    for (const child of node.children) collectArticleHeadings(child, out)
-  }
-}
+   2) 同级标题重名 —— 目录里出现两条一模一样的项，读者分不清点哪个。 */
 
 function walkNodes(node, visit) {
   visit(node)
@@ -289,7 +268,7 @@ function checkArticleStructure() {
 
     let tree
     try {
-      tree = articleProcessor.parse(raw)
+      tree = parseArticle(raw)
     } catch (error) {
       record(
         "FAIL",
@@ -345,12 +324,12 @@ function checkArticleStructure() {
     }
 
     const headings = []
-    collectArticleHeadings(tree, headings)
+    collectHeadings(tree, headings)
 
     const seen = new Set()
     for (const node of headings) {
       const level = node.depth
-      const title = articleHeadingText(node).trim()
+      const title = headingText(node).trim()
       if (title === "") continue
 
       const key = `${level}:${title}`

@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react"
 import { BookOpenIcon } from "lucide-react"
 import { Link, useLocation } from "react-router"
 
@@ -20,12 +19,9 @@ import {
 } from "@/components/ui/carousel"
 import { pageNameOf, siteContent } from "@/config/site"
 import { useDocumentTitle } from "@/hooks/use-document-title"
+import { useEnterTransition } from "@/hooks/use-enter-transition"
 import { posts } from "@/lib/posts"
-import { staggerDelay } from "@/lib/reveal"
-
-function prefersReducedMotion() {
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches
-}
+import { prefersReducedMotion, staggerDelay } from "@/lib/reveal"
 
 /* 博客页：只负责「把几块内容摆上来」和入场动画。
    具体内容各有自己的组件：
@@ -40,27 +36,11 @@ export function ProfilePage() {
      其他入口（导航点「博客」/ 浏览器后退 / 直接开 /profile）不带标记 ⇒ 不播。
      reduced-motion 下也跳过。
      ⚠️ 原来的「黑幕淡出」已删除：白底站点上闪一层黑幕非常突兀，
-     入场只保留内容层的 opacity + translateY（时长沿用原来的 600ms / 100ms 延迟）。 */
+     入场只保留内容层的 opacity + translateY（时长沿用原来的 600ms / 100ms 延迟）。
+     双 rAF 的细节在 hooks/use-enter-transition.ts 里（与首页共用同一份）。 */
   const location = useLocation()
-  const animate = location.state?.fromHome === true && !prefersReducedMotion()
-  /* 不播时直接初始为「已进入」，内容正常显示 */
-  const [entered, setEntered] = useState(!animate)
-
-  useEffect(() => {
-    if (!animate || entered) return
-
-    /* 双 rAF：先以隐藏态画首帧，再翻到进入态 —— 否则状态变更会和首帧合并成同一次绘制，
-       过渡被吃掉（与首页入场同款写法）。 */
-    let second = 0
-    const first = requestAnimationFrame(() => {
-      second = requestAnimationFrame(() => setEntered(true))
-    })
-
-    return () => {
-      cancelAnimationFrame(first)
-      cancelAnimationFrame(second)
-    }
-  }, [animate, entered])
+  const fromHome = location.state?.fromHome === true
+  const entered = useEnterTransition(fromHome && !prefersReducedMotion())
 
   return (
     <Container
