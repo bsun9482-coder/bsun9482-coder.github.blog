@@ -94,8 +94,20 @@ function getInitialLocation(): WeatherLocation {
   try {
     const stored = localStorage.getItem(siteContent.weather.storageKey)
     if (stored) {
-      const parsed = JSON.parse(stored) as WeatherLocation
-      if (parsed?.name && typeof parsed.latitude === "number") return parsed
+      const parsed = JSON.parse(stored) as Partial<WeatherLocation> | null
+      /* 三个字段都要验，而且要用 Number.isFinite 而不是 typeof：
+       只有 typeof 的话，缓存里存了 null / "abc" / NaN 都能过 —— 于是把
+       NaN 坐标发出去，请求必然失败，用户看到的是「天气不可用」，
+       查半天才发现是本地缓存坏了。这里不合格就退回默认位置。 */
+      if (
+        parsed &&
+        typeof parsed.name === "string" &&
+        parsed.name !== "" &&
+        Number.isFinite(parsed.latitude) &&
+        Number.isFinite(parsed.longitude)
+      ) {
+        return parsed as WeatherLocation
+      }
     }
   } catch {
     // ignore
@@ -132,6 +144,11 @@ export function useWeather() {
         })
         setHasError(false)
       } catch {
+        /* ⚠️ 中止不算失败。组件卸载、或位置变化导致重新取数时都会 abort，
+           这时置 hasError 会把「本来好好的天气」瞬间显示成「不可用」——
+           用户看到的是天气闪一下就变错，日志里也查不出问题。
+           请求被主动取消，什么都不用做。 */
+        if (controller.signal.aborted) return
         setHasError(true)
       }
     }
