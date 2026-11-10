@@ -76,26 +76,26 @@ export function ProfileHero() {
             </div>
           </div>
 
+          {/* 右下角两个入口都还没接：外链没有目标地址、音乐没有播放页。
+              先 disabled 置灰 —— 位置留着（日后接上直接放开），但「点了没反应」
+              这种死交互比不显示更糟：用户会以为页面坏了，而不是以为功能还没做。
+              ⚠️ 别用空的 onClick 假装能点。 */}
           <div className="flex items-center gap-2.5">
-            {/* TODO: 外部链接入口（暂未定目标地址，先留空） */}
+            {/* TODO: 外部链接入口（定下地址后：换成 <a href> 并去掉 disabled） */}
             <Button
               aria-label={siteContent.ui.profile.externalLink}
               className="size-10"
-              onClick={() => {
-                /* TODO: 跳转外部链接 */
-              }}
+              disabled
               size="icon"
               variant="ghost"
             >
               <ExternalLinkIcon className="size-4" />
             </Button>
-            {/* TODO: 音乐入口（暂未接音乐页/播放器） */}
+            {/* TODO: 音乐入口（接上音乐页/播放器后去掉 disabled） */}
             <Button
               aria-label={siteContent.ui.profile.music}
               className="size-10"
-              onClick={() => {
-                /* TODO: 打开音乐 */
-              }}
+              disabled
               size="icon"
               variant="ghost"
             >
