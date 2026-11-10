@@ -53,7 +53,7 @@ export function ArticleCard({ post }: ArticleCardProps) {
         className="pointer-events-none absolute inset-0 -z-10 opacity-0 transition-opacity duration-300 group-hover:opacity-100 motion-reduce:transition-none"
         style={{
           background:
-            "radial-gradient(520px circle at var(--mx, 50%) var(--my, 0%), rgba(37, 99, 235, 0.08), transparent 42%)",
+            "radial-gradient(520px circle at var(--mx, 50%) var(--my, 0%), color-mix(in srgb, var(--brand) 8%, transparent), transparent 42%)",
         }}
       />
 
@@ -67,7 +67,7 @@ export function ArticleCard({ post }: ArticleCardProps) {
         className="pointer-events-none absolute inset-x-0 top-0 h-px opacity-0 transition-opacity duration-300 group-hover:opacity-100 motion-reduce:transition-none"
         style={{
           background:
-            "linear-gradient(90deg, transparent, rgba(37, 99, 235, 0.55), transparent)",
+            "linear-gradient(90deg, transparent, color-mix(in srgb, var(--brand) 55%, transparent), transparent)",
         }}
       />
 

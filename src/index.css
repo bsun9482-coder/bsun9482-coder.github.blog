@@ -151,6 +151,14 @@
   --sidebar-accent-foreground: #18181b;
   --sidebar-border: #e4e4e7;
   --sidebar-ring: #2563eb;
+
+  /* 背景氛围层专用（site-ambience.tsx + .site-ambience-grid）。
+     这三个色跟「品牌」无关，是刻意的装饰色，所以不并进 --brand：
+     换品牌色时网格和光斑不该跟着变成蓝/紫的另一个色号。
+     单独成令牌只为「改一处」——以前它们散在 tsx 的 bg-[#bfdbfe] 和 css 里。 */
+  --ambience-grid: #e9e9ee;
+  --ambience-blob-a: #bfdbfe;
+  --ambience-blob-b: #ddd6fe;
 }
 
 @layer base {
@@ -209,13 +217,13 @@
   }
 
   /* ---------- 背景氛围（全站唯一的装饰层，挂在 SiteLayout 里） ----------
-     网格：1px #e9e9ee、38px 间距；用径向遮罩让它在页面顶部中间最清楚、
+     网格：1px、38px 间距（色值走 --ambience-grid）；用径向遮罩让它在页面顶部中间最清楚、
      向左右和下方自然淡出，底部完全透明 —— 这样内容区永远是干净白底。
      ⚠️ 遮罩写在网格层自己身上，不是写在外层：外层还要放光斑，不能一起被裁。 */
   .site-ambience-grid {
     background-image:
-      linear-gradient(to right, #e9e9ee 1px, transparent 1px),
-      linear-gradient(to bottom, #e9e9ee 1px, transparent 1px);
+      linear-gradient(to right, var(--ambience-grid) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--ambience-grid) 1px, transparent 1px);
     background-size: 38px 38px;
     /* 椭圆的竖直半径取满整个层高（100%），淡出点放到 88% ——
        半径给 62% 时网格只活到 250px 就没了，视觉上像"顶部一小条灰"，
@@ -321,7 +329,8 @@
 
   /* 聚光灯：圆心坐标由 JS 写进 --spot-x/--spot-y（px），半径固定 420px。
      用 px 而不是百分比：百分比会让圆心随卡片尺寸漂移，光斑在大小卡上观感不一致。
-     淡蓝色只给 8% —— 白底上再高就开始发灰，看不出「极简」了。 */
+     淡蓝色只给 8% —— 白底上再高就开始发灰，看不出「极简」了。
+     颜色不写死：走 --brand 令牌（color-mix 取 8% 透明），换品牌色时这里自动跟随。 */
   .card-fx::before {
     content: "";
     position: absolute;
@@ -331,7 +340,7 @@
     pointer-events: none;
     background-image: radial-gradient(
       420px circle at var(--spot-x, 50%) var(--spot-y, 0%),
-      rgb(37 99 235 / 0.08),
+      color-mix(in srgb, var(--brand) 8%, transparent),
       transparent 70%
     );
     opacity: 0;
@@ -353,9 +362,9 @@
     background-image: conic-gradient(
       from var(--beam-angle),
       transparent 0deg,
-      rgb(37 99 235 / 0.1) 26deg,
-      rgb(37 99 235 / 0.85) 34deg,
-      rgb(37 99 235 / 0.1) 42deg,
+      color-mix(in srgb, var(--brand) 10%, transparent) 26deg,
+      color-mix(in srgb, var(--brand) 85%, transparent) 34deg,
+      color-mix(in srgb, var(--brand) 10%, transparent) 42deg,
       transparent 56deg,
       transparent 360deg
     );
