@@ -1,12 +1,5 @@
 import { useEffect, useState } from "react"
-import {
-  BookOpenIcon,
-  ExternalLinkIcon,
-  MapPinIcon,
-  Music as MusicIcon,
-  Music2Icon,
-  PlayIcon,
-} from "lucide-react"
+import { BookOpenIcon } from "lucide-react"
 import { Link, useLocation } from "react-router"
 
 import { ArticleCard } from "@/components/article/article-card"
@@ -14,9 +7,9 @@ import { Reveal } from "@/components/fx/reveal"
 import { TiltCard } from "@/components/fx/tilt-card"
 import { Container } from "@/components/layout/container"
 import { StatusBar } from "@/components/layout/status-bar"
-import { PersonName } from "@/components/person-name"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
+import { LyricsBar } from "@/components/profile/lyrics-bar"
+import { MusicCard } from "@/components/profile/music-card"
+import { ProfileHero } from "@/components/profile/profile-hero"
 import { CardContent } from "@/components/ui/card"
 import {
   Carousel,
@@ -25,86 +18,21 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
-import { musicPlaylist, pageNameOf, siteContent } from "@/config/site"
+import { pageNameOf, siteContent } from "@/config/site"
 import { useDocumentTitle } from "@/hooks/use-document-title"
 import { posts } from "@/lib/posts"
 import { staggerDelay } from "@/lib/reveal"
-
-/* 音乐播放器占位卡 */
-function MusicPlaceholderCard() {
-  /* 点击播放 musicPlaylist 第一首；列表为空或 src 无效时置灰。
-     TODO: 接真实音频播放器（<audio> + 播放/暂停状态），当前 musicPlaylist 为空，先静态展示。 */
-  const firstTrack = musicPlaylist[0]
-  const canPlay = Boolean(firstTrack?.src)
-
-  return (
-    <TiltCard>
-      <CardContent className="flex h-full flex-col">
-        <div className="flex items-center gap-4">
-          <div className="size-16 shrink-0 rounded-full bg-muted" />
-          <div className="min-w-0">
-            <span className="inline-block rounded-md border border-border bg-muted px-1.5 py-0.5 font-mono text-[11px] tracking-tight text-muted-foreground">
-              {siteContent.ui.musicCard.badge}
-            </span>
-            <p className="mt-1.5 truncate text-base font-semibold">
-              {siteContent.ui.musicCard.emptyTitle}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {siteContent.ui.musicCard.emptyHint}
-            </p>
-          </div>
-        </div>
-        <div className="mt-auto flex items-center justify-center pt-4">
-          <Button
-            aria-label={siteContent.ui.musicCard.play}
-            className="size-12 rounded-full"
-            disabled={!canPlay}
-            size="icon"
-          >
-            <PlayIcon className="size-5" />
-          </Button>
-        </div>
-      </CardContent>
-    </TiltCard>
-  )
-}
-
-/* 歌词展示栏：夹在顶部卡片与轮播卡之间的一条细横条。
-   极简风下不再用深色胶囊 —— 白底 + 1px 描边 + 等宽小字，和正文区一个调子。
-   当前 musicPlaylist 为空、也还没有歌词数据，所以中间只展示占位文案。
-   TODO(歌词): 接上真实歌词后在这里实现——
-     ① 跟随音频播放进度逐行切换（拿 <audio> 的 currentTime 去匹配每行的时间戳）；
-     ② 当前句高亮，并在句尾追加一个闪烁的打字光标；
-     ③ 歌词数据来自 site.ts 的 musicPlaylist[].lyrics（字段位置见 MusicTrack 的 TODO）。 */
-function LyricsBar() {
-  return (
-    <div
-      aria-label={siteContent.ui.lyricsBar.regionLabel}
-      className="flex items-center gap-4 rounded-xl border border-border bg-muted/60 px-4 py-3"
-      role="status"
-    >
-      {/* 左侧装饰：5 个小圆点 */}
-      <span aria-hidden="true" className="flex shrink-0 items-center gap-1.5">
-        {Array.from({ length: 5 }, (_, index) => (
-          <span className="size-1.5 rounded-full bg-faint/50" key={index} />
-        ))}
-      </span>
-
-      {/* 中间：歌词文字。当前没有歌词 → 占位；未来在这里渲染「当前句 + 闪烁打字光标」 */}
-      <p className="flex-1 truncate text-center font-mono text-xs text-muted-foreground">
-        {siteContent.ui.lyricsBar.empty}
-      </p>
-
-      {/* 右侧：音乐图标 */}
-      <MusicIcon aria-hidden="true" className="size-4 shrink-0 text-faint" />
-    </div>
-  )
-}
 
 function prefersReducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches
 }
 
+/* 博客页：只负责「把几块内容摆上来」和入场动画。
+   具体内容各有自己的组件：
+     components/profile/profile-hero.tsx   头像 / 名字 / 统计 + 两个图标按钮
+     components/profile/music-card.tsx     音乐占位卡
+     components/profile/lyrics-bar.tsx     歌词横条
+   本文件保留：左右两栏布局、轮播卡、「最新文章」列表、底部时间天气横条。 */
 export function ProfilePage() {
   useDocumentTitle(pageNameOf("/profile"))
 
@@ -145,96 +73,8 @@ export function ProfilePage() {
     >
       <div className="mx-auto max-w-none space-y-5">
         <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
-          {/* 个人信息卡 */}
-          {/* 个人信息卡：内边距比常规卡大（28px / sm 起 36px），只改卡片的 --card-spacing，
-              子节点不用各写一份 p-7 sm:p-9 */}
-          <TiltCard className="[--card-spacing:--spacing(7)] sm:[--card-spacing:--spacing(9)]">
-            <CardContent className="flex h-full flex-col">
-              <div className="flex items-start gap-6">
-                <Avatar className="size-20 shrink-0 ring-1 ring-border">
-                  <AvatarImage
-                    alt={siteContent.person.name}
-                    src={siteContent.person.avatarUrl}
-                  />
-                  <AvatarFallback className="text-3xl">
-                    {siteContent.person.avatarInitial}
-                  </AvatarFallback>
-                </Avatar>
-
-                <div className="min-w-0 flex-1">
-                  <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-                    <PersonName />
-                  </h1>
-                  <p className="mt-2 flex items-center gap-1.5 text-sm text-muted-foreground">
-                    <MapPinIcon className="size-4" />
-                    {siteContent.person.location}
-                  </p>
-                  <p className="mt-4 text-base leading-7 text-muted-foreground">
-                    {siteContent.person.introduction}
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-auto flex items-end justify-between pt-8">
-                <div className="flex items-center gap-8 sm:gap-10">
-                  <div>
-                    <p className="font-mono text-3xl font-semibold tabular-nums">
-                      {posts.length}
-                    </p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {siteContent.ui.profile.statArticles}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="font-mono text-3xl font-semibold text-muted-foreground tabular-nums">
-                      —
-                    </p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {siteContent.ui.profile.statMoments}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="font-mono text-3xl font-semibold text-muted-foreground tabular-nums">
-                      —
-                    </p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {siteContent.ui.profile.statPhotos}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2.5">
-                  {/* TODO: 外部链接入口（暂未定目标地址，先留空） */}
-                  <Button
-                    aria-label={siteContent.ui.profile.externalLink}
-                    className="size-10"
-                    onClick={() => {
-                      /* TODO: 跳转外部链接 */
-                    }}
-                    size="icon"
-                    variant="ghost"
-                  >
-                    <ExternalLinkIcon className="size-4" />
-                  </Button>
-                  {/* TODO: 音乐入口（暂未接音乐页/播放器） */}
-                  <Button
-                    aria-label={siteContent.ui.profile.music}
-                    className="size-10"
-                    onClick={() => {
-                      /* TODO: 打开音乐 */
-                    }}
-                    size="icon"
-                    variant="ghost"
-                  >
-                    <Music2Icon className="size-4" />
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </TiltCard>
-
-          {/* 音乐占位卡 */}
-          <MusicPlaceholderCard />
+          <ProfileHero />
+          <MusicCard />
         </div>
 
         {/* 歌词展示栏：只夹在「顶部卡片」与「轮播卡」之间 */}
