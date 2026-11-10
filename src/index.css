@@ -2,6 +2,13 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+/* ---------- 不扫描 notes/ ----------
+   Tailwind v4 会自动扫全仓库（gitignore 之外）的所有文本文件找类名。notes/ 里是写给人看的
+   评审报告和笔记，正文会顺带把类名当例子写出来（比如「根节点补 [--card-spacing:--spacing(6)]」），
+   于是这些字面量被当真类名生成进了产物 CSS —— 实测产物里就有一条 src 里从未用过的规则。
+   排除掉：产物只受 src/ + content/ 影响，笔记怎么写都不会改变线上样式。 */
+@source not "../notes";
+
 /* ---------- 自托管字体（public/fonts/） ----------
    为什么不用 @fontsource：本机 npm 被安全策略拦死（会拉起 wsl.exe），装不了包。
    直接放 woff2 到 public/ 效果等价：构建时原样拷进 dist，运行时不依赖任何 CDN。
