@@ -516,6 +516,129 @@ function checkFavicon() {
   }
 }
 
+/* ---------- 检查 9：配置键是否真的有人用 ---------- */
+
+/* 配置是「文案唯一来源」这个承诺的载体。留一个没人引用的键，比不写它更糟：
+   改它页面不会有任何变化，读代码的人会以为自己找对了地方。
+   实测曾经 77 个键里有 9 个是死的（改 ui.profile.heroTitle 毫无反应）。
+
+   判定拿完整路径 siteContent.a.b.c 去搜，而不是只搜末段键名 —— 后者会被同名键干扰：
+   title / description / label 这类键名到处都是，按名字搜永远「有引用」。
+   本仓库所有取值都写成 siteContent.x.y.z（siteContent 没有被解构过），所以路径匹配是精确的。
+
+   数组整体算一个键（如 profileSlides），数组元素里的字段不单独检查；
+   确实要保留暂未启用的键，在该行加注释 health-allow-orphan 即可跳过。 */
+const CONFIG_ALLOW_MARKER = "health-allow-orphan"
+
+function parseSiteContentKeys(text) {
+  const lines = text.split(/\r?\n/)
+  const stack = []
+  const keys = []
+  let inside = false
+
+  for (let i = 0; i < lines.length; i++) {
+    const raw = lines[i]
+    const trimmed = raw.trim()
+
+    if (!inside) {
+      if (trimmed.startsWith("export const siteContent = {")) inside = true
+      continue
+    }
+    if (/^\}\s*as const\s*$/.test(trimmed)) break
+
+    const match = /^([A-Za-z_$][\w$]*)\s*:\s*(.*)$/.exec(trimmed)
+    if (!match) continue
+
+    const indent = raw.length - raw.trimStart().length
+    /* 同一缩进的兄弟键出现时，说明上一个块已经收尾（闭括号那行不是 key: 形式，不会触发） */
+    while (stack.length > 0 && stack[stack.length - 1].indent >= indent)
+      stack.pop()
+
+    const [, key, rest] = match
+    const insideArray = stack.some((entry) => entry.isArray)
+    const open = rest[0]
+
+    if (!insideArray && open !== "{") {
+      keys.push({
+        path: [...stack.map((entry) => entry.key), key].join("."),
+        line: i + 1,
+        raw,
+      })
+    }
+    if (open === "{" || open === "[") {
+      stack.push({ indent, key, isArray: open === "[" })
+    }
+  }
+
+  return keys
+}
+
+function checkConfigKeys() {
+  const configPath = path.join(ROOT, "src", "config", "site.ts")
+  if (!existsSync(configPath)) return
+
+  const keys = parseSiteContentKeys(readFileSync(configPath, "utf8"))
+  if (keys.length === 0) {
+    record("WARN", "配置键引用", "没能从 src/config/site.ts 解析出配置键")
+    return
+  }
+
+  const sources = walk(
+    path.join(ROOT, "src"),
+    (f) => (f.endsWith(".ts") || f.endsWith(".tsx")) && f !== configPath
+  ).map((f) => readFileSync(f, "utf8"))
+
+  /* 一个键算「有引用」的两种情况：
+     1) 完整路径出现（siteContent.a.b.c）；
+     2) 某个祖先被整体取用（`return siteContent.weather.defaultLocation`）——
+        这时子树逃出了静态分析范围，里面的键算是间接在用，不能判死。
+     两条都要求路径后面不紧跟标识符字符，否则 ui.profile.hero 会命中 ui.profile.heroTitle。 */
+  const appears = (needlePath) => {
+    const needle = `siteContent.${needlePath}`
+    return sources.some((text) => {
+      let from = 0
+      for (;;) {
+        const at = text.indexOf(needle, from)
+        if (at === -1) return false
+        const after = text[at + needle.length]
+        if (!after || !/[\w$]/.test(after)) return true
+        from = at + needle.length
+      }
+    })
+  }
+
+  const referenced = (fullPath) => {
+    if (appears(fullPath)) return true
+    const segments = fullPath.split(".")
+    for (let i = segments.length - 1; i >= 1; i--) {
+      if (appears(segments.slice(0, i).join("."))) return true
+    }
+    return false
+  }
+
+  const orphans = keys.filter(
+    (entry) =>
+      !entry.raw.includes(CONFIG_ALLOW_MARKER) && !referenced(entry.path)
+  )
+
+  if (orphans.length === 0) {
+    record("PASS", "配置键引用", `${keys.length} 个配置键都有引用`)
+    return
+  }
+
+  record(
+    "FAIL",
+    "配置键引用",
+    `${orphans.length}/${keys.length} 个配置键无人引用`,
+    [
+      ...orphans.map(
+        (entry) => `src/config/site.ts:${entry.line}  ${entry.path}`
+      ),
+      "没人用的键改了也不会生效：删掉，或在行内注明 health-allow-orphan 表示刻意保留",
+    ].join("\n")
+  )
+}
+
 /* ---------- 输出 ---------- */
 
 checkTypecheckContract()
@@ -525,6 +648,7 @@ checkContent()
 checkArticleStructure()
 checkUnusedUiComponents()
 checkOrphanPublicAssets()
+checkConfigKeys()
 checkFavicon()
 checkBundleSize()
 
