@@ -9,6 +9,10 @@ export default defineConfig([
   globalIgnores(["dist"]),
   {
     files: ["**/*.{ts,tsx}"],
+    /* 构建侧（vite 配置与插件）跑在 Node 里，下面单独给 node 全局。
+       这里把它们排除掉，是为了让「Node 文件里误用浏览器全局」真的能被抓到 ——
+       如果两块 globals 叠加，`document` 在 Node 文件里也变成合法，检查就等于没有。 */
+    ignores: ["vite.config.ts", "vite-plugins/**/*.ts"],
     extends: [
       js.configs.recommended,
       tseslint.configs.recommended,
@@ -17,6 +21,26 @@ export default defineConfig([
     ],
     languageOptions: {
       globals: globals.browser,
+    },
+  },
+  {
+    /* 构建侧：Node 环境，没有 DOM，也不该有 React 规则 */
+    files: ["vite.config.ts", "vite-plugins/**/*.ts"],
+    extends: [js.configs.recommended, tseslint.configs.recommended],
+    languageOptions: {
+      globals: globals.node,
+    },
+  },
+  {
+    /* 体检脚本 `scripts/health-check.mjs` 以前是**完全的零守卫区**：
+       它既不在 tsconfig 的 include 里（不类型检查），也不在任何 lint 块里。
+       偏偏它是唯一会「判别人合不合格」的文件，它自己写错了没人管。
+       .mjs 是原生 ESM，用 node 全局即可。 */
+    files: ["**/*.mjs"],
+    extends: [js.configs.recommended],
+    languageOptions: {
+      sourceType: "module",
+      globals: globals.node,
     },
   },
   {
