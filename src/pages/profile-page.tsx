@@ -1,4 +1,3 @@
-import { BookOpenIcon } from "lucide-react"
 import { Link, useLocation } from "react-router"
 
 import { ArticleCard } from "@/components/article/article-card"
@@ -6,7 +5,6 @@ import { Reveal } from "@/components/fx/reveal"
 import { TiltCard } from "@/components/fx/tilt-card"
 import { Container } from "@/components/layout/container"
 import { StatusBar } from "@/components/layout/status-bar"
-import { LyricsBar } from "@/components/profile/lyrics-bar"
 import { MusicCard } from "@/components/profile/music-card"
 import { ProfileHero } from "@/components/profile/profile-hero"
 import { CardContent } from "@/components/ui/card"
@@ -17,123 +15,120 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
-import { pageNameOf, siteContent } from "@/config/site"
+import { musicPlaylist, pageNameOf, siteContent } from "@/config/site"
 import { useDocumentTitle } from "@/hooks/use-document-title"
 import { useEnterTransition } from "@/hooks/use-enter-transition"
 import { posts } from "@/lib/posts"
 import { prefersReducedMotion, staggerDelay } from "@/lib/reveal"
+import { cn } from "@/lib/utils"
 
 /* 博客页：只负责「把几块内容摆上来」和入场动画。
    具体内容各有自己的组件：
-     components/profile/profile-hero.tsx   头像 / 名字 / 统计 + 两个图标按钮
-     components/profile/music-card.tsx     音乐占位卡
-     components/profile/lyrics-bar.tsx     歌词横条
-   本文件保留：左右两栏布局、轮播卡、「最新文章」列表、底部时间天气横条。 */
+     components/profile/profile-hero.tsx   头像 / 名字 / 统计
+     components/profile/music-card.tsx     音乐卡（曲目表为空时整张不渲染）
+   本文件保留：左右两栏布局、轮播卡、「最新文章」列表、底部时间天气横条。
+
+   ⚠️ 这一页原来的「歌词条」已删除：它没有数据源，永远只能显示一句「暂无歌词」，
+   属于空占位。等 musicPlaylist 里出现带歌词的曲目时，再按 MusicTrack 的 TODO 重新做。
+
+   ⚠️ 空模块一律不渲染，而不是画一个「暂无」：
+   曲目为空 ⇒ 顶部只剩资料卡（单栏撑满）、最新文章为空 ⇒ 整块不出现。 */
 export function ProfilePage() {
   useDocumentTitle(pageNameOf("/profile"))
 
-  /* 从首页「下滑翻页」进来时带上 fromHome 标记 ⇒ 播一次内容淡入上浮；
+  /* 从首页「关于我」进来时带 fromHome 标记 ⇒ 播一次内容淡入上浮；
      其他入口（导航点「博客」/ 浏览器后退 / 直接开 /profile）不带标记 ⇒ 不播。
-     reduced-motion 下也跳过。
-     ⚠️ 原来的「黑幕淡出」已删除：白底站点上闪一层黑幕非常突兀，
-     入场只保留内容层的 opacity + translateY（时长沿用原来的 600ms / 100ms 延迟）。
      双 rAF 的细节在 hooks/use-enter-transition.ts 里（与首页共用同一份）。 */
   const location = useLocation()
   const fromHome = location.state?.fromHome === true
   const entered = useEnterTransition(fromHome && !prefersReducedMotion())
 
+  /* 有没有音乐决定顶栏是两栏还是一栏 —— 不靠 MusicCard 自己返回 null，
+     否则 2fr/1fr 的网格会留一个空格子。 */
+  const hasMusic = musicPlaylist.length > 0
+
   return (
     <Container
-      className="py-10 sm:py-16"
+      className="flex flex-col gap-(--section-gap) py-10 sm:py-14"
       style={{
         opacity: entered ? 1 : 0,
         transform: entered ? "translateY(0)" : "translateY(16px)",
         transition: "opacity 600ms ease 100ms, transform 600ms ease 100ms",
       }}
     >
-      <div className="mx-auto max-w-none space-y-5">
-        <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
-          <ProfileHero />
-          <MusicCard />
-        </div>
+      {/* 顶部资料卡（+ 音乐卡）：这两张是一个视觉块，内部间距保持 16px，
+          不与区块间的 72px 混为一谈。 */}
+      <div className={cn("grid gap-4", hasMusic && "lg:grid-cols-[2fr_1fr]")}>
+        <ProfileHero />
+        {hasMusic && <MusicCard />}
+      </div>
 
-        {/* 歌词展示栏：只夹在「顶部卡片」与「轮播卡」之间 */}
-        <LyricsBar />
+      {/* 轮播状态卡：箭头定位到卡片外侧（负偏移），所以卡片本身要去掉 overflow-hidden
+          让箭头露出来；轮播内容由 CarouselContent 自带的 overflow-hidden 兜住，不会溢出圆角。 */}
+      <Reveal delay={120}>
+        <TiltCard className="overflow-visible [--card-spacing:--spacing(7)] sm:[--card-spacing:--spacing(9)]">
+          <Carousel opts={{ loop: true }}>
+            <CarouselContent>
+              {siteContent.profileSlides.map((slide) => (
+                <CarouselItem key={slide.eyebrow}>
+                  <CardContent>
+                    <p className="font-mono text-xs tracking-[0.18em] text-faint uppercase">
+                      {slide.eyebrow}
+                    </p>
+                    <h2 className="mt-3 text-title font-semibold tracking-tight">
+                      {slide.title}
+                    </h2>
+                    <p className="mt-2 text-base leading-7 text-muted-foreground">
+                      {slide.description}
+                    </p>
+                  </CardContent>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            {/* 箭头在卡片外侧：偏移量随容器内边距收放。
+                手机屏幕太窄，任何"外侧"位置都会压住文字或顶出视口 —— 直接隐藏，靠手势滑动。 */}
+            <CarouselPrevious className="-left-2 hidden sm:-left-4 sm:flex lg:-left-8" />
+            <CarouselNext className="-right-2 hidden sm:-right-4 sm:flex lg:-right-8" />
+          </Carousel>
+        </TiltCard>
+      </Reveal>
 
-        {/* 轮播状态卡：箭头定位到卡片外侧（负偏移），所以卡片本身要去掉 overflow-hidden
-            让箭头露出来；轮播内容由 CarouselContent 自带的 overflow-hidden 兜住，不会溢出圆角。
-            外层 Reveal 只负责滚动入场（延迟 200ms，排在两张顶部卡之后）。 */}
-        <Reveal delay={200}>
-          <TiltCard className="overflow-visible [--card-spacing:--spacing(7)] sm:[--card-spacing:--spacing(9)]">
-            <Carousel opts={{ loop: true }}>
-              <CarouselContent>
-                {siteContent.profileSlides.map((slide) => (
-                  <CarouselItem key={slide.eyebrow}>
-                    <CardContent>
-                      <p className="font-mono text-[11px] tracking-[0.18em] text-faint uppercase">
-                        {slide.eyebrow}
-                      </p>
-                      <h2 className="mt-3 text-2xl font-semibold">
-                        {slide.title}
-                      </h2>
-                      <p className="mt-2 text-base leading-7 text-muted-foreground">
-                        {slide.description}
-                      </p>
-                    </CardContent>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              {/* 箭头在卡片外侧：偏移量随容器内边距收放。
-                  手机屏幕太窄，任何"外侧"位置都会压住文字或顶出视口 —— 直接隐藏，靠手势滑动。 */}
-              <CarouselPrevious className="-left-2 hidden sm:-left-4 sm:flex lg:-left-8" />
-              <CarouselNext className="-right-2 hidden sm:-right-4 sm:flex lg:-right-8" />
-            </Carousel>
-          </TiltCard>
-        </Reveal>
-
-        {/* 最新文章 */}
-        <section aria-labelledby="latest-posts">
-          <div className="mb-4 flex items-baseline justify-between px-1">
+      {/* 最新文章：没有文章时整块不渲染（不留「暂无文章」的卡） */}
+      {posts.length > 0 && (
+        <section aria-labelledby="latest-posts" className="flex flex-col gap-4">
+          <div className="flex items-baseline justify-between gap-3">
             <h2
-              className="text-xl font-semibold tracking-tight"
+              className="text-title font-semibold tracking-tight"
               id="latest-posts"
             >
               {siteContent.ui.profile.latestPosts}
             </h2>
             <Link
-              className="link-underline text-sm text-brand hover:text-brand-hover"
+              className="link-underline text-sm whitespace-nowrap text-brand hover:text-brand-hover"
               to="/resources"
             >
               {siteContent.ui.profile.viewAll}
             </Link>
           </div>
 
-          {posts.length > 0 ? (
-            <div className="space-y-4">
-              {posts.map((post, index) => (
-                <Reveal delay={staggerDelay(index)} key={post.slug}>
-                  <ArticleCard post={post} />
-                </Reveal>
-              ))}
-            </div>
-          ) : (
-            <TiltCard className="border-dashed py-10 text-center">
-              <CardContent>
-                <BookOpenIcon className="mx-auto size-8 text-muted-foreground" />
-                <h3 className="mt-4 font-medium">
-                  {siteContent.ui.resources.emptyResources}
-                </h3>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {siteContent.ui.profile.emptyPostsHint}
-                </p>
-              </CardContent>
-            </TiltCard>
-          )}
+          {/* 桌面两列、移动一列：和文章列表页同一套网格，
+              ⚠️ Reveal 包在外面时给 grid，卡片才能等高撑满。 */}
+          <div className="grid gap-4 md:grid-cols-2">
+            {posts.map((post, index) => (
+              <Reveal
+                className="grid"
+                delay={staggerDelay(index)}
+                key={post.slug}
+              >
+                <ArticleCard post={post} />
+              </Reveal>
+            ))}
+          </div>
         </section>
+      )}
 
-        {/* 时间天气横条 */}
-        <StatusBar />
-      </div>
+      {/* 时间天气横条 */}
+      <StatusBar />
     </Container>
   )
 }

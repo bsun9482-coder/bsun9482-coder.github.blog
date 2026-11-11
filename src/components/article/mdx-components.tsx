@@ -32,7 +32,7 @@ function Heading2({ className, ...props }: ComponentProps<"h2">) {
   return (
     <h2
       className={cn(
-        "mt-12 scroll-mt-24 border-b pb-3 text-2xl font-semibold tracking-tight first:mt-0",
+        "mt-12 scroll-mt-24 border-b pb-3 text-title font-semibold tracking-tight first:mt-0",
         className
       )}
       {...props}
@@ -44,7 +44,7 @@ function Heading3({ className, ...props }: ComponentProps<"h3">) {
   return (
     <h3
       className={cn(
-        "mt-8 scroll-mt-24 text-xl font-semibold tracking-tight",
+        "mt-8 scroll-mt-24 text-lg font-semibold tracking-tight",
         className
       )}
       {...props}

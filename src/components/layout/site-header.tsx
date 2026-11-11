@@ -36,7 +36,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-border bg-background">
       <Container className="flex h-16 items-center gap-2">
         <Link
-          className="rounded-sm text-[15px] font-semibold tracking-tight text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+          className="rounded-sm text-base font-semibold tracking-tight text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
           to="/"
         >
           <PersonName />

@@ -73,7 +73,7 @@ export function ArticleCard({ post }: ArticleCardProps) {
         }}
       />
 
-      <CardHeader className="gap-4">
+      <CardHeader className="gap-3">
         <div className="flex flex-wrap items-center gap-2">
           {/* 3. 分类用品牌淡底（三件套一起换：底、字、描边），
               和后面透明底的标签拉开层级 —— 全页仍然只有这一个强调蓝。
@@ -90,29 +90,31 @@ export function ArticleCard({ post }: ArticleCardProps) {
             </Badge>
           ))}
         </div>
-        <CardTitle className="text-xl leading-snug font-bold sm:text-2xl">
+        <CardTitle className="text-lg leading-snug font-semibold tracking-tight">
           <Link
             className="transition-colors outline-none group-hover:text-brand after:absolute after:inset-0 focus-visible:underline"
             to={`/resources/${post.slug}`}
           >
             {post.title}
           </Link>
+          <span className="sr-only">
+            （{siteContent.ui.article.openLabel}）
+          </span>
         </CardTitle>
-        {/* line-clamp-2 只管「最多两行」，不管「至少两行」：摘要短一行的卡
-            内容会整体上移 24px，同一行的日期栏就对不齐。min-h 固定按两行占位。 */}
-        <CardDescription className="line-clamp-2 min-h-[3rem] text-sm leading-6">
+      </CardHeader>
+
+      {/* 描述区独占剩余高度（flex-1）：
+          同一行两张卡标题行数不同时，这一段会把下面的元信息压到同一水平线上。
+          以前靠「摘要固定两行高（min-h）」硬撑，标题多一行就又错位了。
+          line-clamp-3 兜住过长的摘要。 */}
+      <CardContent className="flex-1 pt-0">
+        <CardDescription className="line-clamp-3 text-sm leading-6">
           {post.description}
         </CardDescription>
-      </CardHeader>
-      <CardContent className="sr-only">
-        {siteContent.ui.article.openLabel}：{post.title}
       </CardContent>
-      {/* 底部分隔区。根节点的 --card-spacing 负责上下留白：
-         有 footer 时 card.tsx 的 has-data-[slot=card-footer]:pb-0 会把卡片底边内边距压成 0，
-         所以这里**不能**再叠负的底部外边距 —— 那会把 footer 推到卡片底边外，
-         被 overflow:hidden 裁掉（实测箭头图标被削掉 2px）。底部留白由 pb-5 承担。
-         横向不需要负边距：根节点早就不放左右内边距了，footer 自己铺满整宽、用 px-6 归位。 */}
-      <CardFooter className="mt-1 justify-between border-t-0 bg-transparent px-6 pt-4 pb-5 font-mono text-[11px] text-faint">
+      {/* 底部分隔区。mt-auto 把它顶到卡片底部：描述区 flex-1 涨满之后，
+          同一行里高矮不一的卡会在这里对齐。 */}
+      <CardFooter className="mt-auto justify-between border-t-0 bg-transparent px-6 pt-4 pb-5 font-mono text-xs text-faint">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
           <span className="inline-flex items-center gap-1.5">
             <CalendarDaysIcon className="size-3.5" />

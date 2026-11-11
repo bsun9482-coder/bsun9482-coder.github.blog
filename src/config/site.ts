@@ -36,8 +36,6 @@ export const siteContent = {
   meta: {
     titleSuffix: "学习日志",
   },
-  /* 全站标语：首页 Hero 和页脚用的是同一句，只在这里写一遍。 */
-  tagline: "学习日志 · Python 与 AI 知识库",
   person: {
     // 全站名字的唯一来源：主名字 + 尾部「（……）」敬称，展示时会自动把敬称降级处理
     name: "旺仔冰子（恩师萧氏）",
@@ -85,21 +83,92 @@ export const siteContent = {
       mobileNavLabel: "移动端导航",
       menuOpen: "打开导航菜单",
     },
-    footer: {
-      subtitle: "内容持续更新",
-    },
     home: {
-      /* 单屏欢迎页：欢迎标题、副标题与两个按钮文案。
-         视觉样式（字号/字重/间距）留在 home-page.tsx，这里只放文案。 */
+      /* 首页 hero 左上角的小标签（等宽小字，用 · 分隔几个关键词） */
+      eyebrow: "PYTHON · AI · 学习笔记",
       heroTitle: "欢迎来到旺仔冰子的博客",
       heroSubtitle: "或许有天会发现，有些告别不是错付",
       ctaPrimary: "读文章",
       ctaSecondary: "关于我",
-      /* 首页 hero 的终端打字机：先打命令，打完再打结果（两行，55ms/字） */
+      /* 首页 hero 右侧终端卡：先打命令，打完再打结果（两行，55ms/字） */
       terminalCommand: "$ npm run build",
       terminalResult: "→ 部署成功，欢迎来到我的数字花园。",
-      /* 首屏底部那个下滑箭头按钮的无障碍标签（图标按钮，页面上没有可见文字） */
-      scrollHint: "向下滚动进入博客",
+      /* 终端卡下面那块：两个标签页（签名代码 / 聊一聊）。
+         代码里的字段、对话里的问答全在这里改，组件只负责画 —— 别在 tsx 里写死文案。
+
+         字段值是联合类型：
+         · 字符串 ⇒ 渲染成带引号的字符串
+         · 字符串数组 ⇒ 渲染成多行数组
+         · 布尔 / 数字 ⇒ 原样输出（按字面量上色） */
+      cardTabs: {
+        /* 标签组给读屏器的名字，页面上不显示 */
+        label: "首页名片切换",
+        codeTab: "签名代码",
+        chatTab: "聊一聊",
+        codeVariable: "developer",
+        codeFields: [
+          { key: "name", value: "旺仔冰子" },
+          { key: "role", value: "Python / AI 学习者" },
+          { key: "location", value: "济南" },
+          { key: "stack", value: ["Python", "FastAPI", "React", "Tailwind"] },
+          { key: "focus", value: "把 AI 接进自己的小项目" },
+          { key: "openToWork", value: true },
+        ],
+        codeComment: "持续构建中...",
+        chatWelcome: "你好，我是冰子的 AI 助手，想了解点什么？",
+        /* 点问题 → 先出用户气泡，450ms 后出对应的回答。
+           想加问题就往下加一项，按钮和回答会自动跟着出现。 */
+        chatQuestions: [
+          {
+            question: "他是谁？",
+            answer:
+              "旺仔冰子，在济南自学 Python 与 AI。把学到的东西写成文章，也做点小项目。",
+          },
+          {
+            question: "技术栈？",
+            answer:
+              "后端 Python + FastAPI，前端 React + TypeScript + Tailwind；AI 相关的还在边学边用。",
+          },
+          {
+            question: "在求职吗？",
+            answer: "在找 Python / 后端方向的机会，聊得来就一起做点东西。",
+          },
+        ],
+      },
+      /* 底部箭头按钮的无障碍标签；现在它滚到下面的入口区，不再直接跳页 */
+      scrollHint: "查看功能入口",
+      entriesTitle: "快速入口",
+      entriesHint: "五个入口，够用了",
+      /* 首页五个功能入口卡。文案在这里，图标与配色在
+         components/home/home-entry-card.tsx 里按 href 匹配（颜色是表现层，不进配置）。
+         想临时藏掉某个入口：把对应项删掉即可，网格会自动重排。 */
+      entries: [
+        {
+          href: "/resources",
+          label: "文章",
+          description: "技术笔记、提示词与踩坑记录",
+        },
+        {
+          href: "/works",
+          label: "项目",
+          description: "用代码一点点做出来的东西",
+        },
+        {
+          href: "/journal",
+          label: "日记",
+          description: "随手记下的片段，按日子倒排",
+        },
+        {
+          href: "/gallery",
+          label: "相册",
+          description: "文章里用到的插图合集",
+        },
+        {
+          href: "/profile",
+          label: "关于",
+          description: "关于我，以及最近在学什么",
+        },
+      ],
     },
     article: {
       tocTitle: "文章目录",
@@ -127,38 +196,30 @@ export const siteContent = {
     },
     works: {
       subtitle: "从零到一，用代码构建的每一个项目",
+      /* 项目页现在没有数据源，整页只有页头 + 一张说明卡。
+         这三个键是用户 2026-11-11 明确要求留着的（「没有项目的话改回原来的样子」），
+         别再按「空模块不渲染」的规矩删掉。 */
       listTitle: "项目列表",
       emptyTitle: "暂无项目",
       emptyDescription:
         "后续添加项目时，这里会展示项目名称、简介、状态和访问入口。",
     },
     profile: {
-      /* 「最新文章」区块：标题、右上角「查看全部」、以及没有文章时的两条占位文案。
-         注意这里不再另存一份「暂无文章」—— 与 ui.resources.emptyResources 是同一句话，
-         两处各写一份正是之前「资料 / 文章」分叉的起因。 */
+      /* 「最新文章」区块：标题与右上角「查看全部」。
+         没有文章时整块不渲染，所以不再维护「暂无文章」这类占位文案。 */
       latestPosts: "最新文章",
       viewAll: "查看全部 →",
-      emptyPostsHint: "还在写第一篇，很快见。",
-      /* 个人卡右下角两个图标按钮的无障碍标签（未接功能，另有 TODO 跟踪） */
-      externalLink: "外部链接",
-      music: "音乐",
-      /* 顶部个人资料卡三个统计项的小字标签（数字/短横线本身在组件里拼） */
+      /* 顶部个人资料卡的统计项标签。只有「文章」有真实数据源，
+         另外两项（说说 / 照片）没有数据就整块不出现 —— 不留孤零零的短横线。 */
       statArticles: "文章",
-      statMoments: "说说",
-      statPhotos: "照片",
     },
-    /* 顶部「音乐卡」的文案 */
+    /* 顶部「音乐卡」的文案。曲目表为空时整张卡不渲染，所以不需要「暂无播放列表」。 */
     musicCard: {
       badge: "CLOUD MUSIC",
-      emptyTitle: "暂无播放列表",
-      emptyHint: "往 site.ts 添加曲目",
       play: "播放",
     },
-    /* 顶部卡片与轮播卡之间那条「歌词展示栏」的文案 */
-    lyricsBar: {
-      regionLabel: "歌词展示",
-      empty: "暂无歌词",
-    },
+    /* 顶部卡片与轮播卡之间原来还有一条「歌词展示栏」，已随组件一起删除：
+       它没有数据源，永远只显示「暂无歌词」，属于空占位。 */
     /* 文章列表页（/resources）：筛选条、搜索框、计数与两种空状态。
        计数文案用 {query} / {count} 占位，由 lib/text.ts 的 fillTemplate 填 ——
        别在组件里拿字符串拼，中文语序一旦要调就得改 JSX。 */
@@ -187,12 +248,17 @@ export const siteContent = {
       weekdayPrefix: "周",
       weekdays: ["日", "一", "二", "三", "四", "五", "六"],
     },
-    /* 日记页：短内容聚合，没有详情路由 */
+    /* 日记页：短内容聚合，没有详情路由。空态整块不渲染，不留「还没有日记」。 */
     journal: {
       subtitle: "随手记下的片段，按日子倒着排",
       countSuffix: "则",
-      emptyTitle: "还没有日记",
-      emptyDescription: "往 content/journal/ 放一个 .mdx，这里就会出现第一则。",
+    },
+    /* 相册页：把文章里用到的插图集中铺一遍（图片清单在 lib/gallery.ts）。
+       不做「上传 / 分类」，它就是一个看图的网格。 */
+    gallery: {
+      title: "相册",
+      subtitle: "文章与项目里用到的插图，按章节顺序排开",
+      countSuffix: "张",
     },
   },
 } as const

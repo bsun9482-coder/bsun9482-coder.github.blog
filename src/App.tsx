@@ -11,6 +11,7 @@ import { siteContent } from "@/config/site"
 import { useDocumentTitle } from "@/hooks/use-document-title"
 import { useEscapeBack } from "@/hooks/use-escape-back"
 import { HomePage } from "@/pages/home-page"
+import { GalleryPage } from "@/pages/gallery-page"
 import { JournalPage } from "@/pages/journal-page"
 import { NotFoundPage } from "@/pages/not-found-page"
 import { ProfilePage } from "@/pages/profile-page"
@@ -62,9 +63,6 @@ function NotFoundRoute() {
 
 function SiteLayout() {
   const { pathname } = useLocation()
-  /* 首页是整屏吸附式落地页，最后一屏自己收尾 —— 不挂页脚，页面滚到底就是最后那一屏。
-     其余路由（项目 / 文章 / 404）照旧渲染 SiteFooter。 */
-  const withFooter = pathname !== "/"
 
   return (
     <div className="relative z-10 flex min-h-svh flex-col">
@@ -84,7 +82,10 @@ function SiteLayout() {
           </Suspense>
         </ErrorBoundary>
       </main>
-      {withFooter && <SiteFooter />}
+      {/* 页脚挂在 main 之后：main 是 flex-1，内容不够高时页脚自然贴在一屏底部，
+          内容超过一屏时它就是最后一块，紧跟正文。首页以前的整屏吸附已去掉，
+          所以首页也照常挂页脚。 */}
+      <SiteFooter />
     </div>
   )
 }
@@ -102,6 +103,9 @@ export function App() {
           <Route element={<ResourcesPage />} path="/resources" />
           <Route element={<ArticlePage />} path="/resources/:slug" />
           <Route element={<JournalPage />} path="/journal" />
+          {/* 相册只从首页入口进，不占顶部导航 —— 导航五项已经够用，
+              再加一项会把「文章 / 项目 / 日记」这三个主入口稀释掉。 */}
+          <Route element={<GalleryPage />} path="/gallery" />
           <Route element={<NotFoundRoute />} path="*" />
         </Route>
       </Routes>

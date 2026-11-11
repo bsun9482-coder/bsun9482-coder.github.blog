@@ -51,7 +51,7 @@ export class ErrorBoundary extends Component<
           role="alert"
         >
           <TriangleAlertIcon className="mx-auto mb-5 size-10 text-faint" />
-          <h1 className="text-2xl font-semibold">
+          <h1 className="text-title font-semibold tracking-tight">
             {siteContent.ui.page.errorTitle}
           </h1>
           <p className="mx-auto mt-3 max-w-md text-sm leading-7 text-muted-foreground">

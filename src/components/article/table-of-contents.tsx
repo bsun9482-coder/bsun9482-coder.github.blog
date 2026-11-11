@@ -132,7 +132,7 @@ export function TableOfContents({ items, title }: TableOfContentsProps) {
       aria-label={siteContent.ui.article.tocTitle}
       className="rounded-xl border border-border p-4"
     >
-      <p className="flex items-center gap-2 font-mono text-[11px] tracking-wide text-faint uppercase">
+      <p className="flex items-center gap-2 font-mono text-xs tracking-wide text-faint uppercase">
         <ListTreeIcon className="size-3.5" />
         {siteContent.ui.article.tocKicker}
       </p>

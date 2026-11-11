@@ -47,7 +47,7 @@ export function StatusBar() {
           <p className="truncate text-sm font-medium text-foreground">
             {location.name}
           </p>
-          <p className="font-mono text-[11px] text-faint">
+          <p className="font-mono text-xs text-faint">
             {hasError
               ? siteContent.ui.statusBar.weatherUnavailable
               : `${presentation.description} · ${siteContent.ui.statusBar.humidity} ${weather ? Math.round(weather.relativeHumidity) : "--"}%`}
@@ -66,7 +66,7 @@ export function StatusBar() {
 
       {/* 4. 日期 */}
       <div className="flex items-center border-l border-border px-5 py-4 sm:ml-auto">
-        <span className="font-mono text-[11px] text-faint tabular-nums">
+        <span className="font-mono text-xs text-faint tabular-nums">
           {formatDate(now)}
         </span>
       </div>

@@ -36,7 +36,7 @@ function Heading2({ className, ...props }: ComponentProps<"h2">) {
 function Heading3({ className, ...props }: ComponentProps<"h3">) {
   return (
     <h3
-      className={cn("my-0 text-[15px] font-semibold tracking-tight", className)}
+      className={cn("my-0 text-base font-semibold tracking-tight", className)}
       {...props}
     />
   )

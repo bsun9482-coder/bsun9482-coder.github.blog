@@ -71,7 +71,7 @@ export function TerminalTyper({
 
       <pre
         aria-hidden="true"
-        className="px-3 py-2.5 font-mono text-[11px] leading-5 whitespace-pre-wrap text-foreground sm:text-xs"
+        className="px-3 py-2.5 font-mono text-xs leading-5 whitespace-pre-wrap text-foreground"
       >
         <span className="terminal-ghost">{full}</span>
         <span className="terminal-live">

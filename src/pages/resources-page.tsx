@@ -5,6 +5,7 @@ import { ArticleCard } from "@/components/article/article-card"
 import { Reveal } from "@/components/fx/reveal"
 import { TiltCard } from "@/components/fx/tilt-card"
 import { Container } from "@/components/layout/container"
+import { PageHeader } from "@/components/layout/page-header"
 import { Button } from "@/components/ui/button"
 import { CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -45,23 +46,16 @@ export function ResourcesPage() {
   )
 
   return (
-    <Container className="py-10 sm:py-16">
-      <section>
-        <div className="mb-6">
-          <div className="flex items-center gap-3">
-            <BookOpen
-              aria-hidden="true"
-              className="size-7 text-muted-foreground"
-            />
-            <h1 className="text-3xl font-semibold tracking-tight">
-              {pageNameOf("/resources")}
-            </h1>
-          </div>
-          <p className="mt-2 text-muted-foreground">
-            {siteContent.ui.resources.subtitle}
-          </p>
-        </div>
+    /* 页头 / 筛选条 / 结果，三段之间的间距交给 flex gap，量走统一的 --section-gap 的
+       一半左右 —— 同一页内的区块比跨页的一级区块要近一点，否则筛选条会飘走。 */
+    <Container className="flex flex-col gap-8 py-10 sm:py-14">
+      <PageHeader
+        icon={BookOpen}
+        subtitle={siteContent.ui.resources.subtitle}
+        title={pageNameOf("/resources")}
+      />
 
+      <section className="flex flex-col gap-4">
         <div className="flex flex-col gap-3 rounded-xl border border-border bg-muted/40 p-2 sm:flex-row sm:items-center">
           <div
             aria-label={siteContent.ui.resources.filterLabel}
@@ -107,7 +101,7 @@ export function ResourcesPage() {
           </div>
         </div>
 
-        <p className="mt-4 font-mono text-xs text-faint tabular-nums">
+        <p className="font-mono text-xs text-faint tabular-nums">
           {deferredQuery.length > 0
             ? fillTemplate(siteContent.ui.resources.matchedCount, {
                 query: query.trim(),
@@ -119,10 +113,10 @@ export function ResourcesPage() {
         </p>
 
         {filteredPosts.length > 0 ? (
-          <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          /* 桌面两列、移动一列。外层 Reveal 给 grid，卡片才能等高撑满整行 ——
+             否则加了一层 DOM 之后两列高度会参差。 */
+          <div className="grid gap-4 md:grid-cols-2">
             {filteredPosts.map((post, index) => (
-              /* 外层包壳负责入场（0 / 100 / 200 错落）；用 grid 让里面的卡片照旧等高撑满，
-                 这样加了一层 DOM 也不会让两列的卡片高度参差。 */
               <Reveal
                 className="grid"
                 delay={staggerDelay(index)}
@@ -133,10 +127,12 @@ export function ResourcesPage() {
             ))}
           </div>
         ) : (
-          <TiltCard className="mt-4 py-12 text-center">
+          /* 这一块不算空占位：它是「搜索/筛选没有结果」的反馈，
+             和「模块还没内容」不是一回事 —— 用户需要知道为什么一片空白。 */
+          <TiltCard className="py-12 text-center" tilt={false}>
             <CardContent>
               <SearchIcon className="mx-auto mb-4 size-8 text-muted-foreground" />
-              <h3 className="text-lg font-medium">
+              <h3 className="text-base font-medium">
                 {posts.length === 0
                   ? siteContent.ui.resources.emptyResources
                   : siteContent.ui.resources.noResults}

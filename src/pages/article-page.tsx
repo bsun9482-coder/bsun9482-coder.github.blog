@@ -27,7 +27,7 @@ export function ArticlePage() {
   const { Content } = post
 
   return (
-    <Container className="py-8 sm:py-12">
+    <Container className="py-10 sm:py-14">
       <Button asChild className="-ml-2" variant="ghost">
         <Link to="/resources">
           <ArrowLeftIcon data-icon="inline-start" />
@@ -35,7 +35,7 @@ export function ArticlePage() {
         </Link>
       </Button>
 
-      <div className="mt-7 grid items-start gap-10 lg:grid-cols-[17rem_minmax(0,1fr)]">
+      <div className="mt-8 grid items-start gap-10 lg:grid-cols-[17rem_minmax(0,1fr)]">
         {/* 目录在左栏（窄屏隐藏，靠正文顺序阅读）。
             DOM 里也放最前：键盘 Tab 会先过目录，再进正文，与视觉顺序一致。 */}
         <aside className="hidden lg:sticky lg:top-24 lg:block">
@@ -52,13 +52,14 @@ export function ArticlePage() {
                 </Badge>
               ))}
             </div>
-            <h1 className="mt-5 font-heading text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
+            {/* 正文标题 44 / 手机 22，和其他页面的 h1 同一档 */}
+            <h1 className="mt-5 font-heading text-title font-semibold tracking-tight text-balance sm:text-display">
               {post.title}
             </h1>
-            <p className="mt-5 max-w-3xl text-base leading-8 text-muted-foreground sm:text-lg">
+            <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground">
               {post.description}
             </p>
-            <div className="mt-6 flex flex-wrap items-center gap-4 font-mono text-[11px] text-faint">
+            <div className="mt-5 flex flex-wrap items-center gap-4 font-mono text-xs text-faint">
               <span className="inline-flex items-center gap-1.5">
                 <CalendarDaysIcon className="size-4" />
                 {formatPostDate(post.date)}

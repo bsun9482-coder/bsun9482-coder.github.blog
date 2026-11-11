@@ -15,7 +15,7 @@ export function NotFoundPage({ compact = false }: NotFoundPageProps) {
   return (
     <div
       className={cn(
-        "mx-auto flex w-full max-w-2xl items-center px-4 py-16 sm:px-6",
+        "mx-auto flex w-full max-w-2xl items-center px-(--layout-gutter-sm) py-16 sm:px-(--layout-gutter)",
         !compact && "min-h-[65vh]"
       )}
     >
@@ -23,7 +23,7 @@ export function NotFoundPage({ compact = false }: NotFoundPageProps) {
         <CardContent>
           <FileQuestionIcon className="mx-auto mb-5 size-10 text-faint" />
           <p className="font-mono text-xs tracking-widest text-faint">404</p>
-          <h1 className="mt-2 text-2xl font-semibold">
+          <h1 className="mt-2 text-title font-semibold tracking-tight">
             {siteContent.ui.notFound.title}
           </h1>
           <p className="mt-3 text-sm text-muted-foreground">

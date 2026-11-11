@@ -3,6 +3,7 @@ import { NotebookPen } from "lucide-react"
 import { Reveal } from "@/components/fx/reveal"
 import { JournalEntryCard } from "@/components/journal/journal-entry-card"
 import { Container } from "@/components/layout/container"
+import { PageHeader } from "@/components/layout/page-header"
 import { pageNameOf, siteContent } from "@/config/site"
 import { useDocumentTitle } from "@/hooks/use-document-title"
 import { journalEntries } from "@/lib/journal"
@@ -11,48 +12,29 @@ import { staggerDelay } from "@/lib/reveal"
 /* /journal：一页看完所有日记，不设详情路由。
    布局＝居中窄栏（680px）+ 左侧一条贯穿竖线 + 每则一个品牌色描边圆点。
    圆点在 li 里绝对定位，竖线在 ol 里绝对定位一次贯穿到底 ——
-   不要给每条日记单独画一截线，条目多的时候接缝会露馅。 */
+   不要给每条日记单独画一截线，条目多的时候接缝会露馅。
+   没有日记时只留页头（不再画一张「还没有日记」的空卡）。 */
 
 export function JournalPage() {
   useDocumentTitle(pageNameOf("/journal"))
 
   return (
-    <Container className="py-10 sm:py-16">
-      <section className="mx-auto w-full max-w-[680px]">
-        <header className="mb-8">
-          <div className="flex items-center gap-3">
-            <NotebookPen
-              aria-hidden="true"
-              className="size-7 text-muted-foreground"
-            />
-            <h1 className="text-3xl font-semibold tracking-tight">
-              {pageNameOf("/journal")}
-            </h1>
-          </div>
-          <p className="mt-2 text-muted-foreground">
-            {siteContent.ui.journal.subtitle}
-          </p>
+    <Container className="flex flex-col gap-8 py-10 sm:py-14">
+      <section className="mx-auto flex w-full max-w-[680px] flex-col gap-6">
+        <div className="flex flex-col gap-3">
+          <PageHeader
+            icon={NotebookPen}
+            subtitle={siteContent.ui.journal.subtitle}
+            title={pageNameOf("/journal")}
+          />
           {journalEntries.length > 0 && (
-            <p className="mt-3 font-mono text-xs text-faint tabular-nums">
+            <p className="font-mono text-xs text-faint tabular-nums">
               {journalEntries.length} {siteContent.ui.journal.countSuffix}
             </p>
           )}
-        </header>
+        </div>
 
-        {journalEntries.length === 0 ? (
-          <div className="rounded-xl border border-border bg-card px-6 py-14 text-center">
-            <NotebookPen
-              aria-hidden="true"
-              className="mx-auto mb-4 size-8 text-muted-foreground"
-            />
-            <h2 className="text-base font-medium">
-              {siteContent.ui.journal.emptyTitle}
-            </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {siteContent.ui.journal.emptyDescription}
-            </p>
-          </div>
-        ) : (
+        {journalEntries.length > 0 && (
           <ol className="relative">
             {/* 竖线：从第一颗圆点上方一点，到最后一条下方一点 */}
             <span
