@@ -22,6 +22,17 @@ export default defineConfig([
     languageOptions: {
       globals: globals.browser,
     },
+    rules: {
+      /* 以 _ 开头的参数 / 变量 = 「我知道它没用，但我必须接住它」。
+         TypeScript 自己的 noUnusedLocals 本来就是这条约定（所以 tsc 不报 _node），
+         ESLint 这边跟上，免得两个检查器对同一段代码给出相反结论。
+         实际用处：react-markdown 给每个自定义组件都塞一个 node，必须解构掉
+         才能安全地 {...props} 展开到 DOM 上，但接下来确实用不到它。 */
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
+      ],
+    },
   },
   {
     /* 构建侧：Node 环境，没有 DOM，也不该有 React 规则 */

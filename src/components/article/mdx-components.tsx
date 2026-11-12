@@ -1,16 +1,25 @@
 import { InfoIcon } from "lucide-react"
 
+import { ProseTable } from "@/components/article/prose"
+import { proseClass } from "@/components/article/prose-class"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { siteContent } from "@/config/site"
 import { cn } from "@/lib/utils"
 import type { MDXComponents } from "mdx/types"
 import type { ComponentProps, ReactNode } from "react"
 
+/* 这一份是「构建期 MDX」正文的组件映射。
+   类名不在这里写死，全部来自 components/article/prose-class.ts ——
+   运行时 react-markdown 那条路用的是同一份字典，两边排版不会各走各的。 */
+
 type NoteProps = {
   children: ReactNode
   title?: string
 }
 
+/* Note 是 MDX 时代的自定义组件（`<Note title="…">…</Note>`）。
+   react-markdown 不认识 JSX 组件，所以这个只对老 MDX 文章有效。
+   现有两篇正式文章都没用到它 —— 留着是为了以后写新 MDX 时还能用。 */
 function Note({
   children,
   title = siteContent.ui.article.noteDefaultTitle,
@@ -29,27 +38,11 @@ function Note({
 }
 
 function Heading2({ className, ...props }: ComponentProps<"h2">) {
-  return (
-    <h2
-      className={cn(
-        "mt-12 scroll-mt-24 border-b pb-3 text-title font-semibold tracking-tight first:mt-0",
-        className
-      )}
-      {...props}
-    />
-  )
+  return <h2 className={cn(proseClass.h2, className)} {...props} />
 }
 
 function Heading3({ className, ...props }: ComponentProps<"h3">) {
-  return (
-    <h3
-      className={cn(
-        "mt-8 scroll-mt-24 text-lg font-semibold tracking-tight",
-        className
-      )}
-      {...props}
-    />
-  )
+  return <h3 className={cn(proseClass.h3, className)} {...props} />
 }
 
 export const mdxComponents: MDXComponents = {
@@ -61,82 +54,41 @@ export const mdxComponents: MDXComponents = {
     href?.startsWith("#") ? (
       <a className="text-inherit no-underline" href={href} {...props} />
     ) : (
-      <a
-        className={cn(
-          /* 正文外链：默认无下划线，hover 时 1px 下划线从左往右滑入（.link-underline）。
-             不要在这里加 transition-colors —— 它会盖掉 .link-underline 的
-             background-size 补间，下划线会变成硬切换。 */
-          "link-underline font-medium text-brand hover:text-brand-hover",
-          className
-        )}
-        href={href}
-        {...props}
-      />
+      <a className={cn(proseClass.a, className)} href={href} {...props} />
     ),
   blockquote: ({ className, ...props }) => (
-    <blockquote
-      className={cn(
-        "my-6 border-l-2 pl-5 text-muted-foreground italic",
-        className
-      )}
-      {...props}
-    />
+    <blockquote className={cn(proseClass.blockquote, className)} {...props} />
   ),
   code: ({ className, ...props }) => (
-    <code
-      className={cn(
-        "rounded-md bg-muted px-1.5 py-0.5 font-mono text-[0.9em]",
-        className
-      )}
-      {...props}
-    />
+    <code className={cn(proseClass.code, className)} {...props} />
   ),
   h2: Heading2,
   h3: Heading3,
   img: ({ className, alt = "", ...props }) => (
     <img
       alt={alt}
-      className={cn("my-8 rounded-xl border border-border", className)}
+      className={cn(proseClass.img, className)}
       loading="lazy"
       {...props}
     />
   ),
   li: ({ className, ...props }) => (
-    <li className={cn("my-2 pl-1", className)} {...props} />
+    <li className={cn(proseClass.li, className)} {...props} />
   ),
   ol: ({ className, ...props }) => (
-    <ol
-      className={cn("my-5 list-decimal space-y-1 pl-6", className)}
-      {...props}
-    />
+    <ol className={cn(proseClass.ol, className)} {...props} />
   ),
   p: ({ className, ...props }) => (
-    <p
-      className={cn("my-5 leading-8 text-foreground/85", className)}
-      {...props}
-    />
+    <p className={cn(proseClass.p, className)} {...props} />
   ),
-  table: ({ className, ...props }) => (
-    <div className="my-7 overflow-x-auto rounded-xl border border-border">
-      <table className={cn("w-full text-sm", className)} {...props} />
-    </div>
-  ),
+  table: ProseTable,
   td: ({ className, ...props }) => (
-    <td
-      className={cn("border-t border-border px-4 py-3", className)}
-      {...props}
-    />
+    <td className={cn(proseClass.td, className)} {...props} />
   ),
   th: ({ className, ...props }) => (
-    <th
-      className={cn(
-        "border-b border-border bg-muted/50 px-4 py-3 text-left font-medium",
-        className
-      )}
-      {...props}
-    />
+    <th className={cn(proseClass.th, className)} {...props} />
   ),
   ul: ({ className, ...props }) => (
-    <ul className={cn("my-5 list-disc space-y-1 pl-6", className)} {...props} />
+    <ul className={cn(proseClass.ul, className)} {...props} />
   ),
 }

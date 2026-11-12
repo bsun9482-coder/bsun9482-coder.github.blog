@@ -196,6 +196,12 @@ export const siteContent = {
       backToList: "返回文章列表",
       loading: "正在加载文章",
       openLabel: "打开文章",
+      /* 下面是「从接口取文章」之后新增的状态文案。
+         分开写三句，因为三件事的处理方式不一样（见 hooks/use-post.ts 的说明）：
+         加载中只是等、失败可以重试、不存在重试也没用。 */
+      loadFailed: "文章没能加载出来",
+      missingDescription: "这篇文章可能已经被删除了，或者地址拼错了。",
+      retry: "重试",
     },
     notFound: {
       title: "没有找到这个页面",
@@ -225,6 +231,10 @@ export const siteContent = {
          没有文章时整块不渲染，所以不再维护「暂无文章」这类占位文案。 */
       latestPosts: "最新文章",
       viewAll: "查看全部 →",
+      /* 取文章失败时在「最新文章」位置显示的小提示。重试无效就没必要给按钮：
+         这一块在博客页里只是配角，给一个能自愈的重试入口就够了。 */
+      postsLoadFailed: "最新文章没能加载出来",
+      postsLoading: "正在加载文章…",
       /* 文章轮播（components/profile/post-carousel.tsx）。
          带 {index} / {total} 的是整句模板，由 lib/text.ts 的 fillTemplate 填 ——
          中文语序要改（比如「共 4 篇，当前第 1 篇」）只动这里。 */
@@ -261,8 +271,13 @@ export const siteContent = {
       clearFilters: "清除筛选条件",
       emptyResources: "暂无文章",
       noResults: "没有找到相关文章",
-      emptyResourcesDescription: "文章内容已清空，之后可以添加新的 MDX 文章。",
+      emptyResourcesDescription:
+        "还没有发布任何文章。在后台发布第一篇之后，这里就会自动出现。",
       noResultsDescription: "换一个关键词，或者清除当前搜索条件。",
+      /* 以下是「从接口取文章」之后新增的三种状态文案 */
+      loading: "正在加载文章…",
+      loadFailed: "文章列表没能加载出来",
+      retry: "重试",
     },
     /* 底部「时间天气横条」（StatusBar）的文案。
        这里原先叫 sidebar，但站上早就没有侧边栏了，改名避免让人去找一个不存在的组件。 */
@@ -274,10 +289,15 @@ export const siteContent = {
       weekdayPrefix: "周",
       weekdays: ["日", "一", "二", "三", "四", "五", "六"],
     },
-    /* 日记页：短内容聚合，没有详情路由。空态整块不渲染，不留「还没有日记」。 */
+    /* 日记页：短内容聚合，没有详情路由。空态整块不渲染，不留「还没有日记」。
+       数据从第 36 轮起来自 GET /api/journals（不再是构建期扫 MDX），
+       所以多了「加载中 / 加载失败」两种以前不存在的状态。 */
     journal: {
       subtitle: "随手记下的片段，按日子倒着排",
       countSuffix: "则",
+      loading: "正在读取日记…",
+      loadFailed: "日记没加载出来",
+      retry: "重试",
     },
     /* 相册页：把文章里用到的插图集中铺一遍（图片清单在 lib/gallery.ts）。
        不做「上传 / 分类」，它就是一个看图的网格。 */
@@ -285,6 +305,155 @@ export const siteContent = {
       title: "相册",
       subtitle: "文章与项目里用到的插图，按章节顺序排开",
       countSuffix: "张",
+    },
+    /* 管理后台（/admin 与 /admin/login）。
+       注意：这一块**不进 navigationItems** —— 后台入口不上访客导航，
+       只有知道地址的人才会来，导航五项也留给了内容。 */
+    admin: {
+      title: "管理后台",
+      pathLabel: "/admin",
+      signedInAs: "当前登录的账号",
+      loginTitle: "登录后台",
+      loginSubtitle: "用本机 create_admin.py 建的那个账号登录。",
+      loginHint: "只有作者本人需要登录，访客内容不需要账号。",
+      backToSite: "返回站点",
+      loginFailed: "登录没成功，稍后再试一次",
+      usernameLabel: "用户名",
+      passwordLabel: "密码",
+      usernamePlaceholder: "admin",
+      passwordPlaceholder: "至少 8 位",
+      submit: "登录",
+      submitting: "登录中…",
+      logout: "退出登录",
+      /* 顶栏的两块入口。放在顶栏而不是侧边栏：后台只有两个模块，
+         一个侧边栏比内容还高，反而占地方。 */
+      navLabel: "后台模块",
+      navPosts: "文章",
+      navJournal: "日记",
+      postsTitle: "文章管理",
+      postsSubtitle:
+        "数据来自 FastAPI + SQLite，和 src/content 里的 MDX 文件是两套数据源。",
+      loading: "加载中…",
+      loadFailed: "列表没加载出来",
+      retry: "重试",
+      empty: "数据库里还没有文章",
+      emptyDescription:
+        "点右上角「新建文章」写第一篇，左边写 Markdown 右边立刻能看到排版。",
+      totalPrefix: "共",
+      countSuffix: "篇",
+      countWithDrafts:
+        "共 {total} 篇，其中草稿 {drafts} 篇（草稿只有登录后看得见）",
+      deleted: "已删除「{title}」",
+      /* 提示条右侧那个 × 的读屏文案。光一个「×」会被读成「乘号」，听的人一头雾水。 */
+      dismissNotice: "关闭这条提示",
+      colTitle: "标题",
+      colCategory: "分类",
+      colStatus: "状态",
+      colPublishedAt: "发布日期",
+      colActions: "操作",
+      statusDraft: "草稿",
+      statusPublished: "已发布",
+      dateUnset: "未定",
+      newPost: "新建文章",
+      edit: "编辑",
+      delete: "删除",
+      deleting: "删除中…",
+      deleteFailed: "删除没成功",
+      deleteTitle: "确认删除这篇文章？",
+      deleteBody: "「{title}」会被永久删除，找不回来（草稿和已发布都一样）。",
+      deleteCancel: "取消",
+      /* 保存成功后回到列表，顶部这条提示告诉用户「刚才那下确实生效了」。
+         新手最容易犯嘀咕的就是「我点了保存，到底存没存」。 */
+      savedPublished: "已发布「{title}」",
+      savedDraft: "已存为草稿「{title}」，公开列表里看不到它",
+      savedUpdated: "已保存修改「{title}」",
+      formTitleNew: "新建文章",
+      formTitleEdit: "编辑文章",
+      formSubtitleNew:
+        "左边写 Markdown，右边实时看排版效果。存为草稿只有你自己看得见。",
+      formSubtitleEdit: "改完点保存，回到列表就能看到变化。",
+      loadingPost: "正在读取文章…",
+      loadPostFailed: "这篇文章读不出来",
+      labelTitle: "标题",
+      labelSlug: "slug（地址里的短名）",
+      labelDescription: "描述",
+      labelCategory: "分类",
+      labelTags: "标签",
+      labelContent: "正文（Markdown）",
+      labelReadingMinutes: "阅读时长（分钟）",
+      labelPublishedAt: "发布日期",
+      labelIsDraft: "存为草稿",
+      placeholderTitle: "例如：用 FastAPI 写第一个接口",
+      placeholderSlug: "my-first-post",
+      placeholderDescription: "一句话摘要，以后会显示在文章卡片上",
+      placeholderCategory: "未分类",
+      /* 分类留空时真正写进数据库的值。刻意和 placeholderCategory 分开写：
+         以后想把输入框提示改成「例如 前端 / AI」，这里不跟着改，数据就不会跑偏。 */
+      defaultCategory: "未分类",
+      placeholderTags: "python, 入门",
+      hintSlug:
+        "只能用英文、数字、- 和 _。改标题时会自动生成，你也可以直接改。",
+      hintSlugChinese:
+        "标题里没有英文，自动生成不出来 —— 请自己填一个英文短名，例如 my-first-post",
+      hintTags: "多个标签用逗号隔开",
+      hintDraft:
+        "打开后这篇文章不会出现在公开的文章列表里，只有登录的你能看到。",
+      hintContent: "常用写法：# 一级标题、**加粗**、- 列表、```代码块```",
+
+      /* ---------- 编辑器里的「上传图片」（第 37 轮） ----------
+         按钮在工具栏右侧（挂到 extraCommands），也可以直接把图片拖进编辑区。
+         文案写在这里而不是组件里，是为了以后想把「上传图片」改成「插图」只改一处。 */
+      imageUpload: "上传图片",
+      imageUploading: "正在上传图片…",
+      imageUploadHint: "也可以把图片直接拖到编辑区里",
+      imageDropActive: "松手就上传这张图",
+      imageInserted: "已插入「{name}」",
+      imageInsertedCount: "已插入 {count} 张图片",
+      imageUploadFailed: "图片没传上去",
+      imageUploadingCount: "正在上传 {index}/{total}：{name}",
+      imageErrEmpty: "「{name}」是个空文件（0 字节），换一张吧",
+      imageErrTooLarge: "「{name}」太大了（{size}），上限 5 MB，先压缩一下",
+      imageErrNotImage: "「{name}」不是图片，只支持 jpg / png / webp / gif",
+      imageErrBadFiles: "这些东西不是图片，跳过 {count} 个：{names}",
+      save: "保存",
+      saving: "保存中…",
+      cancel: "取消",
+      backToList: "返回列表",
+      errTitle: "标题不能为空",
+      errSlug: "slug 不能为空",
+      errSlugFormat: "slug 只能用英文、数字、- 和 _",
+      errContent: "正文不能为空",
+      errReading: "阅读时长要是 1 以上的整数",
+
+      /* ---------- 日记（/admin/journal） ----------
+         日记字段少，所以没有「新建页 / 编辑页」，整块就一个页面：
+         上面是输入区（新建和编辑共用），下面是列表。 */
+      journalTitle: "日记管理",
+      journalSubtitle:
+        "两三句话就能记一条。数据来自 FastAPI + SQLite，写完前台刷新就能看到。",
+      journalCountPrefix: "共",
+      journalCountSuffix: "则",
+      journalLoading: "正在读取日记…",
+      journalLoadFailed: "日记没加载出来",
+      journalEmpty: "还没有日记",
+      journalEmptyDescription:
+        "在上面写第一句，点保存就出现在这里，也出现在前台日记页。",
+      journalLabelContent: "内容",
+      journalLabelMood: "心情（可空）",
+      journalPlaceholderContent: "今天……",
+      journalPlaceholderMood: "例如：不错 / 卡住 / 降温",
+      journalHint: "空行分段。不用写 Markdown，纯文字就行。",
+      journalSave: "保存",
+      journalSaving: "保存中…",
+      journalEditing: "正在编辑 {date} 那一则（改完点保存）",
+      journalCancelEdit: "取消编辑",
+      journalSaved: "已写下这一则",
+      journalUpdated: "已保存修改",
+      journalDeleted: "已删除这一则",
+      journalEdit: "编辑",
+      errJournalContent: "内容不能为空",
+      deleteJournalTitle: "确认删除这则日记？",
+      deleteJournalBody: "删掉就找不回来了。",
     },
   },
 } as const

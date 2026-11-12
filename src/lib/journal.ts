@@ -7,7 +7,13 @@ import type { ComponentType } from "react"
    文章是长文，所以那边仍是懒加载 + virtual 元数据模块。
 
    frontmatter 是 vite-plugins/journal-frontmatter.ts 在编译期注入的
-   `export const frontmatter = {...}`，所以 eager glob 能直接读到。 */
+   `export const frontmatter = {...}`，所以 eager glob 能直接读到。
+
+   ⚠️ 第 36 轮起，前台日记已改从 GET /api/journals 读（lib/api-journals.ts），
+   这个文件**不再有人 import** —— 它被特意保留下来当回滚方案：
+   万一数据库那条路出问题，把 journal-page 换回 journalEntries 就能回到
+   「构建期读 MDX」的老样子。确认稳定后可以连同 content/journal/*.mdx 一起删。
+   因为没人 import，Vite 不会把它打进包里（tree-shaking 会整个丢掉这个模块）。 */
 
 export type JournalEntry = {
   /** 文件名去掉 .mdx，仅用于 React key，不对外暴露路由 */
@@ -73,16 +79,7 @@ function createEntries(): JournalEntry[] {
 
 export const journalEntries = createEntries()
 
-/** 2026-11-09 → 2026.11.09（等宽字体下比短横线更容易扫读） */
-export function formatJournalDate(date: string) {
-  return date.replaceAll("-", ".")
-}
-
-/** 2026-11-09 → 周日。日期非法时返回空串，调用方决定要不要显示。 */
-export function formatJournalWeekday(date: string) {
-  const parsed = new Date(`${date}T00:00:00`)
-
-  return Number.isNaN(parsed.getTime())
-    ? ""
-    : new Intl.DateTimeFormat("zh-CN", { weekday: "short" }).format(parsed)
-}
+/* 日期格式化的实现在 lib/journal-date.ts —— 从那里再导出一次，
+   只是为了「老代码 import from "@/lib/journal" 也还能跑」。
+   别在这里重新写一份：两份实现迟早会漂移，一处改了另一处忘改。 */
+export { formatJournalDate, formatJournalWeekday } from "@/lib/journal-date"

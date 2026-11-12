@@ -1,22 +1,33 @@
-import { NotebookPen } from "lucide-react"
+import { NotebookPen, RefreshCwIcon } from "lucide-react"
 
 import { Reveal } from "@/components/fx/reveal"
 import { JournalEntryCard } from "@/components/journal/journal-entry-card"
 import { Container } from "@/components/layout/container"
 import { PageHeader } from "@/components/layout/page-header"
+import { Button } from "@/components/ui/button"
 import { pageNameOf, siteContent } from "@/config/site"
 import { useDocumentTitle } from "@/hooks/use-document-title"
-import { journalEntries } from "@/lib/journal"
+import { useJournals } from "@/hooks/use-journals"
 import { staggerDelay } from "@/lib/reveal"
 
 /* /journal：一页看完所有日记，不设详情路由。
    布局＝居中窄栏（680px）+ 左侧一条贯穿竖线 + 每则一个品牌色描边圆点。
    圆点在 li 里绝对定位，竖线在 ol 里绝对定位一次贯穿到底 ——
    不要给每条日记单独画一截线，条目多的时候接缝会露馅。
-   没有日记时只留页头（不再画一张「还没有日记」的空卡）。 */
+   没有日记时只留页头（不再画一张「还没有日记」的空卡）。
+
+   数据从第 36 轮起走 GET /api/journals（见 hooks/use-journals.ts），
+   所以多了两种以前不存在的中间状态：
+     加载中 → 只提示一行，不画假条目（画出来的假卡片会比空屏更晃眼）
+     失败   → 说清原因 + 重试按钮（后端没开、网络抖一下，点一下就回来了） */
+
+const ui = siteContent.ui.journal
 
 export function JournalPage() {
   useDocumentTitle(pageNameOf("/journal"))
+
+  const { state, retry } = useJournals()
+  const journals = state.status === "ready" ? state.journals : []
 
   return (
     <Container className="flex flex-col gap-8 py-10 sm:py-14">
@@ -24,25 +35,46 @@ export function JournalPage() {
         <div className="flex flex-col gap-3">
           <PageHeader
             icon={NotebookPen}
-            subtitle={siteContent.ui.journal.subtitle}
+            subtitle={ui.subtitle}
             title={pageNameOf("/journal")}
           />
-          {journalEntries.length > 0 && (
+          {journals.length > 0 && (
             <p className="font-mono text-xs text-faint tabular-nums">
-              {journalEntries.length} {siteContent.ui.journal.countSuffix}
+              {journals.length} {ui.countSuffix}
             </p>
           )}
         </div>
 
-        {journalEntries.length > 0 && (
+        {state.status === "loading" && (
+          <p aria-busy="true" className="font-mono text-xs text-faint">
+            {ui.loading}
+          </p>
+        )}
+
+        {state.status === "error" && (
+          <div
+            className="flex flex-col items-start gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-5"
+            role="alert"
+          >
+            <p className="text-sm leading-6 text-destructive">
+              {ui.loadFailed}：{state.message}
+            </p>
+            <Button onClick={retry} size="sm" type="button" variant="outline">
+              <RefreshCwIcon aria-hidden="true" />
+              {ui.retry}
+            </Button>
+          </div>
+        )}
+
+        {journals.length > 0 && (
           <ol className="relative">
             {/* 竖线：从第一颗圆点上方一点，到最后一条下方一点 */}
             <span
               aria-hidden="true"
               className="pointer-events-none absolute top-4 bottom-4 left-[7px] w-px bg-border"
             />
-            {journalEntries.map((entry, index) => (
-              <li className="relative pb-5 pl-9 last:pb-0" key={entry.slug}>
+            {journals.map((entry, index) => (
+              <li className="relative pb-5 pl-9 last:pb-0" key={entry.id}>
                 {/* 圆点：15px + 2px 品牌蓝描边，中心落在竖线上（left 7px + 半线宽） */}
                 <span
                   aria-hidden="true"

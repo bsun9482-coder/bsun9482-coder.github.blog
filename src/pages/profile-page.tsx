@@ -18,7 +18,7 @@ import {
 import { musicPlaylist, pageNameOf, siteContent } from "@/config/site"
 import { useDocumentTitle } from "@/hooks/use-document-title"
 import { useEnterTransition } from "@/hooks/use-enter-transition"
-import { posts } from "@/lib/posts"
+import { usePosts } from "@/hooks/use-posts"
 import { prefersReducedMotion } from "@/lib/reveal"
 import { cn } from "@/lib/utils"
 
@@ -48,6 +48,11 @@ export function ProfilePage() {
      否则 2fr/1fr 的网格会留一个空格子。 */
   const hasMusic = musicPlaylist.length > 0
 
+  /* 「最新文章」的数据和 /resources 是同一个来源（GET /api/posts），
+     所以后台一发文章，这一块刷新就能看到。 */
+  const { state } = usePosts()
+  const latestPosts = state.status === "ready" ? state.posts : []
+
   return (
     <Container
       className="flex flex-col gap-(--section-gap) py-10 sm:py-14"
@@ -60,7 +65,11 @@ export function ProfilePage() {
       {/* 顶部资料卡（+ 音乐卡）：这两张是一个视觉块，内部间距保持 16px，
           不与区块间的 72px 混为一谈。 */}
       <div className={cn("grid gap-4", hasMusic && "lg:grid-cols-[2fr_1fr]")}>
-        <ProfileHero />
+        {/* 文章数也走接口：加载中传 null（卡片显示短横线），拿到后才是真数字。
+            以前它读的是构建期 MDX 清单，后台发文后会一直停在旧值。 */}
+        <ProfileHero
+          articleCount={state.status === "ready" ? state.posts.length : null}
+        />
         {hasMusic && <MusicCard />}
       </div>
 
@@ -96,8 +105,25 @@ export function ProfilePage() {
 
       {/* 最新文章：没有文章时整块不渲染（不留「暂无文章」的卡）。
           卡片列表换成了轮播：一屏一篇、能自动播 / 箭头 / 点 / 键盘 / 手势切 —— 逻辑在
-          components/profile/post-carousel.tsx 里，这里只给数据（posts 已按日期降序）。 */}
-      {posts.length > 0 && (
+          components/profile/post-carousel.tsx 里，这里只给数据（posts 已按日期降序）。
+
+          ⚠️ 数据来自接口之后多了两种中间状态：
+            · 加载中 → 只显示一行提示，不占一整块轮播的高度（避免页面跳一下）
+            · 失败   → 说明一下。这一块是配角，没必要给重试按钮，
+                       用户刷新页面就等于重试。 */}
+      {state.status === "loading" && (
+        <p aria-busy="true" className="font-mono text-xs text-faint">
+          {siteContent.ui.profile.postsLoading}
+        </p>
+      )}
+
+      {state.status === "error" && (
+        <p className="text-sm text-muted-foreground" role="alert">
+          {siteContent.ui.profile.postsLoadFailed}
+        </p>
+      )}
+
+      {latestPosts.length > 0 && (
         <section aria-labelledby="latest-posts" className="flex flex-col gap-4">
           <div className="flex items-baseline justify-between gap-3">
             <h2
@@ -115,7 +141,7 @@ export function ProfilePage() {
           </div>
 
           <Reveal delay={120}>
-            <PostCarousel posts={posts} />
+            <PostCarousel posts={latestPosts} />
           </Reveal>
         </section>
       )}

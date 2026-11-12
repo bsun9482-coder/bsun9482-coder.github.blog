@@ -8,7 +8,7 @@ import {
 import { Link } from "react-router"
 
 import { siteContent } from "@/config/site"
-import { formatPostDate } from "@/lib/posts"
+import { formatPostDate } from "@/lib/post-date"
 import { fillTemplate } from "@/lib/text"
 import { cn } from "@/lib/utils"
 import type { Post } from "@/types/post"

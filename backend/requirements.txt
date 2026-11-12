@@ -1,0 +1,27 @@
+# 这个项目用到的第三方库清单（一行一个）。
+# 装的时候只要一条命令：pip install -r requirements.txt
+#
+# 关于版本号：这里只把「必须锁死」的锁住了，其余不限版本。
+# 锁版本的原则是「不锁会出事」，不是「全都锁上」—— 全锁死以后想升级得一个个改。
+
+fastapi
+uvicorn[standard]
+sqlalchemy
+
+# ---- 登录鉴权相关 ----
+passlib[bcrypt]        # 密码哈希（bcrypt 算法在 passlib 的 CryptContext 后面跑）
+# ⚠️ bcrypt 必须锁在 4.0.1，别升级！
+#    bcrypt 5.x 去掉了 passlib 1.7.4 依赖的内部变量，两者一起用会直接报错：
+#      ValueError: password cannot be longer than 72 bytes
+#      AttributeError: module 'bcrypt' has no attribute '__about__'
+#    这个冲突很难看懂、也很难搜到，所以版本在这里锁死。等 passlib 更新了再考虑放开。
+bcrypt==4.0.1
+
+python-jose[cryptography]   # 签发 / 验证 JWT（叫 jose 不叫 jwt，别装错成 python-jwt）
+pydantic-settings           # 从 .env 文件读配置（SECRET_KEY 就放在那里，不进 git）
+python-multipart            # 解析表单数据；现在登录用 JSON，先装着，以后上「表单登录」就不缺件
+
+# ---- 迁移脚本相关 ----
+# import_mdx.py 用它把 .mdx 开头那段 YAML（frontmatter）拆出来。
+# 它只依赖 PyYAML，装它会顺带把 pyyaml 带上，不用单独写。
+python-frontmatter

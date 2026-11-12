@@ -710,3 +710,84 @@
     transform: translateY(0);
   }
 }
+
+/* ---------- Markdown 编辑器（后台文章表单） ----------
+   第三方组件（@uiw/react-md-editor）自带一整套 sx 风格：紫色主色、12px 圆角、
+   四周一圈半透明阴影。不收敛的话，后台这一个控件会长得跟全站其他东西都不一样。
+
+   ⚠️ 为什么写在所有 @layer 之外：库里那些规则是**未分层**的普通 CSS，
+   而我们自己的工具类在 utilities 层里 —— 分层样式永远输给未分层样式，
+   跟选择器多具体无关（和上面 .card-lift 是同一类坑）。
+   这里用 `.admin-editor .w-md-editor` 两层选择器，既在未分层一侧，
+   又比库里的单层选择器更具体，两个条件都占住才改得动。
+
+   ⚠️ 只改「外观」不改「排版度量」：编辑区那个 textarea 和它背后的
+   高亮层是**逐像素对齐**的（文字上面盖一层透明 textarea），
+   一旦给其中一边改了 font-size / line-height，光标和文字就会错位。 */
+.admin-editor .w-md-editor {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background-color: var(--background);
+  box-shadow: none;
+  overflow: hidden;
+}
+
+.admin-editor .w-md-editor-toolbar {
+  background-color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  padding: 4px 6px;
+}
+
+.admin-editor .w-md-editor-toolbar li > button {
+  border-radius: var(--radius-sm);
+  color: var(--muted-foreground);
+}
+
+.admin-editor .w-md-editor-toolbar li > button:hover,
+.admin-editor .w-md-editor-toolbar li > button:focus {
+  background-color: var(--secondary);
+  color: var(--foreground);
+}
+
+/* 预览区和编辑区之间的竖线，换成和全站一致的描边色 */
+.admin-editor .w-md-editor-preview {
+  box-shadow: inset 1px 0 0 0 var(--border);
+}
+
+/* 预览出来的正文用全站字体栈，别用库自带的系统字体（中文会掉到宋体） */
+.admin-editor .wmde-markdown {
+  font-family: var(--font-sans);
+  color: var(--foreground);
+  background-color: transparent;
+}
+
+.admin-editor .wmde-markdown a {
+  color: var(--brand);
+}
+
+.admin-editor .wmde-markdown code {
+  font-family: var(--font-mono);
+}
+
+/* ---------- 文章正文的代码块（运行时 react-markdown 这条路） ----------
+   ⚠️ 必须写在所有 @layer 之外：highlight.js 的主题（github.css）是**未分层**的普通 CSS，
+   分层样式无条件输给它，跟选择器多具体无关（和上面 .card-lift 是同一类坑）。
+   这里用 `.article-content .hljs`（0,2,0）比主题的 `.hljs`（0,1,0）更具体，
+   又同样未分层，两个条件都占住才改得动。
+
+   主题把代码块设成「白底 + padding:1em」，而本站代码块的底色是外层 div 的
+   --secondary 浅灰、圆角描边也由外层负责。不压掉的话，灰框里会浮出一块白底。 */
+.article-content .hljs {
+  display: block;
+  overflow-x: visible;
+  padding: 0;
+  background: transparent;
+}
+
+/* 每行左右留白。放在 <code> 而不是 <pre> 上：
+   <pre> 的 padding 只作用在整块，横向滚动时文字会贴着边框跑。 */
+.article-content pre code {
+  padding-inline: 1rem;
+  font-size: 13px;
+  line-height: 1.6;
+}

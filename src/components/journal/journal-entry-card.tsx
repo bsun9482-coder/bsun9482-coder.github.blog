@@ -1,21 +1,21 @@
-import { journalMdxComponents } from "@/components/journal/journal-mdx-components"
+import { JournalBody } from "@/components/journal/journal-body"
 import { Badge } from "@/components/ui/badge"
-import {
-  formatJournalDate,
-  formatJournalWeekday,
-  type JournalEntry,
-} from "@/lib/journal"
+import { formatJournalDate, formatJournalWeekday } from "@/lib/journal-date"
+import type { Journal } from "@/types/journal"
 
 /* 一则日记 = 时间线上的一个节点 + 一张轻卡片。
    卡片自己不做位移/hover 抬升（.card-lift 那套留给文章列表），
-   只让边框与阴影微微变蓝 —— 日记是"翻看"的场景，不是"点进去"的入口。 */
+   只让边框与阴影微微变蓝 —— 日记是"翻看"的场景，不是"点进去"的入口。
+
+   数据从哪来：以前 entry.Content 是构建期编译好的 MDX 组件，
+   现在 entry.content 是一段纯文本（来自 GET /api/journals），交给 JournalBody 分段。
+   这也是为什么这个组件不再 import journal-mdx-components —— 那套映射是给 MDX 用的。 */
 
 type JournalEntryCardProps = {
-  entry: JournalEntry
+  entry: Journal
 }
 
 export function JournalEntryCard({ entry }: JournalEntryCardProps) {
-  const { Content } = entry
   const weekday = formatJournalWeekday(entry.date)
 
   return (
@@ -40,9 +40,9 @@ export function JournalEntryCard({ entry }: JournalEntryCardProps) {
         )}
       </header>
 
-      {/* 块间距只在这一层给：里面的 mdx 元素全部 my-0，避免两套间距叠加 */}
+      {/* 块间距只在这一层给：里面的段落全部 no margin，避免两套间距叠加 */}
       <div className="mt-2.5 text-base [&>*+*]:mt-3">
-        <Content components={journalMdxComponents} />
+        <JournalBody content={entry.content} />
       </div>
     </article>
   )

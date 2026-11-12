@@ -1,6 +1,9 @@
 import { Suspense, lazy, useEffect } from "react"
 import { BrowserRouter, Outlet, Route, Routes, useLocation } from "react-router"
 
+import { AdminLayout } from "@/components/admin/admin-layout"
+import { AuthProvider } from "@/components/admin/auth-provider"
+import { RequireAuth } from "@/components/admin/require-auth"
 import { SiteAmbience } from "@/components/layout/site-ambience"
 import { SiteFooter } from "@/components/layout/site-footer"
 import { SiteHeader } from "@/components/layout/site-header"
@@ -10,6 +13,7 @@ import { PageLoading } from "@/components/system/page-loading"
 import { siteContent } from "@/config/site"
 import { useDocumentTitle } from "@/hooks/use-document-title"
 import { useEscapeBack } from "@/hooks/use-escape-back"
+import { AdminLoginPage } from "@/pages/admin/admin-login-page"
 import { HomePage } from "@/pages/home-page"
 import { GalleryPage } from "@/pages/gallery-page"
 import { JournalPage } from "@/pages/journal-page"
@@ -27,6 +31,30 @@ const ArticlePage = lazy(() =>
 )
 const WorksPage = lazy(() =>
   import("@/pages/works-page").then((m) => ({ default: m.WorksPage }))
+)
+
+/* 后台的两个页面也必须拆包 —— 理由和上面两个不一样，但后果更严重：
+   Markdown 编辑器（@uiw/react-md-editor）连带它依赖的一堆东西有 1.2MB 左右。
+   不拆的话，**每个来看博客的访客**打开首页就得先下载完这个编辑器，
+   而他一辈子都不会进后台。实测主包会从 591KB 涨到 1828KB。
+   拆出去之后，只有真的进 /admin 才会下载它。
+   （后台本身还要先过 RequireAuth，未登录根本走不到这一步。） */
+const AdminPostsPage = lazy(() =>
+  import("@/pages/admin/admin-posts-page").then((m) => ({
+    default: m.AdminPostsPage,
+  }))
+)
+const AdminPostFormPage = lazy(() =>
+  import("@/pages/admin/admin-post-form-page").then((m) => ({
+    default: m.AdminPostFormPage,
+  }))
+)
+/* 日记管理也拆包：它和文章列表一样属于「只有作者会看」的页面，
+   没有任何理由让访客下载它的代码。 */
+const AdminJournalPage = lazy(() =>
+  import("@/pages/admin/admin-journal-page").then((m) => ({
+    default: m.AdminJournalPage,
+  }))
 )
 
 function ScrollManager() {
@@ -95,20 +123,52 @@ export function App() {
     <BrowserRouter>
       <ScrollManager />
       <EscapeToBack />
-      <Routes>
-        <Route element={<SiteLayout />}>
-          <Route element={<HomePage />} path="/" />
-          <Route element={<ProfilePage />} path="/profile" />
-          <Route element={<WorksPage />} path="/works" />
-          <Route element={<ResourcesPage />} path="/resources" />
-          <Route element={<ArticlePage />} path="/resources/:slug" />
-          <Route element={<JournalPage />} path="/journal" />
-          {/* 相册只从首页入口进，不占顶部导航 —— 导航五项已经够用，
-              再加一项会把「文章 / 项目 / 日记」这三个主入口稀释掉。 */}
-          <Route element={<GalleryPage />} path="/gallery" />
-          <Route element={<NotFoundRoute />} path="*" />
-        </Route>
-      </Routes>
+      {/* AuthProvider 必须在 BrowserRouter 里面：它要用 useNavigate 做「401 就跳登录页」，
+          而 useNavigate 只有被 Router 包住才有值。 */}
+      <AuthProvider>
+        <Routes>
+          {/* ---------- 后台：两条路由都不套 SiteLayout ----------
+              登录页是独立的（没有顶栏，没登录的人不该看到「退出登录」）；
+              列表页外面套两层：RequireAuth 查登录态，AdminLayout 给顶栏 + 内容区。
+              嵌套 Route 的写法：父级只给 element 不给 path，子级负责实际路径，
+              子页面渲染在 AdminLayout 的 <Outlet /> 里。 */}
+          <Route element={<AdminLoginPage />} path="/admin/login" />
+          <Route
+            element={
+              <RequireAuth>
+                <AdminLayout />
+              </RequireAuth>
+            }
+          >
+            <Route element={<AdminPostsPage />} path="/admin" />
+            {/* 新建和编辑共用同一个页面组件 AdminPostFormPage：
+                「是新建还是编辑」不靠两个页面区分，靠地址里有没有 :slug 判断。
+                两条路由都写出来，是因为它们要求的需求不一样 ——
+                /posts/new 不能有 slug，/posts/:slug/edit 必须有。 */}
+            <Route element={<AdminPostFormPage />} path="/admin/posts/new" />
+            <Route
+              element={<AdminPostFormPage />}
+              path="/admin/posts/:slug/edit"
+            />
+            {/* 日记只有一条后台路由：列表 + 输入区都在同一个页面里，
+                不区分「新建」和「编辑」（见 admin-journal-page.tsx 顶部说明）。 */}
+            <Route element={<AdminJournalPage />} path="/admin/journal" />
+          </Route>
+
+          <Route element={<SiteLayout />}>
+            <Route element={<HomePage />} path="/" />
+            <Route element={<ProfilePage />} path="/profile" />
+            <Route element={<WorksPage />} path="/works" />
+            <Route element={<ResourcesPage />} path="/resources" />
+            <Route element={<ArticlePage />} path="/resources/:slug" />
+            <Route element={<JournalPage />} path="/journal" />
+            {/* 相册只从首页入口进，不占顶部导航 —— 导航五项已经够用，
+                再加一项会把「文章 / 项目 / 日记」这三个主入口稀释掉。 */}
+            <Route element={<GalleryPage />} path="/gallery" />
+            <Route element={<NotFoundRoute />} path="*" />
+          </Route>
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   )
 }

@@ -12,7 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { siteContent } from "@/config/site"
-import { formatPostDate } from "@/lib/posts"
+import { formatPostDate } from "@/lib/post-date"
 import type { Post } from "@/types/post"
 
 type ArticleCardProps = {
