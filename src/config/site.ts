@@ -225,6 +225,16 @@ export const siteContent = {
          没有文章时整块不渲染，所以不再维护「暂无文章」这类占位文案。 */
       latestPosts: "最新文章",
       viewAll: "查看全部 →",
+      /* 文章轮播（components/profile/post-carousel.tsx）。
+         带 {index} / {total} 的是整句模板，由 lib/text.ts 的 fillTemplate 填 ——
+         中文语序要改（比如「共 4 篇，当前第 1 篇」）只动这里。 */
+      carouselLabel: "最新文章轮播",
+      carouselRole: "轮播",
+      carouselSlideLabel: "第 {index} 篇，共 {total} 篇",
+      carouselSlideRole: "幻灯片",
+      carouselPrev: "上一篇",
+      carouselNext: "下一篇",
+      carouselDotLabel: "第 {index} 篇",
       /* 顶部个人资料卡的统计项标签。只有「文章」有真实数据源，
          另外两项（说说 / 照片）没有数据就整块不出现 —— 不留孤零零的短横线。 */
       statArticles: "文章",

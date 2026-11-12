@@ -1,11 +1,11 @@
 import { Link, useLocation } from "react-router"
 
-import { ArticleCard } from "@/components/article/article-card"
 import { Reveal } from "@/components/fx/reveal"
 import { TiltCard } from "@/components/fx/tilt-card"
 import { Container } from "@/components/layout/container"
 import { StatusBar } from "@/components/layout/status-bar"
 import { MusicCard } from "@/components/profile/music-card"
+import { PostCarousel } from "@/components/profile/post-carousel"
 import { ProfileHero } from "@/components/profile/profile-hero"
 import { CardContent } from "@/components/ui/card"
 import {
@@ -19,14 +19,15 @@ import { musicPlaylist, pageNameOf, siteContent } from "@/config/site"
 import { useDocumentTitle } from "@/hooks/use-document-title"
 import { useEnterTransition } from "@/hooks/use-enter-transition"
 import { posts } from "@/lib/posts"
-import { prefersReducedMotion, staggerDelay } from "@/lib/reveal"
+import { prefersReducedMotion } from "@/lib/reveal"
 import { cn } from "@/lib/utils"
 
 /* 博客页：只负责「把几块内容摆上来」和入场动画。
    具体内容各有自己的组件：
      components/profile/profile-hero.tsx   头像 / 名字 / 统计
      components/profile/music-card.tsx     音乐卡（曲目表为空时整张不渲染）
-   本文件保留：左右两栏布局、轮播卡、「最新文章」列表、底部时间天气横条。
+     components/profile/post-carousel.tsx  「最新文章」轮播
+   本文件保留：左右两栏布局、状态轮播卡、底部时间天气横条。
 
    ⚠️ 这一页原来的「歌词条」已删除：它没有数据源，永远只能显示一句「暂无歌词」，
    属于空占位。等 musicPlaylist 里出现带歌词的曲目时，再按 MusicTrack 的 TODO 重新做。
@@ -93,7 +94,9 @@ export function ProfilePage() {
         </TiltCard>
       </Reveal>
 
-      {/* 最新文章：没有文章时整块不渲染（不留「暂无文章」的卡） */}
+      {/* 最新文章：没有文章时整块不渲染（不留「暂无文章」的卡）。
+          卡片列表换成了轮播：一屏一篇、能自动播 / 箭头 / 点 / 键盘 / 手势切 —— 逻辑在
+          components/profile/post-carousel.tsx 里，这里只给数据（posts 已按日期降序）。 */}
       {posts.length > 0 && (
         <section aria-labelledby="latest-posts" className="flex flex-col gap-4">
           <div className="flex items-baseline justify-between gap-3">
@@ -111,19 +114,9 @@ export function ProfilePage() {
             </Link>
           </div>
 
-          {/* 桌面两列、移动一列：和文章列表页同一套网格，
-              ⚠️ Reveal 包在外面时给 grid，卡片才能等高撑满。 */}
-          <div className="grid gap-4 md:grid-cols-2">
-            {posts.map((post, index) => (
-              <Reveal
-                className="grid"
-                delay={staggerDelay(index)}
-                key={post.slug}
-              >
-                <ArticleCard post={post} />
-              </Reveal>
-            ))}
-          </div>
+          <Reveal delay={120}>
+            <PostCarousel posts={posts} />
+          </Reveal>
         </section>
       )}
 
