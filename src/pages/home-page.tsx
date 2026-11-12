@@ -3,6 +3,7 @@ import { ArrowRightIcon, ChevronDownIcon } from "lucide-react"
 import { Link } from "react-router"
 
 import { TerminalTyper } from "@/components/fx/terminal-typer"
+import { Reveal } from "@/components/fx/reveal"
 import { HomeEntryCard } from "@/components/home/home-entry-card"
 import { ProfileCardTabs } from "@/components/home/profile-card-tabs"
 import { Container } from "@/components/layout/container"
@@ -11,7 +12,7 @@ import { Button } from "@/components/ui/button"
 import { siteContent } from "@/config/site"
 import { useDocumentTitle } from "@/hooks/use-document-title"
 import { useEnterTransition } from "@/hooks/use-enter-transition"
-import { prefersReducedMotion } from "@/lib/reveal"
+import { prefersReducedMotion, staggerDelay } from "@/lib/reveal"
 
 /* 底部向下箭头的上下浮动循环动画；降级时停掉浮动（media query 见下方 style） */
 const CHEVRON_CSS = `
@@ -29,6 +30,8 @@ const ENTRIES_ANCHOR = "home-entries"
 
 export function HomePage() {
   useDocumentTitle(siteContent.ui.header.home)
+
+  const { focus, heroTitle } = siteContent.ui.home
 
   /* 首屏依次淡入：开启「减少动态效果」时直接是可见态，不播。
      双 rAF 的细节在 hooks/use-enter-transition.ts 里（那里有为什么）。 */
@@ -83,27 +86,34 @@ export function HomePage() {
             </div>
 
             {/* 标题用 clamp 而不是断点阶梯：1120 版心里 44px 刚好，
-                窗口缩到 500 时退到 32 —— 中间不会出现两级跳变。 */}
+                窗口缩到 500 时退到 32 —— 中间不会出现两级跳变。
+                中间那段是蓝紫渐变（.text-gradient-brand），全页唯一的高饱和焦点。 */}
             <h1
               className="mt-6 font-heading leading-[1.1] font-semibold tracking-tight text-balance text-foreground"
               style={{
                 fontSize: "clamp(32px, 4.6vw, 44px)",
-                ...rise(120),
+                ...rise(80),
               }}
             >
-              {siteContent.ui.home.heroTitle}
+              {heroTitle.lead}
+              <span className="text-gradient-brand">{heroTitle.accent}</span>
+              {heroTitle.tail}
             </h1>
 
-            <p
-              className="mt-5 max-w-xl text-base leading-8 text-muted-foreground"
-              style={rise(240)}
+            {/* 金句：左侧 3px 品牌蓝边条 + 衬线体。
+                全站唯一用衬线的地方 —— 引言和正文一混，就分不出哪句是「说的」了。 */}
+            <blockquote
+              className="mt-6 max-w-xl rounded-r-lg border-l-[3px] border-brand bg-muted/50 py-3 pr-4 pl-4 sm:pl-5"
+              style={rise(160)}
             >
-              {siteContent.ui.home.heroSubtitle}
-            </p>
+              <p className="font-serif text-base leading-8 text-muted-foreground sm:text-lg">
+                {siteContent.ui.home.heroSubtitle}
+              </p>
+            </blockquote>
 
             <div
               className="mt-8 flex flex-wrap items-center gap-3"
-              style={rise(360)}
+              style={rise(240)}
             >
               <Button asChild size="lg">
                 <Link to="/resources">
@@ -121,7 +131,8 @@ export function HomePage() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-4" style={rise(200)}>
+          {/* 右栏和按钮同一档延迟：视觉上「左边说完、右边一起落地」 */}
+          <div className="flex flex-col gap-4" style={rise(240)}>
             <TerminalTyper
               command={siteContent.ui.home.terminalCommand}
               result={siteContent.ui.home.terminalResult}
@@ -148,6 +159,43 @@ export function HomePage() {
         </button>
       </Container>
 
+      {/* 当前专注：全站唯一的深色块。位置在首屏和入口区之间 ——
+          把「我是谁」和「去哪儿」隔开，页面才有段落感。
+          深色只此一处，别复制第二块，否则浅色极简的调子就散了。 */}
+      <Container
+        aria-labelledby="home-focus"
+        as="section"
+        className="pb-16 sm:pb-24"
+      >
+        <Reveal>
+          <div className="focus-card p-6 sm:p-10">
+            <p className="font-mono text-xs tracking-[0.16em] text-(--brand-soft) uppercase">
+              {focus.label}
+            </p>
+            <h2
+              className="mt-4 text-title font-semibold tracking-tight text-white sm:text-3xl"
+              id="home-focus"
+            >
+              {focus.title}
+            </h2>
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300">
+              {focus.description}
+            </p>
+            {/* 技术标签：描边款，不填色 —— 深色块里再上彩色底会显得吵 */}
+            <ul className="mt-6 flex flex-wrap gap-2">
+              {focus.tags.map((tag) => (
+                <li
+                  className="rounded-full border border-white/15 px-3 py-1 text-xs text-slate-200"
+                  key={tag}
+                >
+                  {tag}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </Reveal>
+      </Container>
+
       {/* 功能入口区：五个卡，桌面一行五列、平板三列、手机两列。
           区块之间的垂直间距走 --section-gap（和各页面一致）。 */}
       <Container
@@ -169,13 +217,20 @@ export function HomePage() {
         </div>
 
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
-          {siteContent.ui.home.entries.map((entry) => (
-            <HomeEntryCard
-              description={entry.description}
-              href={entry.href}
+          {siteContent.ui.home.entries.map((entry, index) => (
+            /* 外层 Reveal 给 grid：卡片才能等高撑满单元格；
+               延迟 0/100/200 循环，五个入口依次浮上来。 */
+            <Reveal
+              className="grid"
+              delay={staggerDelay(index)}
               key={entry.href}
-              label={entry.label}
-            />
+            >
+              <HomeEntryCard
+                description={entry.description}
+                href={entry.href}
+                label={entry.label}
+              />
+            </Reveal>
           ))}
         </div>
       </Container>

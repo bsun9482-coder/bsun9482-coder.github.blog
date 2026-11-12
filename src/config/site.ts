@@ -86,8 +86,24 @@ export const siteContent = {
     home: {
       /* 首页 hero 左上角的小标签（等宽小字，用 · 分隔几个关键词） */
       eyebrow: "PYTHON · AI · 学习笔记",
-      heroTitle: "欢迎来到旺仔冰子的博客",
+      /* 标题拆三段：只有 accent 那段渲染成蓝紫渐变。
+         拆开写而不是在组件里对整句做 split —— 那种写法换个字就悄悄失效，
+         而且看不出来为什么渐变没了。 */
+      heroTitle: {
+        lead: "欢迎来到",
+        accent: "旺仔冰子",
+        tail: "的博客",
+      },
+      /* Hero 里那句引言（衬线体 + 左侧品牌蓝边条的引用卡） */
       heroSubtitle: "或许有天会发现，有些告别不是错付",
+      /* 「当前专注」深色卡。三处文案都在这里，改内容不用碰组件。 */
+      focus: {
+        label: "当前专注 / CURRENT FOCUS",
+        title: "把 AI 接进自己的小项目",
+        description:
+          "最近在系统学 Python 与 Agent 开发，边写边拆：把踩过的坑整理成文章，把一个能跑的小工具从 0 做到上线。",
+        tags: ["Python", "FastAPI", "Agent", "RAG", "React"],
+      },
       ctaPrimary: "读文章",
       ctaSecondary: "关于我",
       /* 首页 hero 右侧终端卡：先打命令，打完再打结果（两行，55ms/字） */

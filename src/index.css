@@ -71,6 +71,9 @@
   --font-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
   /* 标题也走无衬线，只靠字重与字号分层 —— 这是规格里明确要求的 */
   --font-heading: var(--font-sans);
+  /* 唯一的衬线例外：首页那句引言。拉丁用 Georgia、中文落到宋体，
+     两者在小字号下都比无衬线"轻"，正好衬出「引言」和正文的差别。 */
+  --font-serif: Georgia, "Songti SC", SimSun, "Noto Serif SC", serif;
 
   /* ---------- 字号层级：只有七档 ----------
      12 / 13 / 14 / 16 / 18 / 22 / 44
@@ -170,6 +173,12 @@
   --accent-foreground: #18181b;
   --brand: #2563eb;
   --brand-hover: #1d4ed8;
+  /* 渐变的另一端（蓝紫）。单独成令牌，改渐变时只动这里。 */
+  --brand-2: #7c3aed;
+  /* 深色卡片上的浅蓝：品牌蓝直接放到 #0f172a 上对比度不够 */
+  --brand-soft: #93c5fd;
+  /* 首页「当前专注」那张深色卡的底色。全站唯一的深色块，不要扩散到别处。 */
+  --dark-surface: #0f172a;
   --destructive: #dc2626;
   --border: #e4e4e7;
   --input: #e4e4e7;
@@ -292,22 +301,14 @@
   }
 
   /* ---------- 微交互（第 11 轮） ----------
-     两条规则都写成组件类而不是 Tailwind 的 hover: 工具类，原因：
-     ① 卡片身上有 3D 倾斜（lib/tilt.ts）会写 inline transform，抬升量必须在同一处合并；
-     ② 「prefers-reduced-motion 时取消位移」这条必须稳定压过 hover 态 ——
-        写在同一个 @layer components 里、位置靠后，天然生效，不用赌 Tailwind 变体排序。 */
+     写成组件类而不是 Tailwind 的 hover: 工具类，因为「prefers-reduced-motion 时取消位移」
+     这条必须稳定压过 hover 态 —— 写在同一个 @layer components 里、位置靠后，天然生效。
 
-  /* 卡片 hover：上浮 4px + 阴影加深（阴影/描边由 card.tsx 的 hover: 工具类负责）。
-     名称 .card-lift 只表达「会做位移」，不含任何配色，换肤时不用改这里。 */
-  .card-lift {
-    transition-property: transform, box-shadow, border-color;
-    transition-duration: 250ms;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .card-lift:hover {
-    transform: translateY(-4px);
-  }
+     ⚠️ 卡片的 `.card-lift` 不在这里，被挪到了文件末尾的「未分层」区。
+     原因：它要改 border-color / box-shadow，而 card.tsx 身上带着 `border-border`
+     和 `shadow-card` 两个工具类 —— **CSS 层序优先于选择器优先级**，utilities 层
+     无条件压过 components 层，留在层里写 hover 只会位移、颜色一点不变。
+     实测过：只上浮 3px，描边还是 #e4e4e7。 */
 
   /* 链接下划线从左到右滑入：用 background 而不是 text-decoration，
      因为 text-decoration 无法「只画一段」也无法补间。currentColor 保证
@@ -330,18 +331,94 @@
     background-size: 100% 1px;
   }
 
+  /* ---------- 品牌色节奏 ----------
+     全站只有三处「主动撒蓝」：logo 前的圆点、当前导航项的下划线、标题里的蓝紫渐变。
+     再往上加就会把「一个强调色」的调子冲淡。色值全部走 --brand / --brand-2。 */
+
+  /* logo 前的蓝点：本体 8px，光晕用 box-shadow 叠两层 —— 不用伪元素，
+     省一个层叠上下文（旁边就是 sticky header，层数越少越省心）。 */
+  .brand-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background-color: var(--brand);
+    box-shadow:
+      0 0 0 3px color-mix(in srgb, var(--brand) 12%, transparent),
+      0 0 12px 2px color-mix(in srgb, var(--brand) 30%, transparent);
+  }
+
+  /* 当前导航项：底部一道 2px 品牌蓝。
+     用伪元素而不是 border-bottom —— border 会改变盒高，切页时导航条整体抖 2px。 */
+  .nav-active {
+    position: relative;
+  }
+
+  .nav-active::after {
+    content: "";
+    position: absolute;
+    right: 10px;
+    bottom: 1px;
+    left: 10px;
+    height: 2px;
+    border-radius: 2px;
+    background-color: var(--brand);
+  }
+
+  /* 蓝紫渐变文字（120deg）。@supports 兜底很重要：不支持 background-clip:text 的
+     浏览器会把「透明文字」照实画出来 —— 那种情况必须退回普通前景色。 */
+  .text-gradient-brand {
+    background-image: linear-gradient(120deg, var(--brand), var(--brand-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  @supports not (background-clip: text) {
+    .text-gradient-brand {
+      background-image: none;
+      color: inherit;
+      -webkit-text-fill-color: currentColor;
+    }
+  }
+
+  /* 「当前专注」深色卡：18px 圆角 + 右上角蓝色径向光晕。
+     光晕是伪元素、pointer-events 无效；isolation 让 -1 那层停在卡片里而不是掉到页面
+     背景上，overflow: hidden 把它裁在圆角内。 */
+  .focus-card {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border-radius: 18px;
+    background-color: var(--dark-surface);
+  }
+
+  .focus-card::before {
+    content: "";
+    position: absolute;
+    top: -140px;
+    right: -80px;
+    width: 420px;
+    height: 420px;
+    border-radius: 999px;
+    background: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--brand) 55%, transparent),
+      transparent 70%
+    );
+    opacity: 0.6;
+    pointer-events: none;
+    z-index: -1;
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    .card-lift,
     .link-underline {
       transition: none;
     }
 
-    /* 位移全部取消，但描边/阴影/下划线这类「非运动」反馈保留 ——
-       减少动态不等于减少可用性。下划线直接给到全宽，不做滑入。 */
-    .card-lift:hover {
-      transform: none;
-    }
-
+    /* 下划线这类「非运动」反馈保留，只是不做滑入 ——
+       减少动态不等于减少可用性。卡片位移的取消在文件末尾的 .card-lift 段里。 */
     .link-underline:hover,
     .link-underline:focus-visible {
       background-size: 100% 1px;
@@ -464,21 +541,36 @@
     background-color: var(--brand);
   }
 
-  /* ---------- 滚动入场（第 13 轮） ----------
-     ⚠️ 这两条只在 JS 给元素补了 .reveal-armed 之后才生效 —— 基础样式是「正常显示」，
-     所以没有 JS 时内容不会被藏起来。也不要把它加到 .card-lift 的卡片上：
-     两边都写 transition-property: transform，必然互相覆盖。 */
-  .reveal-armed {
+  /* ---------- 滚动揭示 ----------
+     用法：给区块加 reveal 类，IntersectionObserver 进视口时补 in 类；
+     同组元素把延迟写进 --reveal-delay（700ms 过渡 + 错落延迟）。
+
+     ⚠️ 隐藏态写在 CSS 里（不是由 JS 补类），所以「浏览器禁用了 JS」时内容会一直透明。
+     兜底是 @media (scripting: none)：这种浏览器直接显示，不做动画。
+     JS 出错但 CSS 生效的情况仍然会留白 —— 这是「按规格用类名」换来的代价，
+     所以新加的区块必须确认它能在首屏/滚动时被观察到，别挂在永远不可见的位置。
+
+     ⚠️ 不要把这个类加到卡片本身上：卡片有 .card-lift 的 transition，
+     两条 transition-property 会互相覆盖，必有一边失效 —— 外面包一层。 */
+  .reveal {
     opacity: 0;
-    transform: translateY(22px);
+    transform: translateY(24px);
     transition:
-      opacity 600ms cubic-bezier(0.4, 0, 0.2, 1) var(--reveal-delay, 0ms),
-      transform 600ms cubic-bezier(0.4, 0, 0.2, 1) var(--reveal-delay, 0ms);
+      opacity 700ms cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0ms),
+      transform 700ms cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0ms);
   }
 
-  .reveal-armed.is-revealed {
+  .reveal.in {
     opacity: 1;
     transform: none;
+  }
+
+  @media (scripting: none) {
+    .reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
   }
 
   /* ---------- 终端光标（第 13 轮） ----------
@@ -518,9 +610,8 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    /* 系统开了「减少动态」时 JS 根本不会挂 .reveal-armed；这条是兜底：
-       用户中途改设置、或类被别处加上时，也直接显示。 */
-    .reveal-armed {
+    /* 减少动态：揭示动画整条关掉，内容直接是可见态（不动、不淡入、不延迟） */
+    .reveal {
       opacity: 1;
       transform: none;
       transition: none;
@@ -533,6 +624,43 @@
     .chat-bubble {
       animation: none;
     }
+  }
+}
+
+/* ---------- 卡片 hover（刻意写在所有 @layer 之外） ----------
+   上浮 3px + 描边泛蓝 + 一层淡蓝阴影，200ms。
+
+   ⚠️ 为什么不在 @layer components 里：卡片身上带着 border-border / shadow-card
+   两个 utilities 层的工具类，而 **CSS 层序优先于选择器优先级** ——
+   `.card-lift:hover`（0,2,0）虽然比 `.border-border`（0,1,0）更具体，
+   只要它待在 components 层里就永远输。实测过：只上浮、描边一点没变。
+   未分层的样式优先于任何层，所以这一段必须放在 @layer 外面。
+
+   ⚠️ 位移写 translate 而不是 transform：卡片可能带 3D 倾斜（lib/tilt.ts 会写 inline
+   transform），inline 的 transform 会整条盖掉 CSS 的 transform，抬升就没了；
+   translate 是独立属性，能和 inline transform 叠加。
+   ⚠️ 配色只在这里管：card.tsx 里不要再写 hover:border-* / hover:shadow-*。 */
+.card-lift {
+  transition-property: translate, box-shadow, border-color;
+  transition-duration: 200ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-lift:hover {
+  translate: 0 -3px;
+  border-color: color-mix(in srgb, var(--brand) 38%, var(--border));
+  box-shadow: 0 12px 26px -16px
+    color-mix(in srgb, var(--brand) 60%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-lift {
+    transition: none;
+  }
+
+  /* 只取消位移；描边泛蓝、淡蓝阴影这类静态反馈保留（减少动态≠减少可用性） */
+  .card-lift:hover {
+    translate: none;
   }
 }
 

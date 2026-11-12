@@ -10,21 +10,24 @@ export function prefersReducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches
 }
 
-/* 隐藏态不写死在 CSS 里：先给元素补 .reveal-armed 才变隐藏，进视口再补 .is-revealed。
-   这样没有 JS / 观察器不可用 / 用户要求减少动态时，元素保持「正常显示」。 */
+/* 隐藏态写在 CSS 的 .reveal 里（不在 JS 里补），这里只负责「进视口补 in」。
+   三种情况直接补 in，保证内容一定看得见：
+   · 没有 IntersectionObserver（老浏览器 / 环境不提供）；
+   · 用户开了「减少动态」（CSS 里也会直接显示，这里是双保险）；
+   · 元素本来就在视口里 —— 观察器第一帧就会回调，走正常路径。 */
 export function attachReveal(el: HTMLElement, delay: number) {
+  el.style.setProperty("--reveal-delay", `${delay}ms`)
+
   if (typeof IntersectionObserver === "undefined" || prefersReducedMotion()) {
+    el.classList.add("in")
     return () => {}
   }
-
-  el.style.setProperty("--reveal-delay", `${delay}ms`)
-  el.classList.add("reveal-armed")
 
   const observer = new IntersectionObserver(
     (entries) => {
       for (const entry of entries) {
         if (!entry.isIntersecting) continue
-        entry.target.classList.add("is-revealed")
+        entry.target.classList.add("in")
         /* 只播一次：触发后立刻注销这个元素，列表滚动时不再回调。 */
         observer.unobserve(entry.target)
       }

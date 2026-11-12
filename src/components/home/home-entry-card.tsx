@@ -44,17 +44,15 @@ export function HomeEntryCard({
   const Icon = look.icon
 
   return (
-    /* 整卡可点：Card 自带 .card-lift（hover 上浮 4px + 阴影加深），
-       减少动态时由 index.css 里的 media query 取消位移，这里不用另写。
+    /* 整卡可点：Card 自带 .card-lift（hover 上浮 3px + 描边泛蓝 + 淡蓝阴影，200ms），
+       配色统一在 index.css 里管，这里别再加 border 的 hover 工具类（会把它盖掉）。
+       减少动态时由那边的 media query 取消位移。
        h-full 让同一行里说明文字长短不一的卡片高度一致。 */
     <Link
       className="group block h-full rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
       to={href}
     >
-      <Card
-        className="h-full gap-0 transition-colors group-hover:border-foreground/20"
-        size="sm"
-      >
+      <Card className="h-full gap-0" size="sm">
         <CardContent className="flex h-full flex-col gap-3">
           <span
             className={cn(

@@ -10,8 +10,10 @@ import { cn } from "@/lib/utils"
 
    描边用真 border（不用 ring）：这一版没有流光/外圈高亮抢位置，border 更直白，
    hover 时只换颜色，不会多出 1px 尺寸。
-   hover 三件事：上浮 4px（.card-lift，0.25s）、描边加深、阴影加一层。
-   不加渐变、不加发光、不缩放，也不改 padding/尺寸 —— 位移只用 transform，
+   hover 的位移与配色**全部交给 index.css 的 .card-lift**（上浮 3px、描边泛蓝、
+   淡蓝阴影、200ms），这里一个 hover: 工具类都不写 —— 工具类在 components 层之后，
+   会把 .card-lift 的颜色盖掉，两处各写一半最容易出「改了没反应」。
+   不加渐变、不加发光、不缩放，也不改 padding/尺寸 —— 位移只用 translate，
    不触发重排，相邻卡片不会被顶开。
 
    ⚠️ --card-spacing 必须有默认值：这个变量以前只在 [data-size=sm] 里定义，
@@ -33,7 +35,7 @@ function Card({
       data-slot="card"
       data-size={size}
       className={cn(
-        "card-lift group/card flex flex-col gap-(--card-spacing) overflow-hidden rounded-xl border border-border bg-card py-(--card-spacing) text-sm text-card-foreground shadow-card [--card-spacing:--spacing(6)] hover:border-foreground/25 hover:shadow-lift has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
+        "card-lift group/card flex flex-col gap-(--card-spacing) overflow-hidden rounded-xl border border-border bg-card py-(--card-spacing) text-sm text-card-foreground shadow-card [--card-spacing:--spacing(6)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
         className
       )}
       {...props}

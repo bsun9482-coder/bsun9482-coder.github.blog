@@ -36,9 +36,11 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-border bg-background">
       <Container className="flex h-16 items-center gap-2">
         <Link
-          className="rounded-sm text-base font-semibold tracking-tight text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+          className="flex items-center gap-2 rounded-sm text-base font-semibold tracking-tight text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
           to="/"
         >
+          {/* 品牌蓝圆点：全站唯一的「点状」装饰，带一层淡光晕（样式在 .brand-dot） */}
+          <span aria-hidden="true" className="brand-dot shrink-0" />
           <PersonName />
         </Link>
 
@@ -50,12 +52,13 @@ export function SiteHeader() {
             const active = isActive(item.href)
 
             return (
-              /* 活跃态只加粗 + 变深，不加彩色底 —— 点开哪页看字重就知道。 */
+              /* 活跃态：加粗 + 变深 + 底部 2px 品牌蓝（伪元素画的，不占盒高，
+                 切页时导航条不会抖）。 */
               <Link
                 className={cn(
                   "rounded-[7px] px-2.5 py-1.5 text-sm transition-colors",
                   active
-                    ? "font-semibold text-foreground"
+                    ? "nav-active font-semibold text-foreground"
                     : "text-muted-foreground hover:text-foreground"
                 )}
                 key={item.href}
@@ -72,7 +75,7 @@ export function SiteHeader() {
             <SheetTrigger asChild>
               <Button
                 aria-label={siteContent.ui.header.menuOpen}
-                className="md:hidden"
+                className="size-11 md:hidden [&_svg]:size-5"
                 size="icon-sm"
                 variant="ghost"
               >
@@ -97,7 +100,8 @@ export function SiteHeader() {
                     <SheetClose asChild key={item.href}>
                       <Link
                         className={cn(
-                          "rounded-[7px] px-3 py-2 text-sm transition-colors",
+                          /* min-h-11：手机上菜单项的点击热区不小于 44px */
+                          "flex min-h-11 items-center rounded-[7px] px-3 text-sm transition-colors",
                           active
                             ? "bg-muted font-semibold text-foreground"
                             : "text-muted-foreground hover:bg-muted hover:text-foreground"
