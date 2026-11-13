@@ -37,6 +37,18 @@ BASE_DIR = Path(__file__).resolve().parent
 UPLOAD_DIR = BASE_DIR / "uploads"
 UPLOAD_URL_PATH = "/uploads"
 
+# ---------------------------------------------------------------- 相册目录
+# 相册的照片单独放一层子目录，不跟文章插图混在一起。
+#
+# 为什么只加子目录、不加挂载点？
+#   上面那个 UPLOAD_DIR 已经整个挂成 /uploads 了，StaticFiles 会连子目录一起serve，
+#   所以 backend/uploads/photos/a.jpg 自动就能用 /uploads/photos/a.jpg 打开 ——
+#   不需要为相册再 mount 一次（多挂一次反而会和 /uploads 抢同一段地址）。
+#
+# 好处是删库/清空相册时，直接对这个目录下手就行，不会误伤文章的插图。
+PHOTO_DIR = UPLOAD_DIR / "photos"
+PHOTO_URL_PATH = f"{UPLOAD_URL_PATH}/photos"
+
 
 class Settings(BaseSettings):
     # env_file 指向 backend/.env；extra="ignore" 表示 .env 里多写了没用的键也不报错

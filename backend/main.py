@@ -2,7 +2,8 @@
 
 这个文件只做四件事，不写具体业务：
   1. 启动时自动建表（create_all）
-  2. 挂上四组路由：文章（/api/posts）、日记（/api/journals）、图片上传（/api/upload）、登录（/api/auth）
+  2. 挂上五组路由：文章（/api/posts）、日记（/api/journals）、相册（/api/photos）、
+     图片上传（/api/upload）、登录（/api/auth）
   3. 把上传目录挂成静态文件（/uploads/xxx.jpg 直接能打开）
   4. 把「数据不合法」的报错翻译成人话
 """
@@ -16,11 +17,11 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 import models  # noqa: F401  ⚠️ 这个 import 不能删：只有导入过模型类，
-#                            SQLAlchemy 才知道有 posts / users / journals 这三张表，
+#                            SQLAlchemy 才知道有 posts / users / journals / photos 这四张表，
 #                            create_all 才建得出来
-from config import UPLOAD_DIR, UPLOAD_URL_PATH, settings
+from config import PHOTO_DIR, UPLOAD_DIR, UPLOAD_URL_PATH, settings
 from database import Base, engine
-from routers import auth, journals, posts, uploads
+from routers import auth, journals, photos, posts, uploads
 
 
 @asynccontextmanager
@@ -39,10 +40,10 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="博客后端（最小版）",
-    version="0.5.0",
+    version="0.6.0",
     lifespan=lifespan,
     description=(
-        "文章与日记的增删改查 + 图片上传 + 登录鉴权。\n\n"
+        "文章、日记、相册的增删改查 + 图片上传 + 登录鉴权。\n\n"
         "**怎么用**：\n"
         "1. 先用命令行创建一个管理员账号（见 backend/create_admin.py）\n"
         "2. 点右上角 **Authorize** 按钮，在弹窗里直接填用户名和密码\n"
@@ -69,6 +70,7 @@ app.add_middleware(
 
 app.include_router(posts.router)
 app.include_router(journals.router)
+app.include_router(photos.router)
 app.include_router(uploads.router)
 app.include_router(auth.router)
 
@@ -89,6 +91,9 @@ app.include_router(auth.router)
 #          /api/*      → 返回 JSON 的接口（要经过函数处理）
 #          /uploads/*  → 直接返回文件（不经过任何函数）
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+# 相册的子目录也提前建好（缺了也不致命 —— 上传时会再 mkdir 一次，
+# 但提前建出来，第一次启动就能在资源管理器里看到这个位置）
+PHOTO_DIR.mkdir(parents=True, exist_ok=True)
 app.mount(
     UPLOAD_URL_PATH,
     StaticFiles(directory=UPLOAD_DIR),

@@ -20,7 +20,9 @@
 
 from datetime import date, datetime
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, computed_field, field_validator
+
+from config import PHOTO_URL_PATH
 
 
 class PostBase(BaseModel):
@@ -250,3 +252,55 @@ class UploadedFileInfo(BaseModel):
     url: str
     size: int
     uploaded_at: datetime
+
+
+# ---------------------------------------------------------------- 相册
+# 相册只做「改描述」这一种写操作 —— 照片本身是上传时就定死的，改图等于换一张。
+# 所以这里没有 PhotoCreate：新建走 multipart 表单（文件 + 三个字段），
+# 表单字段在路由里用 Form(...) 声明，不走请求体 schema。
+class PhotoUpdate(BaseModel):
+    """更新一张照片的描述：标题、分类、排序号，三个都选填。
+
+    只改你传上来的字段（靠 model_dump(exclude_unset=True)），
+    只想改标题时不会把分类和排序号一起清掉。
+    """
+
+    title: str | None = Field(default=None, max_length=200, description="照片标题，可以留空")
+    category: str | None = Field(default=None, max_length=50, description="分类，例如 日常 / 学习 / 风景")
+    sort_order: int | None = Field(
+        default=None, ge=0, le=9999, description="排序号，越小越靠前"
+    )
+
+    @field_validator("title", "category", mode="before")
+    @classmethod
+    def _strip_text(cls, v):
+        return v.strip() if isinstance(v, str) else v
+
+
+class PhotoOut(BaseModel):
+    """返回给前端的照片样子。
+
+    url 是**算出来的**，不是数据库里的列：
+      磁盘上叫 3f2b9c.jpg，对外地址就是 /uploads/photos/3f2b9c.jpg。
+      这层换算写在这里（而不是让前端自己拼），是为了以后改存储目录时
+      只需要动 config.py 一个常量，前端一行都不用改。
+
+    filename 用 exclude=True：它对接口使用者没有意义（url 已经能拿到图了），
+    但算 url 又必须读到它 —— 所以留在模型里、不进 JSON。
+    （`orm_mode` 是 Pydantic v1 的叫法，v2 改名成 from_attributes，作用一样：
+      允许「一个数据库对象」直接变成本 schema。）
+    """
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    title: str
+    category: str
+    sort_order: int
+    created_at: datetime
+    filename: str = Field(exclude=True, description="磁盘文件名，仅内部使用，不返回给前端")
+
+    @computed_field(description="图片地址，例如 /uploads/photos/3f2b9c.jpg")
+    @property
+    def url(self) -> str:
+        return f"{PHOTO_URL_PATH}/{self.filename}"

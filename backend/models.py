@@ -1,6 +1,6 @@
 """数据库表的模型定义 —— ORM 的核心就在这个文件里。
 
-三张表：posts（文章）、users（能登录后台的人）、journals（日记）。
+四张表：posts（文章）、users（能登录后台的人）、journals（日记）、photos（相册）。
 
 ORM 是什么？一句话：**用写类的方式来操作数据库表**。
 
@@ -23,7 +23,17 @@ ORM 是什么？一句话：**用写类的方式来操作数据库表**。
 
 from datetime import date, datetime
 
-from sqlalchemy import JSON, Boolean, Date, DateTime, Integer, String, Text, func
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    Date,
+    DateTime,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    func,
+)
 from sqlalchemy.orm import Mapped, mapped_column
 
 from database import Base
@@ -130,3 +140,57 @@ class Journal(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.now, nullable=False, index=True
     )
+
+
+class Photo(Base):
+    """相册里的一张照片。
+
+    和 Post 的关系，一句话：**文章的内容在库里（正文是文字），照片的内容在磁盘上
+    （正文是一个文件），库里这行只负责「怎么描述它、按什么顺序摆」**。
+
+    所以核心那一列是 filename —— 它指向 backend/uploads/photos/ 下的真实文件。
+    其余几列都是「给人看的」：叫什么名字、归哪个分类、排第几。
+
+    三处值得解释的地方：
+
+    ① filename 存的是**我们起的名**（uuid + 扩展名），不是用户传上来的原名。
+       原因见 images.py 的长注释：原名能被伪造成 ../../.env，绝不能进磁盘路径。
+       用户的原名现在只用来当 alt 文案，连库都不进 —— 它在写盘那一刻就没用了。
+       unique=True：同一张图不许被登记两次（文件名是 uuid，撞名概率可以忽略，
+       这个约束主要是防「手滑把同一行插两遍」）。
+
+    ② owner_id 用外键指向 users.id：照片是「谁传的」。
+       现在后台只有一个管理员，这一列看起来多余，但它让「以后多个人一起写」
+       不需要改表结构 —— 加权限判断时只要看这一列。外键也让数据库帮你兜住
+       「引用了一个不存在的用户」这种脏数据。
+
+    ③ created_at 用 server_default=func.now()（和 Post 一致，SQLite 里给的是 **UTC**），
+       和 Journal 那条 deliberately 存本地时间的选择**不一样**。
+       为什么这里可以存 UTC？因为日记是「按日子分组显示」的，差 8 小时会把
+       北京时间的凌晨算成前一天；照片的时间只用来做「排序号相同时的次要排序」，
+       差 8 小时不影响谁在前谁在后，所以按规格用 UTC、和文章表保持同一套。
+    """
+
+    __tablename__ = "photos"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+
+    # 磁盘上的真实文件名（uuid 起的），同时是「这张照片的身份」
+    filename: Mapped[str] = mapped_column(
+        String(255), unique=True, index=True, nullable=False
+    )
+
+    # 标题可以为空字符串：相册里大多照片不需要标题，硬填反而没人填
+    title: Mapped[str] = mapped_column(String(200), default="")
+
+    # 分类加索引：相册页最常用的动作就是「按分类筛」，走索引不用全表扫
+    category: Mapped[str] = mapped_column(String(50), default="日常", index=True)
+
+    # 排序号：越小越靠前。默认 0，也就是「不特意排」时大家并列，
+    # 并列时再由 created_at 决定先后（新的在前）。
+    sort_order: Mapped[int] = mapped_column(Integer, default=0)
+
+    # 外键：users.id。nullable=False 表示「不允许存在没有主人的照片」
+    owner_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
