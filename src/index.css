@@ -229,32 +229,11 @@
 }
 
 @layer components {
-  .article-content [data-rehype-pretty-code-figure] {
-    @apply my-7 overflow-hidden rounded-xl border border-border bg-secondary;
-  }
-
-  .article-content [data-rehype-pretty-code-figure] pre {
-    @apply overflow-x-auto py-4 font-mono text-[13px] leading-6;
-  }
-
-  .article-content [data-rehype-pretty-code-figure] code {
-    @apply grid min-w-full rounded-none bg-transparent p-0;
-  }
-
-  .article-content [data-rehype-pretty-code-figure] [data-line] {
-    @apply min-h-6 px-4;
-  }
-
-  .article-content [data-rehype-pretty-code-figure] [data-highlighted-line] {
-    @apply border-l-2 border-brand bg-brand/5;
-  }
-
-  /* rehype-pretty-code 双主题：每个 token 挂着 --shiki-light / --shiki-dark。
-     全站现在是浅色，取 light 那一套（以前这里取的是 dark，改亮色后必须先改这条，
-     否则会出现「浅色底 + 深色语法」的错配）。 */
-  .article-content [data-theme*=" "] {
-    color: var(--shiki-light);
-  }
+  /* 这里以前有一整段 `[data-rehype-pretty-code-figure]` / `--shiki-light` 的样式，
+     配的是构建期 MDX 那条路的 shiki 上色。第 38 轮正文改成运行时渲染、
+     换用 highlight.js 之后，这些属性页面上一个都不会出现，规则全部落空，所以删掉。
+     代码块现在的样式在文件末尾（`.article-content .hljs` 那一段），
+     必须留在所有 @layer 之外的坑也在那里写着。 */
 
   /* ---------- 背景氛围（全站唯一的装饰层，挂在 SiteLayout 里） ----------
      网格：1px、38px 间距（色值走 --ambience-grid）；用径向遮罩让它在页面顶部中间最清楚、

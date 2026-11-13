@@ -14,16 +14,23 @@ import { execFileSync } from "node:child_process"
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs"
 import path from "node:path"
 import process from "node:process"
+import { DatabaseSync } from "node:sqlite"
 
-/* 文章解析与站点用的是同一份实现（vite-plugins/post-parse.mjs）。
-   以前这里复制了一份，注释自己写着「改一处要改两处」——
-   一旦漂移，会出现「体检通过但站点目录锚点是错的」这种查不出来的坏法。 */
-import {
-  collectHeadings,
-  headingText,
-  parseArticle,
-  splitFrontmatter,
-} from "../vite-plugins/post-parse.mjs"
+import remarkGfm from "remark-gfm"
+import remarkParse from "remark-parse"
+import { unified } from "unified"
+
+/* 第 38 轮之前，文章是 content/resources/*.mdx 文件，这个脚本直接读文件校验。
+   现在文章存在 SQLite 里（backend/data/app.db），所以「文章内容」「文章结构」两项
+   改成查库 —— 否则文件删掉之后，这两项会对着空目录返回 PASS，
+   体检报告看着全绿，其实什么都没检查。那种「假通过」比没有检查更危险。 */
+const DB_PATH = path.join(
+  import.meta.dirname,
+  "..",
+  "backend",
+  "data",
+  "app.db"
+)
 
 const ROOT = path.resolve(import.meta.dirname, "..")
 const args = process.argv.slice(2)
@@ -157,97 +164,154 @@ function checkAssetReferences() {
   }
 }
 
-/* ---------- 检查 3：MDX 文章 frontmatter 与 slug ---------- */
+/* ---------- 检查 3：数据库里的文章内容 ---------- */
 
-const REQUIRED_STRING_FIELDS = ["title", "description", "date", "category"]
+/* 第 38 轮之前文章是 content/resources/*.mdx 文件，这里直接读文件校验 frontmatter。
+   现在文章存在 SQLite（backend/data/app.db），所以改成查库。
+   ⚠️ 为什么非要改：文件删掉之后，原来那段代码会对着空目录数出 0 个文件、
+      然后开心地打一个 PASS —— 报告全绿，其实一个字都没检查。假通过比没检查更糟。 */
+
+const REQUIRED_STRING_FIELDS = ["title", "category"]
+
+/* 正文里引用的本地资源。三种写法都抓：
+     ![说明](/images/a.webp)   Markdown 图片
+     <img src="/images/a.webp">  HTML 图片
+     [点这里](/images/a.webp)   普通链接（下载资料也会这么写）
+   宁可多抓几个（比如正文里举例提到的路径），也不想漏掉真会 404 的那种。 */
+const LOCAL_ASSET_REF = /["'(](\/(?:images|uploads)\/[^"')\s)]+)/g
+
+/* 数据库句柄开一次就够。ESM 是单例，模块级变量在进程里只有一份。 */
+let cachedDb
+
+function getDb() {
+  if (cachedDb !== undefined) return cachedDb
+
+  if (!existsSync(DB_PATH)) {
+    cachedDb = null
+    return cachedDb
+  }
+
+  try {
+    /* readOnly：体检脚本绝不该写生产数据。真写坏了，等于体检把病人弄伤。 */
+    cachedDb = new DatabaseSync(DB_PATH, { readOnly: true })
+  } catch (error) {
+    record(
+      "WARN",
+      "文章内容",
+      "数据库打不开，跳过库内检查",
+      String(error?.message ?? error)
+    )
+    cachedDb = null
+  }
+  return cachedDb
+}
+
+function loadPosts() {
+  const db = getDb()
+  if (!db) return null
+  try {
+    return db
+      .prepare(
+        "select id, slug, title, description, category, tags, is_draft, content from posts order by id"
+      )
+      .all()
+  } catch (error) {
+    record(
+      "WARN",
+      "文章内容",
+      "posts 表读不出来",
+      String(error?.message ?? error)
+    )
+    return null
+  }
+}
 
 function checkContent() {
-  const dir = path.join(ROOT, "content", "resources")
-  if (!existsSync(dir)) {
-    record("WARN", "文章内容", "content/resources/ 目录不存在")
+  const posts = loadPosts()
+  if (posts === null) {
+    record(
+      "WARN",
+      "文章内容",
+      "还没有数据库（backend/data/app.db），跳过库内检查",
+      "先把后端跑起来（cd backend && uvicorn main:app），或用 import_mdx.py 迁移数据"
+    )
+    return
+  }
+  if (posts.length === 0) {
+    record("WARN", "文章内容", "posts 表是空的，没有任何文章")
     return
   }
 
-  const files = readdirSync(dir).filter((f) => f.endsWith(".mdx"))
-  const seen = new Map()
   let problems = 0
 
-  for (const name of files) {
-    const full = path.join(dir, name)
-    const raw = readFileSync(full, "utf8")
-    const where = `content/resources/${name}`
-
-    const { found, data: frontmatter, error } = splitFrontmatter(raw)
-
-    if (!found) {
-      record("FAIL", "文章内容", `${where} 缺少 frontmatter`)
-      problems++
-      continue
-    }
-
-    if (error) {
-      record(
-        "FAIL",
-        "文章内容",
-        `${where} frontmatter YAML 解析失败`,
-        String(error)
-      )
-      problems++
-      continue
-    }
+  for (const post of posts) {
+    const where = `posts#${post.id}（${post.slug}）`
 
     for (const field of REQUIRED_STRING_FIELDS) {
-      const value = frontmatter?.[field]
+      const value = post[field]
       if (typeof value !== "string" || value.trim() === "") {
-        record("FAIL", "文章内容", `${where} 的 ${field} 缺失或为空`)
+        record("FAIL", "文章内容", `${where} 的 ${field} 是空的`)
         problems++
       }
     }
 
-    if (
-      !Array.isArray(frontmatter?.tags) ||
-      frontmatter.tags.some((t) => typeof t !== "string" || t.trim() === "")
-    ) {
-      record("FAIL", "文章内容", `${where} 的 tags 必须是非空字符串数组`)
+    if (!post.content || post.content.trim() === "") {
+      record("FAIL", "文章内容", `${where} 的正文是空的`)
       problems++
     }
 
-    if (
-      typeof frontmatter?.date === "string" &&
-      Number.isNaN(Date.parse(frontmatter.date))
-    ) {
-      record(
-        "WARN",
-        "文章内容",
-        `${where} 的 date「${frontmatter.date}」无法被 Date.parse 解析`,
-        "排序时会退化成 0，文章会被排到最后"
-      )
-    }
-
-    const slug = name.slice(0, -4)
-    if (seen.has(slug)) {
-      record("FAIL", "文章内容", `slug 冲突：${slug}`)
+    /* 数据库里的 tags 是一列 JSON 文本（SQLAlchemy 的 JSON 类型），
+       解析一次才知道它到底存了几个标签。存坏了会直接抛异常，正好当校验用。 */
+    try {
+      const tags = JSON.parse(post.tags ?? "[]")
+      if (!Array.isArray(tags) || tags.some((tag) => typeof tag !== "string")) {
+        record("FAIL", "文章内容", `${where} 的 tags 不是字符串数组`)
+        problems++
+      }
+    } catch {
+      record("FAIL", "文章内容", `${where} 的 tags 不是合法 JSON`)
       problems++
     }
-    seen.set(slug, full)
+
+    /* 裂图检查：正文里每一条 /images/... 和 /uploads/... 都得能落到真实文件。
+       这是这一项里最值钱的一条 —— 图片文件被误删、路径打错，都会在这里现形。
+       分成两个目录找：
+         /images/...  → public/images/...   （随前端一起部署）
+         /uploads/... → backend/uploads/... （用户在后台上传的） */
+    for (const match of post.content.matchAll(LOCAL_ASSET_REF)) {
+      const url = match[1]
+      const onDisk = url.startsWith("/uploads/")
+        ? path.join(ROOT, "backend", url.slice(1))
+        : path.join(ROOT, "public", url.slice(1))
+
+      if (!existsSync(onDisk)) {
+        record(
+          "FAIL",
+          "文章内容",
+          `${where} 引用的 ${url} 找不到文件`,
+          `期望在 ${rel(onDisk)}，页面上会显示成裂图`
+        )
+        problems++
+      }
+    }
   }
 
   if (problems === 0) {
     record(
       "PASS",
       "文章内容",
-      `${files.length} 篇文章 frontmatter 与 slug 均正常`
+      `${posts.length} 篇文章字段完整，正文里的图片引用都能落到文件`
     )
   }
 }
 
 /* ---------- 检查 4：文章结构（围栏闭合 / 目录标题重名） ---------- */
 
-/* 目录抽取和这里都走真解析器（共用 vite-plugins/post-parse.mjs），
-   所以「代码块里的 ## 会污染目录」这类手写扫描的老毛病已经不成立了。
-   改盯两个真会出问题的点：
-   1) 围栏没闭合 —— 之后整篇会被当成代码，正文和目录一起塌掉；
-   2) 同级标题重名 —— 目录里出现两条一模一样的项，读者分不清点哪个。 */
+/* 用 remark 真解析一遍每篇正文，而不是拿正则扫行：
+   代码块里的 `##` 不是标题、列表里缩进的 ``` 仍是围栏 —— 手写规则永远差一点点，
+   差的那一点会变成「体检说没问题，目录却点不动」。
+   （remark-parse + remark-gfm 本来就是 react-markdown 的依赖，这里没有新增安装包。） */
+const markdownProcessor = unified().use(remarkParse).use(remarkGfm)
 
 function walkNodes(node, visit) {
   visit(node)
@@ -255,20 +319,40 @@ function walkNodes(node, visit) {
     for (const child of node.children) walkNodes(child, visit)
 }
 
-function checkArticleStructure() {
-  const dir = path.join(ROOT, "content", "resources")
-  if (!existsSync(dir)) return
+function headingText(node) {
+  if (node.type === "text" || node.type === "inlineCode")
+    return node.value ?? ""
+  if (!Array.isArray(node.children)) return ""
+  return node.children.map(headingText).join("")
+}
 
-  const files = readdirSync(dir).filter((f) => f.endsWith(".mdx"))
+/* 只收 h2 / h3：正文目录只列这两级（h1 是文章标题，h4 以下太碎）。
+   脚注区整块跳过 —— 它是渲染时另起的一块，里面的标题进目录只会添乱。 */
+function collectHeadings(node, out) {
+  if (node.type === "footnoteDefinition") return
+  if (node.type === "heading" && (node.depth === 2 || node.depth === 3)) {
+    out.push(node)
+    return
+  }
+  if (Array.isArray(node.children))
+    for (const child of node.children) collectHeadings(child, out)
+}
+
+function checkArticleStructure() {
+  const posts = loadPosts()
+  if (!posts || posts.length === 0) return
+
   let problems = 0
 
-  for (const name of files) {
-    const raw = readFileSync(path.join(dir, name), "utf8")
-    const where = `content/resources/${name}`
+  for (const post of posts) {
+    const raw = post.content ?? ""
+    if (!raw.trim()) continue
+
+    const where = `posts#${post.id}（${post.slug}）`
 
     let tree
     try {
-      tree = parseArticle(raw)
+      tree = markdownProcessor.parse(raw)
     } catch (error) {
       record(
         "FAIL",
@@ -280,8 +364,8 @@ function checkArticleStructure() {
       continue
     }
 
-    /* 围栏没闭合时，解析器会产出一个一直延伸到文件末尾的代码节点。
-       所以「代码节点结束于最后一行」是可疑信号 —— 但要排除「文件末尾正好是闭合围栏」
+    /* 围栏没闭合时，解析器会产出一个一直延伸到正文末尾的代码节点。
+       所以「代码节点结束于最后一行」是可疑信号 —— 但要排除「最后一行正好是闭合围栏」
        这种正常情况：拿代码块自己的首尾两行比一下，闭合围栏得是同种字符且不短于开启。 */
     const lines = raw.split(/\r?\n/)
     let lastContentLine = lines.length
@@ -298,7 +382,7 @@ function checkArticleStructure() {
       if (endLine < lastContentLine) return
 
       /* 围栏可能挂在容器标记后面（`> ``` `、`- ``` `），直接拿原始行匹配会认不出来，
-         于是误报「未闭合」卡住合法提交。position.start.column 给的是围栏自身那一列，
+         于是误报「未闭合」。position.start.column 给的是围栏自身那一列，
          从那里切掉容器前缀再比。 */
       const cut = node.position.start.column - 1
       const open = (lines[node.position.start.line - 1] ?? "")
@@ -417,7 +501,12 @@ function checkBundleSize() {
 
 /* public/ 里的东西会被原样拷进 dist 一起部署，所以「全仓库没人引用」= 白占带宽。
    判定方式是拿文件名去全仓库文本里搜，排除 node_modules / dist / .git / .workbuddy
-   以及 public 自身 —— 否则文件自己的路径就能匹配上，永远判不出孤儿。 */
+   以及 public 自身 —— 否则文件自己的路径就能匹配上，永远判不出孤儿。
+
+   ⚠️ 第 38 轮补的一条：文章正文现在存在数据库里，不再躺在仓库文件中。
+      只搜仓库文本的话，文章插图会全部被判成「没人引用」——
+      明明每张图都被两篇文章用着，报告却说它们是孤儿。
+      所以把库里所有正文也拼进搜索样本（这是「数据也是引用来源」的一次性承认）。 */
 const TEXT_EXT = /\.(ts|tsx|js|jsx|mjs|cjs|json|html|css|md|mdx|ya?ml|txt)$/
 const SEARCH_SKIP_DIRS = new Set([
   "node_modules",
@@ -453,7 +542,9 @@ function checkOrphanPublicAssets() {
   )
   if (files.length === 0) return
 
-  const haystack = collectRepoText(ROOT).join("\n")
+  /* 仓库文本 + 数据库里的正文。db 可能不存在（没跑过后端），那就只有仓库文本。 */
+  const dbContents = (loadPosts() ?? []).map((post) => post.content ?? "")
+  const haystack = [...collectRepoText(ROOT), ...dbContents].join("\n")
   const orphans = files
     .filter((f) => !haystack.includes(path.basename(f)))
     .map((f) => rel(f))

@@ -1,99 +1,19 @@
-import mdx from "@mdx-js/rollup"
-import { readdirSync, readFileSync } from "node:fs"
 import path from "path"
 import tailwindcss from "@tailwindcss/vite"
 import react from "@vitejs/plugin-react"
-import rehypeAutolinkHeadings from "rehype-autolink-headings"
-import rehypePrettyCode from "rehype-pretty-code"
-import rehypeSlug from "rehype-slug"
-import remarkFrontmatter from "remark-frontmatter"
-import remarkGfm from "remark-gfm"
-import { defineConfig, type Plugin } from "vite"
+import { defineConfig } from "vite"
 
-import { getPostMetadata } from "./vite-plugins/remark-post-metadata.ts"
-import { journalFrontmatterPlugin } from "./vite-plugins/journal-frontmatter.ts"
-
-const POST_METADATA_MODULE_ID = "virtual:post-metadata"
-const RESOLVED_POST_METADATA_MODULE_ID = `\0${POST_METADATA_MODULE_ID}`
-const CONTENT_POSTS_DIRECTORY = path.resolve(
-  import.meta.dirname,
-  "content/resources"
-)
-
-function postMetadataPlugin(): Plugin {
-  return {
-    name: "post-metadata",
-    enforce: "pre",
-    resolveId(id) {
-      if (id === POST_METADATA_MODULE_ID) {
-        return RESOLVED_POST_METADATA_MODULE_ID
-      }
-    },
-    load(id) {
-      if (id !== RESOLVED_POST_METADATA_MODULE_ID) return null
-
-      const entries = readdirSync(CONTENT_POSTS_DIRECTORY, {
-        withFileTypes: true,
-      })
-        .filter((entry) => entry.isFile() && entry.name.endsWith(".mdx"))
-        .map((entry) => {
-          const filename = path.join(CONTENT_POSTS_DIRECTORY, entry.name)
-          this.addWatchFile(filename)
-
-          return [
-            `/content/resources/${entry.name}`,
-            getPostMetadata(readFileSync(filename, "utf8"), filename),
-          ]
-        })
-
-      return `export default ${JSON.stringify(Object.fromEntries(entries))}`
-    },
-    handleHotUpdate({ file, modules, server }) {
-      if (!file.startsWith(CONTENT_POSTS_DIRECTORY) || !file.endsWith(".mdx")) {
-        return
-      }
-
-      const metadataModule = server.moduleGraph.getModuleById(
-        RESOLVED_POST_METADATA_MODULE_ID
-      )
-      if (!metadataModule) return
-
-      server.moduleGraph.invalidateModule(metadataModule)
-      return [...modules, metadataModule]
-    },
-  }
-}
+/* 这个文件以前有 120 行，一半是「构建期把 content/*.mdx 编译成文章」的三件套：
+     · postMetadataPlugin —— 造一个 virtual:post-metadata 模块，装全站文章清单
+     · journalFrontmatterPlugin —— 把日记的 YAML 头改写成 ESM 导出
+     · mdx() —— 把 .mdx 编译成 React 组件（还会跑 rehype-pretty-code / shiki 上色）
+   2026-11-13 第 38 轮把它们全删了：文章和日记都从后端接口读（/api/posts、/api/journals），
+   正文在浏览器里用 react-markdown 现渲染，构建期不再需要知道「有哪些文章」。
+   现在留下来的只剩三件事：React 编译、Tailwind、两条开发代理。 */
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [
-    postMetadataPlugin(),
-    /* 必须在 mdx() 之前：把 content/journal 的 YAML 头改写成 ESM 导出。 */
-    journalFrontmatterPlugin(),
-    {
-      enforce: "pre",
-      ...mdx({
-        include: /\.mdx$/,
-        remarkPlugins: [remarkFrontmatter, remarkGfm],
-        rehypePlugins: [
-          rehypeSlug,
-          [rehypeAutolinkHeadings, { behavior: "wrap" }],
-          [
-            rehypePrettyCode,
-            {
-              keepBackground: false,
-              theme: {
-                dark: "github-dark-default",
-                light: "github-light-default",
-              },
-            },
-          ],
-        ],
-      }),
-    },
-    react({ include: /\.(js|jsx|md|mdx|ts|tsx)$/ }),
-    tailwindcss(),
-  ],
+  plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "./src"),
@@ -120,8 +40,7 @@ export default defineConfig({
          为什么也要代理：文章里插入的图片地址是 /uploads/xxx.jpg 这种「站内相对地址」，
          预览区（还有前台的详情页）会拿它当 5173 上的资源去请求。
          没有这条代理，开发时图片全是碎图标，但生产环境又正常 —— 这种「只在本地坏」
-         的问题最费时间，所以这里必须先配好。
-         注意：改完这个文件一定要重启 dev server（代理只在启动时读一次）。 */
+         的问题最费时间，所以这里必须先配好。 */
       "/uploads": {
         target: "http://127.0.0.1:8000",
         changeOrigin: true,

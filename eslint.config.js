@@ -9,10 +9,10 @@ export default defineConfig([
   globalIgnores(["dist"]),
   {
     files: ["**/*.{ts,tsx}"],
-    /* 构建侧（vite 配置与插件）跑在 Node 里，下面单独给 node 全局。
-       这里把它们排除掉，是为了让「Node 文件里误用浏览器全局」真的能被抓到 ——
+    /* 构建侧（vite 配置）跑在 Node 里，下面单独给 node 全局。
+       这里把它排除掉，是为了让「Node 文件里误用浏览器全局」真的能被抓到 ——
        如果两块 globals 叠加，`document` 在 Node 文件里也变成合法，检查就等于没有。 */
-    ignores: ["vite.config.ts", "vite-plugins/**/*.ts"],
+    ignores: ["vite.config.ts"],
     extends: [
       js.configs.recommended,
       tseslint.configs.recommended,
@@ -35,8 +35,9 @@ export default defineConfig([
     },
   },
   {
-    /* 构建侧：Node 环境，没有 DOM，也不该有 React 规则 */
-    files: ["vite.config.ts", "vite-plugins/**/*.ts"],
+    /* 构建侧：Node 环境，没有 DOM，也不该有 React 规则
+       （vite-plugins/ 那一堆构建期插件第 38 轮已删，现在只剩配置文件本身） */
+    files: ["vite.config.ts"],
     extends: [js.configs.recommended, tseslint.configs.recommended],
     languageOptions: {
       globals: globals.node,
@@ -55,13 +56,7 @@ export default defineConfig([
     },
   },
   {
-    files: [
-      "src/components/ui/**/*.{ts,tsx}",
-      "src/components/article/mdx-components.tsx",
-      /* 日记正文的 MDX 组件映射：和文章那份同性质 —— 一个文件里既定义小排版组件、
-         又只导出映射表。热更新在这里没有意义（改的是样式映射，整页刷新更干净）。 */
-      "src/components/journal/journal-mdx-components.tsx",
-    ],
+    files: ["src/components/ui/**/*.{ts,tsx}"],
     rules: {
       "react-refresh/only-export-components": "off",
     },

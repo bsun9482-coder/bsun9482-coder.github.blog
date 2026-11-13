@@ -11,7 +11,7 @@
     "format:check": "prettier --check .",
     "typecheck": "tsc -b --noEmit",
     "preview": "vite preview",
-    "health": "node scripts/health-check.mjs",
+    "health": "node --disable-warning=ExperimentalWarning scripts/health-check.mjs",
     "deploy:status": "node scripts/deploy-status.mjs"
   },
   "dependencies": {
@@ -39,9 +39,6 @@
   },
   "devDependencies": {
     "@eslint/js": "^10",
-    "@mdx-js/mdx": "^3.1.1",
-    "@mdx-js/rollup": "^3.1.1",
-    "@types/mdx": "^2.0.14",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -52,13 +49,10 @@
     "globals": "^17",
     "prettier": "^3.9.6",
     "prettier-plugin-tailwindcss": "^0.8.1",
-    "rehype-autolink-headings": "^7.1.0",
-    "rehype-pretty-code": "^0.14.5",
-    "remark-frontmatter": "^5.0.0",
-    "shiki": "^4.4.3",
+    "remark-parse": "^11.0.0",
     "typescript": "~6",
     "typescript-eslint": "^8",
-    "vite": "^8",
-    "yaml": "^2.9.1"
+    "unified": "^11.0.5",
+    "vite": "^8"
   }
 }

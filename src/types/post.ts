@@ -1,6 +1,7 @@
-import type { ComponentType, LazyExoticComponent } from "react"
-import type { MDXComponents } from "mdx/types"
-
+/* 文章的「元数据」形状（不带正文）。
+   名字里还留着 Frontmatter 这个词，是因为它最早来自 MDX 文件头那一块 YAML；
+   现在数据由后端接口给，字段没变，所以名字没跟着改 —— 改名要动所有引用，
+   收益只是好看一点。 */
 export type PostFrontmatter = {
   title: string
   description: string
@@ -23,17 +24,11 @@ export type PostMetadata = PostFrontmatter & {
 }
 
 /* 前台展示用的文章（不含正文渲染方式）。
-   两套数据源都要产出这个形状 —— 构建期的 MDX 和运行时的 /api/posts ——
-   页面组件只认它，换数据源时页面一行都不用改。
-   这就是「适配层」的意义：数据长什么样归数据管，怎么显示归页面管。 */
+   这个形状由 lib/api-posts.ts 从后端数据适配出来 —— 页面组件只认它，
+   换数据源时页面一行都不用改。这就是「适配层」的意义：
+   数据长什么样归数据管，怎么显示归页面管。 */
 export type Post = PostMetadata & {
   slug: string
-}
-
-/* 构建期（MDX）那一套额外带一个「怎么渲染正文」的懒加载组件。
-   数据库来的文章没有它 —— 正文是纯 Markdown 字符串，交给 react-markdown 渲染。 */
-export type LocalPost = Post & {
-  Content: LazyExoticComponent<ComponentType<{ components?: MDXComponents }>>
 }
 
 /* 详情页专用：比列表多一条「正文原文」。
