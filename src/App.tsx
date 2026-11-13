@@ -63,6 +63,13 @@ const AdminJournalPage = lazy(() =>
     default: m.AdminJournalPage,
   }))
 )
+/* 相册管理同样懒加载：它自己不大，但和上面两个页面共用「后台才下载」这条边界 ——
+   访客不该为后台工具付一次请求。 */
+const AdminAlbumPage = lazy(() =>
+  import("@/pages/admin/admin-album-page").then((m) => ({
+    default: m.AdminAlbumPage,
+  }))
+)
 
 function ScrollManager() {
   const { hash, pathname } = useLocation()
@@ -160,6 +167,9 @@ export function App() {
             {/* 日记只有一条后台路由：列表 + 输入区都在同一个页面里，
                 不区分「新建」和「编辑」（见 admin-journal-page.tsx 顶部说明）。 */}
             <Route element={<AdminJournalPage />} path="/admin/journal" />
+            {/* 相册管理：上传 + 列表 + 行内改描述，单页搞定（同日记页的思路）。
+                照片存在后端 /api/photos，后台传完前台 /album 立刻就能看到。 */}
+            <Route element={<AdminAlbumPage />} path="/admin/album" />
           </Route>
 
           <Route element={<SiteLayout />}>

@@ -24,14 +24,17 @@ import { cn } from "@/lib/utils"
 
 const admin = siteContent.ui.admin
 
-/* 顶栏的两个模块入口。
+/* 顶栏的三个模块入口。
    为什么不直接用 NavLink 的 isActive：
    它按「地址前缀」判断，而 /admin/posts/new 既不等于 /admin 也不算 /admin/journal，
    两个都不亮 —— 待在新建页上却看不到自己在哪个模块，很别扭。
-   这里自己判一次，规则更好读：**在 /admin/journal 下就是日记，其余都算文章**。 */
+   这里自己判一次，规则更好读：**在 /admin/journal 下就是日记，在 /admin/album 下
+   就是相册，其余都算文章**。 */
 function ModuleNav() {
   const { pathname } = useLocation()
   const onJournal = pathname.startsWith("/admin/journal")
+  const onAlbum = pathname.startsWith("/admin/album")
+  const onPosts = !onJournal && !onAlbum
 
   const linkClass = (active: boolean) =>
     cn(
@@ -44,8 +47,8 @@ function ModuleNav() {
   return (
     <nav aria-label={admin.navLabel} className="flex items-center gap-1">
       <Link
-        aria-current={onJournal ? undefined : "page"}
-        className={linkClass(!onJournal)}
+        aria-current={onPosts ? "page" : undefined}
+        className={linkClass(onPosts)}
         to="/admin"
       >
         {admin.navPosts}
@@ -56,6 +59,13 @@ function ModuleNav() {
         to="/admin/journal"
       >
         {admin.navJournal}
+      </Link>
+      <Link
+        aria-current={onAlbum ? "page" : undefined}
+        className={linkClass(onAlbum)}
+        to="/admin/album"
+      >
+        {admin.navAlbum}
       </Link>
     </nav>
   )

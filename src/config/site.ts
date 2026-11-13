@@ -257,6 +257,10 @@ export const siteContent = {
       albumLabel: "相册",
       albumCount: "{count} 张",
       albumOpen: "查看全部相册",
+      /* 入口卡里一张图都没有时的占位。为什么是「占位」而不是「整卡藏起来」：
+         这张卡是全页唯一吃 flex-1 的（右栏靠它撑高），藏掉它右栏会空一大块、
+         左栏的卡被拉长，整个 profile 的版式就散了。 */
+      albumEmptyHint: "还没有照片",
       /* 取文章时的两种中间状态。没有「暂无文章」这类占位文案：
          真没有文章时整个文章区不出现，页面只剩 hero + 右侧三张卡。 */
       postsLoadFailed: "文章没能加载出来",
@@ -328,10 +332,17 @@ export const siteContent = {
         study: "学习",
         scenery: "风景",
       },
+      loading: "正在读取照片…",
+      loadFailed: "照片没读出来",
+      retry: "重试",
       emptyFiltered: "这个分类下还没有照片",
       emptyFilteredHint: "换一个分类看看，或者回到「全部」。",
-      empty: "相册还是空的",
-      emptyHint: "往 lib/album.ts 里加图片之后，这里就会自动出现。",
+      /* 前台相册页的空态。⚠️ 文案里别写 /admin/album 这类后台地址 ——
+         这是**访客也看得到**的页面，把后台入口写上去等于主动报门牌号。
+         怎么传图是站长自己的事，后台那一侧已经有一句提示了
+         （见 ui.admin.albumEmptyDescription）。 */
+      empty: "还没有照片",
+      emptyHint: "照片会慢慢攒起来的，过几天再来看看。",
       lightboxLabel: "图片预览",
       prev: "上一张",
       next: "下一张",
@@ -362,6 +373,7 @@ export const siteContent = {
       navLabel: "后台模块",
       navPosts: "文章",
       navJournal: "日记",
+      navAlbum: "相册",
       postsTitle: "文章管理",
       postsSubtitle:
         "数据来自 FastAPI + SQLite，和 src/content 里的 MDX 文件是两套数据源。",
@@ -486,6 +498,38 @@ export const siteContent = {
       errJournalContent: "内容不能为空",
       deleteJournalTitle: "确认删除这则日记？",
       deleteJournalBody: "删掉就找不回来了。",
+
+      /* ---- 相册管理 ---- */
+      albumTitle: "相册",
+      albumSubtitle:
+        "传图、改标题和分类、排顺序。传上去的照片会直接出现在前台相册页。",
+      albumLoading: "正在读取照片…",
+      albumLoadFailed: "照片没读出来",
+      albumEmpty: "还没有照片",
+      albumEmptyDescription: "点上面的「选择照片上传」，传完这里就有了。",
+      albumCountPrefix: "共",
+      albumUploadCta: "选择照片上传",
+      albumUploading: "上传中…",
+      albumUploadHint:
+        "支持 jpg / png / webp / gif，单张不超过 5 MB；可以一次选多张，传完都在这个分类里。",
+      albumCategoryLabel: "传到哪个分类",
+      albumCategoryHint: "分类决定前台筛选项，写一个新的就等于新建一个分类。",
+      albumFilterLabel: "按分类筛选",
+      albumSaved: "已更新",
+      albumDeleted: "已删掉了",
+      albumUploaded: "已上传 {count} 张",
+      albumSortLabel: "排序号",
+      albumEditTitle: "标题",
+      /* 卡片上「没填标题」时的显示。和下面那个 placeholder 是两回事：
+         这个是读的时候看的，那个是写的时候看的，别合并。 */
+      albumUntitled: "未命名",
+      albumEditTitlePlaceholder: "留空就显示成「第 N 张」",
+      albumSave: "保存",
+      albumSaving: "保存中…",
+      albumEdit: "改这张",
+      errAlbumSort: "排序号得是 0 到 9999 之间的整数",
+      deleteAlbumTitle: "确认删掉这张照片？",
+      deleteAlbumBody: "记录和服务器上的文件都会删掉，找不回来。",
     },
   },
 } as const
