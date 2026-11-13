@@ -1,5 +1,12 @@
 import { Suspense, lazy, useEffect } from "react"
-import { BrowserRouter, Outlet, Route, Routes, useLocation } from "react-router"
+import {
+  BrowserRouter,
+  Navigate,
+  Outlet,
+  Route,
+  Routes,
+  useLocation,
+} from "react-router"
 
 import { AdminLayout } from "@/components/admin/admin-layout"
 import { AuthProvider } from "@/components/admin/auth-provider"
@@ -14,8 +21,8 @@ import { siteContent } from "@/config/site"
 import { useDocumentTitle } from "@/hooks/use-document-title"
 import { useEscapeBack } from "@/hooks/use-escape-back"
 import { AdminLoginPage } from "@/pages/admin/admin-login-page"
+import { AlbumPage } from "@/pages/album-page"
 import { HomePage } from "@/pages/home-page"
-import { GalleryPage } from "@/pages/gallery-page"
 import { JournalPage } from "@/pages/journal-page"
 import { NotFoundPage } from "@/pages/not-found-page"
 import { ProfilePage } from "@/pages/profile-page"
@@ -162,9 +169,12 @@ export function App() {
             <Route element={<ResourcesPage />} path="/resources" />
             <Route element={<ArticlePage />} path="/resources/:slug" />
             <Route element={<JournalPage />} path="/journal" />
-            {/* 相册只从首页入口进，不占顶部导航 —— 导航五项已经够用，
-                再加一项会把「文章 / 项目 / 日记」这三个主入口稀释掉。 */}
-            <Route element={<GalleryPage />} path="/gallery" />
+            {/* 相册只从首页入口和博客页的相册卡进，不占顶部导航 ——
+                导航五项已经够用，再加一项会把「文章 / 项目 / 日记」稀释掉。
+                第 42 轮从 /gallery 改名 /album（带分类筛选和灯箱）；
+                旧地址保留一条重定向：首页入口以前指向它，收藏夹里也可能有。 */}
+            <Route element={<AlbumPage />} path="/album" />
+            <Route element={<Navigate replace to="/album" />} path="/gallery" />
             <Route element={<NotFoundRoute />} path="*" />
           </Route>
         </Routes>

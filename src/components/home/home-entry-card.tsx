@@ -21,7 +21,7 @@ const ENTRY_LOOK: Record<string, { icon: LucideIcon; tile: string }> = {
   "/resources": { icon: BookOpen, tile: "bg-[#eff5ff] text-[#1d4ed8]" },
   "/works": { icon: FolderGit2, tile: "bg-[#f4f0ff] text-[#6d28d9]" },
   "/journal": { icon: NotebookPen, tile: "bg-[#eafaf3] text-[#047857]" },
-  "/gallery": { icon: Images, tile: "bg-[#fff4e8] text-[#b45309]" },
+  "/album": { icon: Images, tile: "bg-[#fff4e8] text-[#b45309]" },
   "/profile": { icon: UserRound, tile: "bg-[#fdf0f5] text-[#be185d]" },
 }
 

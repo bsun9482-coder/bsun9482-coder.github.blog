@@ -1,39 +1,49 @@
-import { Link, useLocation } from "react-router"
+import { useMemo } from "react"
+import { useLocation } from "react-router"
 
-import { Reveal } from "@/components/fx/reveal"
-import { TiltCard } from "@/components/fx/tilt-card"
 import { Container } from "@/components/layout/container"
-import { StatusBar } from "@/components/layout/status-bar"
-import { MusicCard } from "@/components/profile/music-card"
-import { PostCarousel } from "@/components/profile/post-carousel"
-import { ProfileHero } from "@/components/profile/profile-hero"
-import { CardContent } from "@/components/ui/card"
+import { ProfileAside } from "@/components/profile/profile-aside"
 import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel"
-import { musicPlaylist, pageNameOf, siteContent } from "@/config/site"
+  ProfilePostsSkeleton,
+  TagCloudCard,
+} from "@/components/profile/profile-article"
+import { FeaturedPostCarousel } from "@/components/profile/profile-carousel"
+import { ProfileHero } from "@/components/profile/profile-hero"
+import { ProfileStatusCard } from "@/components/profile/profile-status-card"
+import { pageNameOf, siteContent } from "@/config/site"
 import { useDocumentTitle } from "@/hooks/use-document-title"
 import { useEnterTransition } from "@/hooks/use-enter-transition"
 import { usePosts } from "@/hooks/use-posts"
 import { prefersReducedMotion } from "@/lib/reveal"
-import { cn } from "@/lib/utils"
+import type { Post } from "@/types/post"
 
-/* 博客页：只负责「把几块内容摆上来」和入场动画。
-   具体内容各有自己的组件：
-     components/profile/profile-hero.tsx   头像 / 名字 / 统计
-     components/profile/music-card.tsx     音乐卡（曲目表为空时整张不渲染）
-     components/profile/post-carousel.tsx  「最新文章」轮播
-   本文件保留：左右两栏布局、状态轮播卡、底部时间天气横条。
+/* 博客页（/profile）：通栏 hero + 左右两栏。
 
-   ⚠️ 这一页原来的「歌词条」已删除：它没有数据源，永远只能显示一句「暂无歌词」，
-   属于空占位。等 musicPlaylist 里出现带歌词的曲目时，再按 MusicTrack 的 TODO 重新做。
+   布局只有三层，改版时先看这里再往下读组件：
+     1. <ProfileHero>            通栏：头像 / 名字 / 简介 / 开放工作机会 / 时钟
+     2. 两栏 grid                左 1fr、右 300px、间距 20px，左右等高（items-stretch）
+     3. 左栏轮播 + 状态 + 标签    右栏说说 + 相册 + 实时（文章区没有区块标题、没有「查看全部」）
 
-   ⚠️ 空模块一律不渲染，而不是画一个「暂无」：
-   曲目为空 ⇒ 顶部只剩资料卡（单栏撑满）、最新文章为空 ⇒ 整块不出现。 */
+   为什么左右两栏各自是一个 flex 纵向容器，而不是让所有卡片直接进 grid：
+   卡片高度该由内容决定（一张两行字的卡不该被拉成半屏高）。
+   等高靠 grid 的 align-items: stretch 把两栏拉齐，而富余高度**只交给一张卡**：
+     · 右栏 → 相册入口卡 flex-1（缩略图跟着变大，是唯一越撑越好看的卡）
+     · 左栏 → 三张卡全是自然高度（轮播 / 此刻状态 / 标签云）
+   ⚠️ 一组里出现两个 flex-1 会互相撑，行高直接翻倍（第 40、41 轮各踩过一次：
+      5 篇时行高 1307px）。所以左栏全程不加 flex-1。
+
+   第 41 轮：左栏「精选大卡 + 逐行列表」换成 <FeaturedPostCarousel>（所有文章都是 slides）。
+   第 42 轮：此刻状态卡从右栏挪到左栏（轮播下面）；右栏变成 说说 / 相册 / 实时。
+
+   断点取 880px 而不是 lg(1024)：右栏固定 300px，视口再窄一点
+   左栏就只剩 500 出头，标题和元信息会挤成两行叠三行。880 是「左栏还有 500」
+   的那条线，比 680 的单列下限留了余量。 */
+
+/* 稳定的空数组：加载中/失败时用它占位。
+   如果写成 `state.status === "ready" ? state.posts : []`，
+   每次渲染都是新引用，下面 useMemo 的依赖次次失效，等于没缓存。 */
+const EMPTY_POSTS: Post[] = []
+
 export function ProfilePage() {
   useDocumentTitle(pageNameOf("/profile"))
 
@@ -44,110 +54,70 @@ export function ProfilePage() {
   const fromHome = location.state?.fromHome === true
   const entered = useEnterTransition(fromHome && !prefersReducedMotion())
 
-  /* 有没有音乐决定顶栏是两栏还是一栏 —— 不靠 MusicCard 自己返回 null，
-     否则 2fr/1fr 的网格会留一个空格子。 */
-  const hasMusic = musicPlaylist.length > 0
-
-  /* 「最新文章」的数据和 /resources 是同一个来源（GET /api/posts），
-     所以后台一发文章，这一块刷新就能看到。 */
+  /* 文章来自 GET /api/posts，和 /resources 同一个来源 —— 后台一发文章，
+     这一页刷新就能看到。 */
   const { state } = usePosts()
-  const latestPosts = state.status === "ready" ? state.posts : []
+  const posts = state.status === "ready" ? state.posts : EMPTY_POSTS
+
+  /* 标签云：出现次数多的在前，次数相同按字典序 —— 保证顺序稳定。
+     不排序的话，Map 的插入顺序跟着文章返回顺序走，后台改一篇文章的标签，
+     整片云的排列就会莫名其妙地变。 */
+  const tags = useMemo(() => {
+    const counts = new Map<string, number>()
+    for (const post of posts) {
+      for (const tag of post.tags) {
+        counts.set(tag, (counts.get(tag) ?? 0) + 1)
+      }
+    }
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "zh-Hans-CN"))
+      .map(([tag, count]) => ({ tag, count }))
+  }, [posts])
 
   return (
     <Container
-      className="flex flex-col gap-(--section-gap) py-10 sm:py-14"
+      className="flex flex-col gap-5 py-10 sm:py-14"
       style={{
         opacity: entered ? 1 : 0,
         transform: entered ? "translateY(0)" : "translateY(16px)",
         transition: "opacity 600ms ease 100ms, transform 600ms ease 100ms",
       }}
     >
-      {/* 顶部资料卡（+ 音乐卡）：这两张是一个视觉块，内部间距保持 16px，
-          不与区块间的 72px 混为一谈。 */}
-      <div className={cn("grid gap-4", hasMusic && "lg:grid-cols-[2fr_1fr]")}>
-        {/* 文章数也走接口：加载中传 null（卡片显示短横线），拿到后才是真数字。
-            以前它读的是构建期 MDX 清单，后台发文后会一直停在旧值。 */}
-        <ProfileHero
-          articleCount={state.status === "ready" ? state.posts.length : null}
-        />
-        {hasMusic && <MusicCard />}
+      {/* 文章数也走接口：加载中传 null（hero 里显示短横线），拿到后才是真数字。 */}
+      <ProfileHero
+        articleCount={state.status === "ready" ? posts.length : null}
+      />
+
+      <div className="grid items-stretch gap-5 min-[880px]:grid-cols-[minmax(0,1fr)_300px]">
+        {/* ---------- 左栏：文章 ---------- */}
+        <div className="flex min-w-0 flex-col gap-5">
+          {/* 三种中间状态分开写，因为处理方式不一样：
+              加载中占位、失败说一句、有数据就画卡。
+              「加载中」用骨架而不是一行小字 —— 这一块在页面里占一大片，
+              先给个空行的话，数据一到整页会跳一下。 */}
+          {state.status === "loading" && <ProfilePostsSkeleton />}
+
+          {state.status === "error" && (
+            <p className="text-sm text-muted-foreground" role="alert">
+              {siteContent.ui.profile.postsLoadFailed}
+            </p>
+          )}
+
+          {/* 所有文章都进轮播，不再在下面重复列一遍。 */}
+          {posts.length > 0 && <FeaturedPostCarousel posts={posts} />}
+
+          {/* 此刻状态：第 42 轮从右栏挪过来的，放轮播下面当「最近在干什么」的补充。 */}
+          <ProfileStatusCard />
+
+          {/* 标签云保持自然高度 —— 富余高度归右栏的相册卡。 */}
+          {tags.length > 0 && <TagCloudCard tags={tags} />}
+        </div>
+
+        {/* ---------- 右栏：今日说说 / 此刻状态 / 实时信息 ---------- */}
+        <div className="flex min-w-0 flex-col gap-5">
+          <ProfileAside />
+        </div>
       </div>
-
-      {/* 轮播状态卡：箭头定位到卡片外侧（负偏移），所以卡片本身要去掉 overflow-hidden
-          让箭头露出来；轮播内容由 CarouselContent 自带的 overflow-hidden 兜住，不会溢出圆角。 */}
-      <Reveal delay={120}>
-        <TiltCard className="overflow-visible [--card-spacing:--spacing(7)] sm:[--card-spacing:--spacing(9)]">
-          <Carousel opts={{ loop: true }}>
-            <CarouselContent>
-              {siteContent.profileSlides.map((slide) => (
-                <CarouselItem key={slide.eyebrow}>
-                  <CardContent>
-                    <p className="font-mono text-xs tracking-[0.18em] text-faint uppercase">
-                      {slide.eyebrow}
-                    </p>
-                    <h2 className="mt-3 text-title font-semibold tracking-tight">
-                      {slide.title}
-                    </h2>
-                    <p className="mt-2 text-base leading-7 text-muted-foreground">
-                      {slide.description}
-                    </p>
-                  </CardContent>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            {/* 箭头在卡片外侧：偏移量随容器内边距收放。
-                手机屏幕太窄，任何"外侧"位置都会压住文字或顶出视口 —— 直接隐藏，靠手势滑动。 */}
-            <CarouselPrevious className="-left-2 hidden sm:-left-4 sm:flex lg:-left-8" />
-            <CarouselNext className="-right-2 hidden sm:-right-4 sm:flex lg:-right-8" />
-          </Carousel>
-        </TiltCard>
-      </Reveal>
-
-      {/* 最新文章：没有文章时整块不渲染（不留「暂无文章」的卡）。
-          卡片列表换成了轮播：一屏一篇、能自动播 / 箭头 / 点 / 键盘 / 手势切 —— 逻辑在
-          components/profile/post-carousel.tsx 里，这里只给数据（posts 已按日期降序）。
-
-          ⚠️ 数据来自接口之后多了两种中间状态：
-            · 加载中 → 只显示一行提示，不占一整块轮播的高度（避免页面跳一下）
-            · 失败   → 说明一下。这一块是配角，没必要给重试按钮，
-                       用户刷新页面就等于重试。 */}
-      {state.status === "loading" && (
-        <p aria-busy="true" className="font-mono text-xs text-faint">
-          {siteContent.ui.profile.postsLoading}
-        </p>
-      )}
-
-      {state.status === "error" && (
-        <p className="text-sm text-muted-foreground" role="alert">
-          {siteContent.ui.profile.postsLoadFailed}
-        </p>
-      )}
-
-      {latestPosts.length > 0 && (
-        <section aria-labelledby="latest-posts" className="flex flex-col gap-4">
-          <div className="flex items-baseline justify-between gap-3">
-            <h2
-              className="text-title font-semibold tracking-tight"
-              id="latest-posts"
-            >
-              {siteContent.ui.profile.latestPosts}
-            </h2>
-            <Link
-              className="link-underline text-sm whitespace-nowrap text-brand hover:text-brand-hover"
-              to="/resources"
-            >
-              {siteContent.ui.profile.viewAll}
-            </Link>
-          </div>
-
-          <Reveal delay={120}>
-            <PostCarousel posts={latestPosts} />
-          </Reveal>
-        </section>
-      )}
-
-      {/* 时间天气横条 */}
-      <StatusBar />
     </Container>
   )
 }

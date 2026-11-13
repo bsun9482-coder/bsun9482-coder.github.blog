@@ -53,21 +53,23 @@ export const siteContent = {
       longitude: 117,
     },
   },
-  profileSlides: [
+  /* 博客页右侧「此刻状态」卡的三行。原来叫 profileSlides、被塞进一个轮播里，
+     第 40 轮改成竖排卡片：轮播一次只露一条，剩下的两条要等自动播放才看得到，
+     而这三条本来就是「一眼看完」的信息。
+     字段从 title/description 改成 label/detail，是因为卡片里没有编号（eyebrow），
+     那个「01 / 03」只在轮播里才有意义。 */
+  profileStatus: [
     {
-      eyebrow: "01 / 03",
-      title: "正在学习",
-      description: "正在系统学习 Python，并尝试把 AI 能力接入小型应用。",
+      label: "正在学习",
+      detail: "正在系统学习 Python，并尝试把 AI 能力接入小型应用。",
     },
     {
-      eyebrow: "02 / 03",
-      title: "最近完成",
-      description: "完成了这个个人学习博客的本地 MVP 和基础登录流程。",
+      label: "最近完成",
+      detail: "完成了这个个人学习博客的本地 MVP 和基础登录流程。",
     },
     {
-      eyebrow: "03 / 03",
-      title: "接下来",
-      description: "整理并发布第一篇 Python 或 AI 应用学习资料。",
+      label: "接下来",
+      detail: "整理并发布第一篇 Python 或 AI 应用学习文章。",
     },
   ],
   ui: {
@@ -175,9 +177,9 @@ export const siteContent = {
           description: "随手记下的片段，按日子倒排",
         },
         {
-          href: "/gallery",
+          href: "/album",
           label: "相册",
-          description: "文章里用到的插图合集",
+          description: "随手拍的和顺手存的，摊开看",
         },
         {
           href: "/profile",
@@ -227,27 +229,38 @@ export const siteContent = {
         "后续添加项目时，这里会展示项目名称、简介、状态和访问入口。",
     },
     profile: {
-      /* 「最新文章」区块：标题与右上角「查看全部」。
-         没有文章时整块不渲染，所以不再维护「暂无文章」这类占位文案。 */
-      latestPosts: "最新文章",
-      viewAll: "查看全部 →",
-      /* 取文章失败时在「最新文章」位置显示的小提示。重试无效就没必要给按钮：
-         这一块在博客页里只是配角，给一个能自愈的重试入口就够了。 */
-      postsLoadFailed: "最新文章没能加载出来",
-      postsLoading: "正在加载文章…",
-      /* 文章轮播（components/profile/post-carousel.tsx）。
-         带 {index} / {total} 的是整句模板，由 lib/text.ts 的 fillTemplate 填 ——
-         中文语序要改（比如「共 4 篇，当前第 1 篇」）只动这里。 */
-      carouselLabel: "最新文章轮播",
-      carouselRole: "轮播",
-      carouselSlideLabel: "第 {index} 篇，共 {total} 篇",
-      carouselSlideRole: "幻灯片",
+      /* ---------- 顶部通栏 hero ----------
+         名字旁的「Agent」标签、右侧「开放工作机会」标签，以及名字下面那行统计
+         （{count} 由 lib/text.ts 的 fillTemplate 填 —— 中文语序要改只动这里）。 */
+      agentTag: "Agent",
+      openToWork: "开放工作机会",
+      articleCount: "{count} 篇文章",
+      /* ---------- 左栏文章区 ----------
+         规格明确要求：文章区不要「最新文章」这种区块标题，也不要「查看全部」链接。
+         第 41 轮把大卡改成了轮播，所以原来的「精选」角标换成了轮播页码（01/05），
+         `featuredLabel` 随之删除 —— 每张都写「精选」就不叫精选了。
+         轮播的三条无障碍标签也在这里：箭头说「上一篇/下一篇」，
+         指示点说「跳到第 N 篇」，幻灯片本身说「N / 总数」。 */
+      carouselLabel: "文章轮播",
       carouselPrev: "上一篇",
       carouselNext: "下一篇",
-      carouselDotLabel: "第 {index} 篇",
-      /* 顶部个人资料卡的统计项标签。只有「文章」有真实数据源，
-         另外两项（说说 / 照片）没有数据就整块不出现 —— 不留孤零零的短横线。 */
-      statArticles: "文章",
+      carouselSlide: "{index} / {total}",
+      carouselGoto: "跳到第 {index} 篇",
+      tagCloudLabel: "标签云",
+      /* ---------- 右栏三张卡 ---------- */
+      quoteLabel: "今日说说",
+      quoteText: "如果情绪有天气，那我困在阴天里。",
+      statusLabel: "此刻状态",
+      liveLabel: "实时信息",
+      /* 相册入口卡：标题、张数、整卡链接的无障碍名。
+         {count} 由 lib/text.ts 的 fillTemplate 填，中文语序要改只动这里。 */
+      albumLabel: "相册",
+      albumCount: "{count} 张",
+      albumOpen: "查看全部相册",
+      /* 取文章时的两种中间状态。没有「暂无文章」这类占位文案：
+         真没有文章时整个文章区不出现，页面只剩 hero + 右侧三张卡。 */
+      postsLoadFailed: "文章没能加载出来",
+      postsLoading: "正在加载文章…",
     },
     /* 顶部「音乐卡」的文案。曲目表为空时整张卡不渲染，所以不需要「暂无播放列表」。 */
     musicCard: {
@@ -279,9 +292,10 @@ export const siteContent = {
       loadFailed: "文章列表没能加载出来",
       retry: "重试",
     },
-    /* 底部「时间天气横条」（StatusBar）的文案。
-       这里原先叫 sidebar，但站上早就没有侧边栏了，改名避免让人去找一个不存在的组件。 */
-    statusBar: {
+    /* 右侧「实时信息」卡（天气 / 湿度 / 日期）的文案。
+       这里原先叫 statusBar，挂在页面底部一条横条上；第 40 轮改成右侧竖排卡片、
+       横条已删掉 —— 名字跟着改，免得后来人去找一个不存在的组件。 */
+    live: {
       weatherUnavailable: "天气不可用",
       humidity: "湿度",
       unknownWeather: "未知",
@@ -299,12 +313,30 @@ export const siteContent = {
       loadFailed: "日记没加载出来",
       retry: "重试",
     },
-    /* 相册页：把文章里用到的插图集中铺一遍（图片清单在 lib/gallery.ts）。
-       不做「上传 / 分类」，它就是一个看图的网格。 */
-    gallery: {
+    /* 相册页（/album）：分类筛选 + 网格 + 灯箱。
+       数据在 lib/album.ts（它又从 lib/gallery.ts 取图片清单），文案全部在这里。
+       counter 用 {index}/{total} 两个占位符 —— 「1 / 12」的写法要换成「第 1 张，共 12 张」
+       只改这一行，不要去改灯箱组件。 */
+    album: {
       title: "相册",
-      subtitle: "文章与项目里用到的插图，按章节顺序排开",
+      subtitle: "随手拍的和顺手存的，按分类摊开看",
       countSuffix: "张",
+      filtersLabel: "按分类筛选",
+      categories: {
+        all: "全部",
+        daily: "日常",
+        study: "学习",
+        scenery: "风景",
+      },
+      emptyFiltered: "这个分类下还没有照片",
+      emptyFilteredHint: "换一个分类看看，或者回到「全部」。",
+      empty: "相册还是空的",
+      emptyHint: "往 lib/album.ts 里加图片之后，这里就会自动出现。",
+      lightboxLabel: "图片预览",
+      prev: "上一张",
+      next: "下一张",
+      close: "关闭预览",
+      counter: "{index} / {total}",
     },
     /* 管理后台（/admin 与 /admin/login）。
        注意：这一块**不进 navigationItems** —— 后台入口不上访客导航，

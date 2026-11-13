@@ -115,7 +115,8 @@ function getInitialLocation(): WeatherLocation {
   return siteContent.weather.defaultLocation
 }
 
-/* 天气取数：位置（本地缓存优先）+ 当前天气，失败置 hasError。供状态栏 / 天气卡共用。 */
+/* 天气取数：位置（本地缓存优先）+ 当前天气，失败置 hasError。目前只有博客页右侧
+   「实时信息」卡在用（原先底部那条时间天气横条也在用，第 40 轮拆掉了）。 */
 export function useWeather() {
   const [location] = useState<WeatherLocation>(getInitialLocation)
   const [weather, setWeather] = useState<WeatherData | null>(null)
@@ -157,7 +158,7 @@ export function useWeather() {
   }, [location])
 
   const presentation = WEATHER_BY_CODE[weather?.weatherCode ?? -1] ?? {
-    description: siteContent.ui.statusBar.unknownWeather,
+    description: siteContent.ui.live.unknownWeather,
     icon: CloudIcon,
   }
 

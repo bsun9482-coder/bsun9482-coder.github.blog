@@ -1,4 +1,4 @@
-/* 相册图片清单（/gallery 用）。
+/* 相册图片清单（/album 用，经 lib/album.ts 加工成带上分类和说明的条目）。
    ⚠️ 为什么是手写清单、而不是 import.meta.glob：
    public/ 下的文件不参与打包，Vite 的 glob 扫不到它们；这些图又是文章正文里
    用绝对路径引用的（/images/...），只能在构建前就写死。
