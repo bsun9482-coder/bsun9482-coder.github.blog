@@ -11,13 +11,14 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 import models  # noqa: F401  ⚠️ 这个 import 不能删：只有导入过模型类，
 #                            SQLAlchemy 才知道有 posts / users / journals 这三张表，
 #                            create_all 才建得出来
-from config import UPLOAD_DIR, UPLOAD_URL_PATH
+from config import UPLOAD_DIR, UPLOAD_URL_PATH, settings
 from database import Base, engine
 from routers import auth, journals, posts, uploads
 
@@ -49,6 +50,21 @@ app = FastAPI(
         "4. 之后所有 🔒 标记的接口（新建 / 更新 / 删除 / 上传图片）才能用\n\n"
         "读接口（列表、详情）不需要登录。"
     ),
+)
+
+# ---------------------------------------------------------------- 跨域白名单
+# 把 .env 里那串逗号分隔的域名拆成列表（顺手清掉空格和空项，避免手写 .env 时多打一个逗号
+# 导致整条配置失效）。
+# 部署形态是前后端同域名，靠 nginx 转发，正常情况下根本不会触发跨域 ——
+# 这一层是「防呆」：以后前端换了域名而忘记配置时，报错会出现在这里，而不是玄学地全站接口挂掉。
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        origin.strip() for origin in settings.cors_origins.split(",") if origin.strip()
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.include_router(posts.router)

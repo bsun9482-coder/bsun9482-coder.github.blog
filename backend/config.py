@@ -51,6 +51,21 @@ class Settings(BaseSettings):
     algorithm: str = Field(default="HS256", description="签名算法")
     access_token_expire_minutes: int = Field(default=60, ge=1, description="token 多少分钟后过期")
 
+    # ---------------------------------------------------------- 允许跨域的来源
+    # 部署形态是「前端和后端同一个域名」（nginx 把 /api 转给后端），所以浏览器的
+    # 同源策略压根不会触发跨域检查 —— 这一项在正常情况下用不上。
+    # 留它是因为两件事：
+    #   ① 万一以后前端换到别的域名（比如 www 和裸域分成两个 site），忘了配会导致接口全挂，
+    #      而报错信息长这样：「已阻止跨源请求」—— 新手很难联想到是后端配置。
+    #   ② 别人拿浏览器从自己网页上直接调你的写接口时，浏览器会因为「响应里没有允许它的
+    #      Access-Control-Allow-Origin」而读不到结果。
+    # ⚠️ 它挡不住服务器之间的直连（curl / Python 脚本照样能调），真正的门锁是登录 token。
+    # 多个来源用英文逗号分隔。
+    cors_origins: str = Field(
+        default="https://learnailab.cn,https://www.learnailab.cn",
+        description="允许跨域的前端来源，逗号分隔",
+    )
+
 
 try:
     settings = Settings()

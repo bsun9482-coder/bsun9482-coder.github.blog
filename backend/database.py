@@ -15,24 +15,43 @@
 """
 
 from pathlib import Path
+import os
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
-# 数据库文件的位置：backend/data/app.db
+# 数据库文件的位置：默认 backend/data/app.db
 # Path(__file__) 是「当前这个文件」，.parent 是它所在的 backend/ 目录。
 DATA_DIR = Path(__file__).resolve().parent / "data"
 DATA_DIR.mkdir(parents=True, exist_ok=True)  # 目录不存在就建出来（exist_ok=True：已存在不报错）
 DB_PATH = DATA_DIR / "app.db"
 
-# sqlite:/// 后面跟文件路径。as_posix() 把 Windows 的反斜杠换成正斜杠，
-# 免得路径里的 \ 被当成转义字符。
-# check_same_thread=False：SQLite 默认只允许「创建它的那个线程」使用它，
-# 而 FastAPI 处理请求时可能换线程，所以这里要放开这个限制。
-engine = create_engine(
-    f"sqlite:///{DB_PATH.as_posix()}",
-    connect_args={"check_same_thread": False},
-)
+# ---------------------------------------------------------------- 数据库地址
+# 为什么不直接写死成 DB_PATH？
+#   写死的话，「把库放到别的盘」「生产用另一个目录」都得改代码。改代码意味着改完要重新
+#   提交、重新部署，而换路径本身只是运维操作，不该动代码。
+#   所以留一个出口：环境变量 DATABASE_URL 有值就用它，没值才用上面那个默认路径。
+#
+#   部署到服务器时一般留空（默认就是 backend/data/app.db）；
+#   只有在「数据要放到 /var/lib/blog 这种系统目录」时才在 .env 里写一行：
+#     DATABASE_URL=sqlite:////var/lib/blog/app.db
+#   ⚠️ 注意是四个斜杠：sqlite:// 是固定前缀，第三个斜杠后面跟的是「绝对路径 /var/...」。
+DATABASE_URL = os.environ.get("DATABASE_URL") or f"sqlite:///{DB_PATH.as_posix()}"
+
+# SQLite 才需要的两个额外设置：
+#   check_same_thread=False  SQLite 默认只允许「创建它的那个线程」用，而 FastAPI 处理请求时
+#                            可能换线程，所以要放开这个限制
+# 换成 MySQL/PostgreSQL 时这段自动跳过（它们没有这个限制，传进去反而报错）。
+CONNECT_ARGS = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+
+# 如果 DATABASE_URL 指到一个还不存在的目录（比如 /var/lib/blog/），先把目录建好，
+# 否则 SQLite 打开文件时会报 "unable to open database file"——那个报错完全不提「目录不存在」。
+if DATABASE_URL.startswith("sqlite:///"):
+    _db_file = Path(DATABASE_URL[len("sqlite:///") :])
+    if str(_db_file) != ":memory:":
+        _db_file.parent.mkdir(parents=True, exist_ok=True)
+
+engine = create_engine(DATABASE_URL, connect_args=CONNECT_ARGS)
 
 # 会话工厂：每调用一次 SessionLocal() 就得到一个会话。
 # expire_on_commit=False：commit 之后对象里的字段仍然可读，方便直接返回给前端。

@@ -57,6 +57,18 @@ function fail(message: string, status: number): never {
 /* 「登录失效了怎么办」由上层决定。
    api.ts 不认识路由，也不该认识 —— 它只负责在 401 时喊一声，
    由 AuthProvider 注册的回调去清登录态 + 跳登录页。 */
+/* 「连不上后端」时该去查什么 —— 开发和线上的答案完全不同，所以分开写。
+   为什么值得分：这条文案是给「出问题的人」看的。线上如果还写「检查 127.0.0.1:8000」，
+   人会去自己电脑上找那个端口（根本没有），而真正该看的是服务器上的服务和 nginx。
+   一句误导比没有提示更费时间。 */
+const OFFLINE_HINT = import.meta.env.DEV
+  ? "① FastAPI 是否在 127.0.0.1:8000 运行（cd backend && uvicorn main:app --reload）；" +
+    "② 改过 vite.config.ts 之后必须重启 dev server，代理才生效；" +
+    "③ 请求路径是否以 /api 开头"
+  : "① 服务器上的后端是否在跑（systemctl status blog-backend）；" +
+    "② nginx 是否把 /api 转发到了 127.0.0.1:8000（sudo nginx -T | grep -A5 'location /api'）；" +
+    "③ 浏览器地址栏是 https，后端也必须是 https 可达，不能混着 http 请求"
+
 let unauthorizedHandler: (() => void) | null = null
 
 export function setUnauthorizedHandler(handler: (() => void) | null): void {
@@ -152,12 +164,9 @@ async function request<T>(
       body: body === undefined ? undefined : JSON.stringify(body),
     })
   } catch {
-    /* fetch 只在「连不上」时抛异常（断网、后端没启动、端口不对）。
-       这里给出最可能的三种原因，比一句 Failed to fetch 有用得多。 */
-    fail(
-      "连不上后端。检查三件事：① FastAPI 是否在 127.0.0.1:8000 运行；② 改过 vite.config.ts 之后必须重启 dev server 代理才生效；③ 请求路径是否以 /api 开头",
-      0
-    )
+    /* fetch 只在「连不上」时抛异常（断网、后端没启动、转发没配）。
+       这里给出最可能的原因，比一句 Failed to fetch 有用得多。 */
+    fail(`连不上后端。逐项检查：${OFFLINE_HINT}`, 0)
   }
 
   const payload = await readPayload(response)
@@ -194,10 +203,7 @@ async function requestMultipart<T>(path: string, form: FormData): Promise<T> {
       body: form,
     })
   } catch {
-    fail(
-      "连不上后端，图片没传上去。检查 ① FastAPI 是否在 127.0.0.1:8000 运行；② 改过 vite.config.ts 后有没有重启 dev server",
-      0
-    )
+    fail(`连不上后端，图片没传上去。逐项检查：${OFFLINE_HINT}`, 0)
   }
 
   const payload = await readPayload(response)
