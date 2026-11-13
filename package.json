@@ -11,6 +11,7 @@
     "format:check": "prettier --check .",
     "typecheck": "tsc -b --noEmit",
     "preview": "vite preview",
+    "backend": "node scripts/start-backend.mjs",
     "health": "node --disable-warning=ExperimentalWarning scripts/health-check.mjs",
     "deploy:status": "node scripts/deploy-status.mjs"
   },
