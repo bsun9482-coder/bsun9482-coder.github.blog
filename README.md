@@ -117,6 +117,23 @@ git config core.hooksPath .githooks
 装好之后每次 `git commit` 都会先跑一遍体检（含生产构建），有 FAIL 直接中止提交。
 确需跳过用 `git commit --no-verify`。
 
+### 端到端测试（真开浏览器点）
+
+体检是**静态**的：它读文件、跑构建，但不会真的点一下上传按钮。
+「上传能成功、相册能看见、灯箱能关」这些要跑 e2e：
+
+```bash
+ADMIN_PASS='你的密码' npm run test:e2e       # 本地：接口 + 浏览器 + 移动端，37 条断言
+ADMIN_PASS='你的密码' npm run test:e2e:live  # 线上只读巡检
+```
+
+前置：`npm run backend` 和 `npm run dev` 都起着。用的是本机已装的 Chrome
+（走 Chrome 自带的调试协议），不额外下载浏览器。
+
+⚠️ 本地这套会**真的传一张照片再删掉**（不写就验不了上传链路），所以只对本地跑；
+`--live` 那条只读。密码故意没有默认值 —— 这个仓库是公开的，不能把口令写进代码。
+细节见 [`e2e/README.md`](e2e/README.md)。
+
 ## 部署
 
 线上是**两个进程 + 一个 nginx**，共用 `learnailab.cn` 的 443 端口。浏览器眼里只有一个域名，

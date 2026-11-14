@@ -13,6 +13,8 @@
     "preview": "vite preview",
     "backend": "node scripts/start-backend.mjs",
     "health": "node --disable-warning=ExperimentalWarning scripts/health-check.mjs",
+    "test:e2e": "node e2e/run.mjs",
+    "test:e2e:live": "node e2e/run.mjs --live",
     "deploy:status": "node scripts/deploy-status.mjs"
   },
   "dependencies": {
