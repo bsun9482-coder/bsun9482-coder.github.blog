@@ -10,11 +10,16 @@
 所以上传要写两处，删除也要清两处。两边不一致就会出现「库里有记录、图打不开」
 或者「磁盘有图、相册里看不见」—— 下面每一步都在防这两种情况。
 
+第 44 轮起又多了第三个文件：每张照片上传时顺手缩一张 480 宽的小图
+（xxx_thumb.webp，见 images.make_thumbnail）。所以「两处」实际是三个文件/一条记录，
+删除时三个都要清干净。
+
 ⚠️ 关于状态码：这个模块的校验失败**统一回 400**（按本模块的接口约定），
    而 /api/upload 那个接口回的是 415（类型不对）/ 413（太大）。
    两处语义都成立，只是口径不同；如果以后想统一，改这几个 raise 的 status_code 即可。
 """
 
+import logging
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status
@@ -30,6 +35,8 @@ from database import get_db
 from security import get_current_user
 
 router = APIRouter(prefix="/api/photos", tags=["相册"])
+
+logger = logging.getLogger(__name__)
 
 DEFAULT_CATEGORY = "日常"
 
@@ -186,9 +193,25 @@ async def create_photo(
     target = PHOTO_DIR / filename
     target.write_bytes(b"".join(chunks))
 
+    # ④-b 顺手缩一张小图（相册格子 / 个人页卡片用它，灯箱看的还是原图）。
+    #     失败不算上传失败：图已经在磁盘上了，没缩略图顶多让相册格子多下几百 KB，
+    #     而「因为 Pillow 打不开这张 jpg 就让用户重传」是完全不能接受的。
+    #     所以这里吞掉异常，只记一条 warning，把 thumb_filename 留空，
+    #     前端拿到 thumb_url: null 会退回原图（见 schemas.PhotoOut.thumb_url）。
+    thumb_name: str | None = images.thumb_filename(filename)
+    try:
+        images.make_thumbnail(target, PHOTO_DIR / thumb_name)
+    except Exception:  # noqa: BLE001 —— 任何 Pillow 异常都不该炸掉上传
+        logger.warning("缩略图生成失败，这张照片只有原图：%s", filename, exc_info=True)
+        thumb_name = None
+        # 半成品也清掉：一个 0 字节 / 写了一半的 webp 留在磁盘上，
+        # 以后排查「为什么这张缩略图打不开」会多绕一圈
+        (PHOTO_DIR / images.thumb_filename(filename)).unlink(missing_ok=True)
+
     # ⑤ 写库。描述字段在这里顺手清洗：分类留空就回到默认值，标题只去空格
     photo = models.Photo(
         filename=filename,
+        thumb_filename=thumb_name,
         title=title.strip(),
         category=category.strip() or DEFAULT_CATEGORY,
         sort_order=sort_order,
@@ -198,9 +221,11 @@ async def create_photo(
     try:
         db.commit()
     except IntegrityError:
-        # 补偿：库没写成，磁盘上那张图就不该留着（否则永远没人能访问到它）
+        # 补偿：库没写成，磁盘上那两个文件就不该留着（否则永远没人能访问到它们）
         db.rollback()
         target.unlink(missing_ok=True)
+        if thumb_name:
+            (PHOTO_DIR / thumb_name).unlink(missing_ok=True)
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="这张照片没能存进数据库（文件名重复），请重试一次",
@@ -261,14 +286,20 @@ def delete_photo(
 
     文件不存在不报错（missing_ok=True）：可能是之前手工删过、或者被清理脚本扫走了。
     用户要的结果是「这张照片没了」，那个结果此时已经达成。
+
+    原图和缩略图都要删 —— 只删一个就会在磁盘上留一个永远没人引用的孤儿文件。
     """
 
     photo = _get_or_404(db, photo_id)
     path = _photo_path(photo.filename)
+    # 缩略图可能压根没有（老数据、或当时生成失败），所以先判空再算路径
+    thumb_path = _photo_path(photo.thumb_filename) if photo.thumb_filename else None
 
     db.delete(photo)
     db.commit()
 
     path.unlink(missing_ok=True)
+    if thumb_path is not None:
+        thumb_path.unlink(missing_ok=True)
 
     return {"message": "已删除", "id": photo_id}

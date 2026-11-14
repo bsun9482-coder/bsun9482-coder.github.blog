@@ -180,6 +180,16 @@ class Photo(Base):
         String(255), unique=True, index=True, nullable=False
     )
 
+    # 缩略图文件名（<原stem>_thumb.webp，由 images.make_thumbnail() 生成）。
+    # 为什么要多存这一列，而不是「按原名规律现算」？
+    #   规律现算（把 xxx.jpg 换成 xxx_thumb.webp）看着更省事，但它把「有个文件在那」
+    #   这个事实藏进了命名约定里 —— 哪天缩略图生成失败、或者换了尺寸/格式，
+    #   算出来的名字就指向一个不存在的文件，页面上一片灰块，还查不出原因。
+    #   存一列的好处：有值就是有图，没值（NULL）前端就老实退回原图。
+    # 为什么允许 NULL：第 43 轮之前的行没有缩略图，加列时只能是 NULL；
+    #   而且以后如果某张图 Pillow 打不开（损坏的 jpg），也不该让整张照片作废。
+    thumb_filename: Mapped[str | None] = mapped_column(String(255), nullable=True)
+
     # 标题可以为空字符串：相册里大多照片不需要标题，硬填反而没人填
     title: Mapped[str] = mapped_column(String(200), default="")
 

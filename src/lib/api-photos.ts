@@ -7,6 +7,7 @@
      sort_order → sortOrder
      created_at → createdAt
      url        → url（后端算好的相对地址，例如 /uploads/photos/3f2b9c.webp）
+     thumb_url  → thumbUrl（480 宽的小图；没有就是 null）
 
    为什么 url 不在这里拼：后端已经按「磁盘目录 → 网址前缀」的对应关系算好了，
    前端再拼一次就等于把这个映射抄了两份，改目录时一定漏一处。 */
@@ -21,6 +22,8 @@ export type ApiPhoto = {
   sort_order: number
   created_at: string
   url: string
+  /** 缩略图地址。老照片（上传时还没做缩略图）或生成失败时是 null */
+  thumb_url: string | null
 }
 
 /** 页面里用的形状。 */
@@ -30,18 +33,26 @@ export type Photo = {
   category: string
   sortOrder: number
   createdAt: string
-  /** 图片地址，已经能直接塞进 <img src>（同源相对路径） */
+  /** 原图地址，已经能直接塞进 <img src>（同源相对路径） */
   url: string
+  /** 网格 / 卡片用的小图。**已经兜过底**：没有缩略图时等于 url，可以无脑用 */
+  thumbUrl: string
 }
 
 export function toPhoto(record: ApiPhoto): Photo {
+  const url = record.url ?? ""
   return {
     id: record.id,
     title: record.title ?? "",
     category: record.category ?? "",
     sortOrder: record.sort_order ?? 0,
     createdAt: record.created_at ?? "",
-    url: record.url ?? "",
+    url,
+    /* 兜底放在适配层，而不是散在每个用到缩略图的地方：
+       后端给 null 的两种情形（老数据没缩略图、那张图 Pillow 打不开）
+       都不该让页面出现裂图，退回原图至少能看。
+       这样页面里可以一直写 photo.thumbUrl，永远不用判空。 */
+    thumbUrl: record.thumb_url || url,
   }
 }
 

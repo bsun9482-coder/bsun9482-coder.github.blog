@@ -18,9 +18,9 @@ export type AlbumImage = {
   cat: string
   /** 网格 hover 遮罩和灯箱底部显示的说明文字 */
   cap: string
-  /** 网格缩略图（现在＝原图：后端只存一份，没压过小图） */
+  /** 网格缩略图：480 宽的 webp 小图（没有缩略图时后端/适配层已兜底成原图） */
   thumb: string
-  /** 灯箱大图（同上） */
+  /** 灯箱大图：始终是原图 —— 点开看的就是清晰的那张，这里不做任何压缩 */
   full: string
 }
 
@@ -31,7 +31,10 @@ export function toAlbumImage(photo: Photo, index: number): AlbumImage {
     id: String(photo.id),
     cat: photo.category,
     cap: title || `第 ${index + 1} 张`,
-    thumb: photo.url,
+    /* 格子用 thumbUrl（480 宽 webp，通常只有原图的几十分之一大），
+       灯箱用 url（原图）。这一行就是整个「相册不卡」的关键：
+       20 张手机照片的原图接近 60MB，缩略图加起来不到 1MB。 */
+    thumb: photo.thumbUrl,
     full: photo.url,
   }
 }

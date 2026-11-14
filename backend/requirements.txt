@@ -21,6 +21,14 @@ python-jose[cryptography]   # 签发 / 验证 JWT（叫 jose 不叫 jwt，别装
 pydantic-settings           # 从 .env 文件读配置（SECRET_KEY 就放在那里，不进 git）
 python-multipart            # 解析表单数据；现在登录用 JSON，先装着，以后上「表单登录」就不缺件
 
+# ---- 图片处理 ----
+# Pillow 是 Python 界处理图片的标准库（就是那个 PIL 的现代版本）。
+# 这里只用它做一件事：上传时额外生成一张 480 像素宽的缩略图。
+# 为什么必须有：相册格子在屏幕上只有 169 像素宽，而手机原图动辄 3–4 MB，
+# 20 张照片打开相册要下 80 MB；一份 480 宽的缩略图只有约 40 KB，
+# 差 100 倍体积、肉眼几乎看不出区别（点开灯箱看的仍是原图）。
+Pillow>=11
+
 # ---- 迁移脚本相关 ----
 # import_mdx.py 用它把 .mdx 开头那段 YAML（frontmatter）拆出来。
 # 它只依赖 PyYAML，装它会顺带把 pyyaml 带上，不用单独写。

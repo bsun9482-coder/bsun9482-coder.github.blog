@@ -412,12 +412,14 @@ export function AdminAlbumPage() {
                   className="flex flex-col gap-2 rounded-xl border border-border bg-card p-2.5"
                   key={photo.id}
                 >
+                  {/* 后台列表也是小格子，用缩略图（thumbUrl 已在适配层兜过底，
+                      老照片没缩略图就退回原图，不会裂） */}
                   <img
                     alt={photo.title}
                     className="aspect-square w-full rounded-lg border border-border object-cover"
                     decoding="async"
                     loading="lazy"
-                    src={photo.url}
+                    src={photo.thumbUrl}
                   />
 
                   {editing ? (

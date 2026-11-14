@@ -299,8 +299,28 @@ class PhotoOut(BaseModel):
     sort_order: int
     created_at: datetime
     filename: str = Field(exclude=True, description="磁盘文件名，仅内部使用，不返回给前端")
+    thumb_filename: str | None = Field(
+        default=None,
+        exclude=True,
+        description="缩略图文件名，仅内部使用，不返回给前端",
+    )
 
     @computed_field(description="图片地址，例如 /uploads/photos/3f2b9c.jpg")
     @property
     def url(self) -> str:
         return f"{PHOTO_URL_PATH}/{self.filename}"
+
+    @computed_field(description="缩略图地址，没有缩略图时为 null（前端退回 url）")
+    @property
+    def thumb_url(self) -> str | None:
+        """缩略图地址。没有就直接给 null —— 不给「猜出来的地址」。
+
+        为什么返回 None 而不是退回 url：
+          两者语义不同。前端拿到 None 会显式用原图兜底（一个 ?? 的事），
+          而如果这里偷偷返回原图地址，前端就永远不知道「这张没有缩略图」，
+          以后想统计「多少张还没生成缩略图」得靠猜文件名规律。
+        """
+
+        if not self.thumb_filename:
+            return None
+        return f"{PHOTO_URL_PATH}/{self.thumb_filename}"

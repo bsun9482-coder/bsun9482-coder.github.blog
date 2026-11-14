@@ -74,6 +74,8 @@ export function ProfileAlbumCard() {
             </p>
           )}
 
+          {/* thumbUrl = 480 宽 webp 小图。每格只有一百多像素，
+              用原图纯属浪费（手机照片一张 3MB，四张就能把首页拖慢几秒） */}
           {state.status !== "loading" &&
             preview.map((photo) => (
               <img
@@ -82,7 +84,7 @@ export function ProfileAlbumCard() {
                 decoding="async"
                 key={photo.id}
                 loading="lazy"
-                src={photo.url}
+                src={photo.thumbUrl}
               />
             ))}
         </div>
