@@ -1,13 +1,14 @@
 """FastAPI 应用的入口：把各个零件组装起来。
 
 这个文件只做四件事，不写具体业务：
-  1. 启动时自动建表（create_all）
+  1. 启动时自动建表（create_all）+ 给老库补齐缺失的列（run_migrations）
   2. 挂上五组路由：文章（/api/posts）、日记（/api/journals）、相册（/api/photos）、
      图片上传（/api/upload）、登录（/api/auth）
   3. 把上传目录挂成静态文件（/uploads/xxx.jpg 直接能打开）
   4. 把「数据不合法」的报错翻译成人话
 """
 
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request, status
@@ -20,27 +21,38 @@ import models  # noqa: F401  ⚠️ 这个 import 不能删：只有导入过模
 #                            SQLAlchemy 才知道有 posts / users / journals / photos 这四张表，
 #                            create_all 才建得出来
 from config import PHOTO_DIR, UPLOAD_DIR, UPLOAD_URL_PATH, settings
-from database import Base, engine
+from database import Base, engine, run_migrations
 from routers import auth, journals, photos, posts, uploads
+
+logger = logging.getLogger(__name__)
+
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """应用生命周期：yield 之前是「启动时」，之后是「关闭时」。
 
-    建表就放在启动时做一次。create_all 的行为要理解清楚：
-      · 表不存在 → 建出来
-      · 表已存在 → 什么都不做（**不会**清空你已有的数据）
-      · 想加/改列 → 它不会帮你改，那需要 Alembic 这类迁移工具（我们这一步先不上）
+    启动时做两件事，顺序不能反：
+
+    ① create_all —— 把缺失的表建出来
+       行为要理解清楚：表不存在就建；表已存在就什么都不做（**不会**清空数据）。
+    ② run_migrations —— 给已存在的表补缺失的列
+       这是 ① 的死角：create_all 不管「已存在的表少了哪些列」，
+       所以在 models.py 给某张表加一列之后，老库会一直缺那一列，
+       每次查询都 500（no such column）。补列见 database.run_migrations 的长注释。
+       空的补列清单是正常情况（大多数启动都是这样），所以不用担心它乱动结构。
     """
 
     Base.metadata.create_all(bind=engine)
+    added = run_migrations()
+    if added:
+        logger.warning("启动时补了缺失的列（老库升级）：%s", "、".join(added))
     yield
 
 
 app = FastAPI(
     title="博客后端（最小版）",
-    version="0.6.0",
+    version="0.7.0",
     lifespan=lifespan,
     description=(
         "文章、日记、相册的增删改查 + 图片上传 + 登录鉴权。\n\n"

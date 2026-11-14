@@ -79,3 +79,86 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+# ================================================================ 补列（穷人版迁移）
+# 先说清楚这件事为什么必须做：
+#
+#   create_all 只会「建缺失的表」，**从来不管已存在表里少了哪些列**。
+#   所以你在 models.py 给 Photo 加一个 thumb_filename 之后：
+#     · 全新的空库 → 建表时就带着这一列，一切正常
+#     · 已经跑过半年的老库 → 表已经存在，create_all 直接跳过
+#       ⇒ 数据库里根本没有这一列，但代码里每次 SELECT 都会带上它
+#       ⇒ 每次查相册都 500（OperationalError: no such column）
+#   而本地库和线上库**一定是两个不同的文件**，本地测通了不代表线上不会炸。
+#
+# 正规解法是 Alembic（生成迁移脚本、可按版本升/降级）。这个项目不上它，理由很实际：
+#   十几张表、一个作者、没有并行分支，为「加一列」引入一套带版本目录的工具体系
+#   （每次改表都要 generate + 手改 + commit 一个脚本）收益抵不过成本。
+#
+# 这里的替代方案只有 30 行，覆盖「加列」这一种最常见的改表动作：
+#   启动时拿「代码里定义的列」和「库里真实的列」对一遍，缺哪个就 ALTER TABLE 补上。
+# ⚠️ 它能做的只有 ADD COLUMN。改名、删列、改类型、加约束，一律不做（那种改动老老实实
+#    手写 SQL，或者到时候再上 Alembic）。宁可功能少，也不要一个会悄悄改坏数据的迁移器。
+def run_migrations(metadata=None) -> list[str]:
+    """把「模型里有、库里没有」的列补上，返回补了哪些（形如 photos.thumb_filename）。
+
+    什么都不缺时返回空列表 —— 正常启动就是这个结果，可以放心地每次启动都跑。
+    """
+
+    from sqlalchemy import inspect
+
+    metadata = Base.metadata if metadata is None else metadata
+    inspector = inspect(engine)
+    existing_tables = set(inspector.get_table_names())
+    added: list[str] = []
+
+    for table in metadata.sorted_tables:
+        # 表不存在 ⇒ create_all 刚刚按最新定义建过，不需要补
+        if table.name not in existing_tables:
+            continue
+
+        have = {column["name"] for column in inspector.get_columns(table.name)}
+        for column in table.columns:
+            if column.name in have:
+                continue
+            sql = _add_column_sql(table.name, column)
+            with engine.begin() as conn:
+                conn.exec_driver_sql(sql)
+            added.append(f"{table.name}.{column.name}")
+
+    return added
+
+
+def _add_column_sql(table_name: str, column) -> str:
+    """拼一条 ALTER TABLE ... ADD COLUMN。
+
+    两个刻意的取舍：
+
+    ① **不加 NOT NULL**（即使模型里写了 nullable=False）。
+       SQLite 不允许给已有行加一个「必填但没值」的列 —— 加 NOT NULL 必须同时给 DEFAULT，
+       而一个编出来的默认值（比如空字符串）会污染历史数据，还可能悄悄绕过模型里的约束。
+       补出来的列一律可空，由接口层（Pydantic schema）继续负责「写进去的值必须合法」。
+       这就是「数据库先宽容、代码守严格」，比反过来安全得多。
+
+    ② 有标量默认值就带上 DEFAULT，让老数据也有个合理值（比如 sort_order 补 0）。
+       带函数的默认值（func.now() / datetime.now）跳过 —— SQLite 的 ADD COLUMN 只认常量。
+    """
+
+    type_sql = column.type.compile(dialect=engine.dialect)
+    sql = f'ALTER TABLE "{table_name}" ADD COLUMN "{column.name}" {type_sql}'
+
+    default = column.default
+    if default is not None and getattr(default, "is_scalar", False):
+        value = default.arg
+        # bool 要落成 0/1，不能写 True/False（老版本 SQLite 不认这两个字面量）
+        if isinstance(value, bool):
+            sql += f" DEFAULT {int(value)}"
+        elif isinstance(value, (int, float)):
+            sql += f" DEFAULT {value}"
+        elif isinstance(value, str):
+            # 单引号转义：DEFAULT 'a''b' 是 SQL 里写字符串的标准方式
+            escaped = value.replace("'", "''")
+            sql += f" DEFAULT '{escaped}'"
+
+    return sql
