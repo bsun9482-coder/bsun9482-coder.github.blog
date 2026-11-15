@@ -62,8 +62,11 @@ export async function run({ check, browser, api, env }) {
       document.querySelector("form").requestSubmit()
       return true
     })()`)
-    await waitFor(`location.pathname === "/admin"`, {
-      label: "登录后落在 /admin",
+    /* ⚠️ 等的是 /admin/dashboard，不是 /admin：第 47 轮起登录后的落地页
+       改成了工作台（admin-login-page.tsx 的 from 默认值）。这条以前写死 "/admin"，
+       于是每次跑都超时 —— 是 spec 没跟上，不是登录坏了。 */
+    await waitFor(`location.pathname === "/admin/dashboard"`, {
+      label: "登录后落在 /admin/dashboard",
     })
     check("B1", "登录成功并进入后台", true)
 
