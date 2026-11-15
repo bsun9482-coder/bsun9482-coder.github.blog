@@ -1,10 +1,19 @@
-import { BookOpen, FolderGit2, Library, NotebookPen } from "lucide-react"
+import {
+  BookOpen,
+  FolderGit2,
+  Images,
+  Library,
+  NotebookPen,
+} from "lucide-react"
 
 export const navigationItems = [
   { href: "/profile", label: "博客", icon: BookOpen },
   { href: "/works", label: "项目", icon: FolderGit2 },
   { href: "/resources", label: "文章", icon: Library },
   { href: "/journal", label: "日记", icon: NotebookPen },
+  /* 相册排在日记后面：桌面导航与移动端抽屉都从本数组派生，
+     加在这一处两处同步，不要再往 site-header 里单独写一项。 */
+  { href: "/album", label: "相册", icon: Images },
 ] as const
 
 /* 页面名（即导航标签）的唯一来源：document.title 与导航标签共用它，
