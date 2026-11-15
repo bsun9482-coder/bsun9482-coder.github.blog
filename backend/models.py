@@ -1,6 +1,7 @@
 """数据库表的模型定义 —— ORM 的核心就在这个文件里。
 
-四张表：posts（文章）、users（能登录后台的人）、journals（日记）、photos（相册）。
+五张表：posts（文章）、users（能登录后台的人）、journals（日记）、photos（相册）、
+site_profile（站点 / 作者资料，全库只有一条记录）。
 
 ORM 是什么？一句话：**用写类的方式来操作数据库表**。
 
@@ -204,3 +205,55 @@ class Photo(Base):
     owner_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
 
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+
+
+class SiteProfile(Base):
+    """站点 / 作者资料 —— **全表只有一行**，id 固定是 1。
+
+    这是「单例表」（singleton）的写法。为什么要做成表，而不是塞进一个 JSON 配置文件：
+      因为这份资料要能在后台改（改名字、换头像、改签名），改完立刻生效。
+      配置文件要改就得动服务器上的文件、甚至重新部署；改为存库，
+      后台一次 PUT 就完事，也顺手有了 updated_at 这个「上次改是什么时候」。
+
+    「只有一行」怎么保证？
+      · id 固定为 1，代码里永远只读写 id=1 那一行，不会去插第二行；
+      · 启动时（见 main.lifespan）如果发现没有 id=1 的行，就建一行默认值 ——
+        所以「表是空的」这个状态在实际运行中不存在，前端不用处理「资料不存在」。
+      ⚠️ 数据库层面**没有**做「只能有一行」的约束（那得靠 CHECK 或触发器，
+         而且和 run_migrations 那套穷人版迁移不兼容）。这里靠代码自觉：
+         只有 profile 路由和 lifespan 会写这张表，两处都只碰 id=1。
+
+    为什么不给这一列 name 加 unique 之类：名字只有一份，重复与否没有意义。
+
+    avatar 存的是**磁盘文件名**（uuid + 扩展名，在 uploads/avatars/ 下），
+    不是完整网址。完整网址（/uploads/avatars/xxx.png）由 schemas.ProfileOut
+    现算（avatarUrl）—— 和相册 Photo.filename 一个思路：以后换存储位置只改 config.py。
+    """
+
+    __tablename__ = "site_profile"
+
+    # 固定为 1。刻意不写 autoincrement：这一列的值由代码决定，不由数据库自增。
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=False)
+
+    # 主名字（不含敬称），例如「旺仔冰子」，必填
+    name: Mapped[str] = mapped_column(String(50), nullable=False)
+
+    # 副标题 / 敬称，例如「（恩师萧氏）」；可以为空
+    subtitle: Mapped[str | None] = mapped_column(String(100), nullable=True)
+
+    # 头像文件名（uploads/avatars/ 下的真实文件名），没换过头像就是 NULL，
+    # 这时前端退回静态的 /avatar.jpg（见 schemas.ProfileOut.avatarUrl 的说明）
+    avatar: Mapped[str | None] = mapped_column(String(255), nullable=True)
+
+    # 个性签名 / 一句话简介
+    bio: Mapped[str | None] = mapped_column(String(500), nullable=True)
+
+    # 所在城市，例如「济南」
+    location: Mapped[str | None] = mapped_column(String(50), nullable=True)
+
+    # 和 Post 一样用数据库时间（SQLite 给的是 UTC）。这一列只用来显示
+    # 「资料上次更新于……」，差 8 小时不影响任何逻辑，和 journals 那条
+    # 「必须存本地时间」的顾虑不冲突。
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, server_default=func.now(), onupdate=func.now()
+    )

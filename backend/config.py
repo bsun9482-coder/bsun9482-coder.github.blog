@@ -49,6 +49,17 @@ UPLOAD_URL_PATH = "/uploads"
 PHOTO_DIR = UPLOAD_DIR / "photos"
 PHOTO_URL_PATH = f"{UPLOAD_URL_PATH}/photos"
 
+# ---------------------------------------------------------------- 头像目录
+# 头像单独一层子目录，理由和相册完全一样（同上）：uploads 整个已经挂成 /uploads，
+# 所以 backend/uploads/avatars/xxx.png 自动能用 /uploads/avatars/xxx.png 打开，
+# 不需要为头像再 mount 一次。
+#
+# 为什么头像不跟文章插图混在 uploads 根目录：
+#   头像永远只有一张在用（换新头像 = 换文件名），单独一层目录让「清旧头像」这件事
+#   可以放心遍历 —— 不用先判断「这个文件是不是某篇文章正在引用的插图」。
+AVATAR_DIR = UPLOAD_DIR / "avatars"
+AVATAR_URL_PATH = f"{UPLOAD_URL_PATH}/avatars"
+
 
 class Settings(BaseSettings):
     # env_file 指向 backend/.env；extra="ignore" 表示 .env 里多写了没用的键也不报错

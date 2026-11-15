@@ -1,9 +1,9 @@
 """FastAPI 应用的入口：把各个零件组装起来。
 
 这个文件只做四件事，不写具体业务：
-  1. 启动时自动建表（create_all）+ 给老库补齐缺失的列（run_migrations）
-  2. 挂上五组路由：文章（/api/posts）、日记（/api/journals）、相册（/api/photos）、
-     图片上传（/api/upload）、登录（/api/auth）
+  1. 启动时自动建表（create_all）+ 给老库补齐缺失的列（run_migrations）+ 保证站点资料那行存在
+  2. 挂上六组路由：文章（/api/posts）、日记（/api/journals）、相册（/api/photos）、
+     图片上传（/api/upload）、登录（/api/auth）、站点资料（/api/profile）
   3. 把上传目录挂成静态文件（/uploads/xxx.jpg 直接能打开）
   4. 把「数据不合法」的报错翻译成人话
 """
@@ -18,21 +18,46 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 import models  # noqa: F401  ⚠️ 这个 import 不能删：只有导入过模型类，
-#                            SQLAlchemy 才知道有 posts / users / journals / photos 这四张表，
-#                            create_all 才建得出来
-from config import PHOTO_DIR, UPLOAD_DIR, UPLOAD_URL_PATH, settings
-from database import Base, engine, run_migrations
+#                            SQLAlchemy 才知道有 posts / users / journals / photos / site_profile
+#                            这五张表，create_all 才建得出来
+from config import AVATAR_DIR, PHOTO_DIR, UPLOAD_DIR, UPLOAD_URL_PATH, settings
+from database import Base, SessionLocal, engine, run_migrations
 from routers import auth, journals, photos, posts, uploads
+from routers import profile as profile_router
 
 logger = logging.getLogger(__name__)
 
+
+def _seed_profile() -> None:
+    """确保 site_profile 里有 id=1 那一行（没有就按默认值建一条）。
+
+    为什么要单独做这一步，而不是等第一个请求来的时候再建（routers/profile.py 里
+    那个 _get_or_create 就是干这个的）：
+      那样也能跑，但「表里到底有没有那一行」就取决于「有没有人访问过接口」。
+      启动时补上，任何后台排查（直接打开 app.db 看）都能看到那一行，状态是确定的。
+      两处都只碰 id=1，谁先跑都不会插出第二行。
+
+    ⚠️ 顺序必须在 create_all 之后 —— 表还不存在时插数据会直接报错。
+    """
+
+    # models 在文件顶部已经 import 过，这里直接用就行
+    with SessionLocal() as db:
+        if db.get(models.SiteProfile, profile_router.PROFILE_ID) is not None:
+            return
+        db.add(
+            models.SiteProfile(
+                id=profile_router.PROFILE_ID, **profile_router.DEFAULT_PROFILE
+            )
+        )
+        db.commit()
+        logger.info("site_profile 是空的，已按默认资料建好 id=1 那一行")
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """应用生命周期：yield 之前是「启动时」，之后是「关闭时」。
 
-    启动时做两件事，顺序不能反：
+    启动时做三件事，①② 的顺序不能反：
 
     ① create_all —— 把缺失的表建出来
        行为要理解清楚：表不存在就建；表已存在就什么都不做（**不会**清空数据）。
@@ -41,27 +66,32 @@ async def lifespan(app: FastAPI):
        所以在 models.py 给某张表加一列之后，老库会一直缺那一列，
        每次查询都 500（no such column）。补列见 database.run_migrations 的长注释。
        空的补列清单是正常情况（大多数启动都是这样），所以不用担心它乱动结构。
+    ③ _seed_profile —— 保证站点资料那一行存在
+
+    ③ 必须在 ① 之后：create_all 建完表才能插数据。
+    run_migrations 和 ③ 的顺序无所谓，但放在一起读起来顺。
     """
 
     Base.metadata.create_all(bind=engine)
     added = run_migrations()
     if added:
         logger.warning("启动时补了缺失的列（老库升级）：%s", "、".join(added))
+    _seed_profile()
     yield
 
 
 app = FastAPI(
     title="博客后端（最小版）",
-    version="0.7.0",
+    version="0.8.0",
     lifespan=lifespan,
     description=(
-        "文章、日记、相册的增删改查 + 图片上传 + 登录鉴权。\n\n"
+        "文章、日记、相册、站点资料的增删改查 + 图片上传 + 登录鉴权。\n\n"
         "**怎么用**：\n"
         "1. 先用命令行创建一个管理员账号（见 backend/create_admin.py）\n"
         "2. 点右上角 **Authorize** 按钮，在弹窗里直接填用户名和密码\n"
         "3. 点 Authorize → Close。Swagger 会自动拿 token 并保存好，你不需要复制任何东西\n"
         "4. 之后所有 🔒 标记的接口（新建 / 更新 / 删除 / 上传图片）才能用\n\n"
-        "读接口（列表、详情）不需要登录。"
+        "读接口（列表、详情、站点资料）不需要登录。"
     ),
 )
 
@@ -85,6 +115,7 @@ app.include_router(journals.router)
 app.include_router(photos.router)
 app.include_router(uploads.router)
 app.include_router(auth.router)
+app.include_router(profile_router.router)
 
 # ---------------------------------------------------------------- 静态图片
 # 这一行让 /uploads/xxx.jpg 变成一个「能直接在浏览器打开」的网址。
@@ -106,6 +137,9 @@ UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 # 相册的子目录也提前建好（缺了也不致命 —— 上传时会再 mkdir 一次，
 # 但提前建出来，第一次启动就能在资源管理器里看到这个位置）
 PHOTO_DIR.mkdir(parents=True, exist_ok=True)
+# 头像目录同理。⚠️ 它必须在 mount 之前建好：不是 StaticFiles 要求它存在（它只 check
+# 挂载的那个根目录 UPLOAD_DIR），而是为了「第一次打开 /uploads/avatars/ 时不至于 404」。
+AVATAR_DIR.mkdir(parents=True, exist_ok=True)
 app.mount(
     UPLOAD_URL_PATH,
     StaticFiles(directory=UPLOAD_DIR),

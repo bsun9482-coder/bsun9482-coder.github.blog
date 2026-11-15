@@ -16,13 +16,16 @@
   PostCreate —— 新建时要填的（slug 必填）
   PostUpdate —— 更新时的（全部选填，只改你传了的字段）
   PostRead   —— 返回给前端的（多出 id 和两个时间戳）
+
+除了文章，下面还依次有日记、登录、图片上传、相册、站点资料几组 —— 各自成段。
 """
 
 from datetime import date, datetime
+from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, Field, computed_field, field_validator
 
-from config import PHOTO_URL_PATH
+from config import AVATAR_URL_PATH, PHOTO_URL_PATH
 
 
 class PostBase(BaseModel):
@@ -324,3 +327,79 @@ class PhotoOut(BaseModel):
         if not self.thumb_filename:
             return None
         return f"{PHOTO_URL_PATH}/{self.thumb_filename}"
+
+
+# ---------------------------------------------------------------- 站点 / 作者资料
+# 这一组只有两个 schema，比别的模块少两个（没有 Create）：
+#   因为这张表是**单例**（id 永远 1），「新建」这件事不存在 —— 默认那行由启动时建好，
+#   接口只负责「读」和「改」。头像也不走 ProfileUpdate，因为它是文件（multipart），
+#   单独一个接口 POST /api/profile/avatar。
+class ProfileUpdate(BaseModel):
+    """改资料：四个字段全部选填，只改你传了的。
+
+    和 PostUpdate 的三个不同之处：
+
+    ① subtitle / bio / location 允许传 null，而且传 null **是有意义的**
+       （「把签名清掉」）。name 不行 —— 名字是必填的，传 null 等同于「这次不改」。
+    ② 空字符串统一变成 null（见下面 _empty_to_none）：这样库里不会同时出现
+       "" 和 NULL 两种「没有」，前端判空只需写一次 if (!x)。
+    ③ 没有长度下限以外的限制：这里不是给陌生人填的表单，是站长自己改资料，
+       不必猜他想写多长。
+    """
+
+    name: str | None = Field(default=None, min_length=1, max_length=50, description="主名字，例如 旺仔冰子")
+    subtitle: str | None = Field(
+        default=None, max_length=100, description="副标题 / 敬称，例如（恩师萧氏）；传 null 或空串表示清空"
+    )
+    bio: str | None = Field(default=None, max_length=500, description="个性签名；传 null 或空串表示清空")
+    location: str | None = Field(default=None, max_length=50, description="所在城市；传 null 或空串表示清空")
+
+    @field_validator("name", "subtitle", "bio", "location", mode="before")
+    @classmethod
+    def _empty_to_none(cls, v):
+        """前后空格清掉；清完是空串就当没填（存 null）。
+
+        为什么连 name 也过这个校验器：name 被清成 "" 之后会撞下面的 min_length=1，
+        回一条「name：String should have at least 1 character」——
+        比让一个空名字进数据库要好得多。
+        """
+
+        if not isinstance(v, str):
+            return v
+        text = v.strip()
+        return text or None
+
+
+class ProfileOut(BaseModel):
+    """返回给前端的资料。
+
+    avatarUrl 是**算出来的**，不是数据库里的列 —— 和 PhotoOut.url 同一个道理：
+      库里存 3f2b9c.png，对外地址是 /uploads/avatars/3f2b9c.png。
+      这层换算写在这里，以后换存储位置只改 config.py，前端一行不用动。
+
+    没有头像时返回 null，**不**退回静态的 /avatar.jpg：
+      那个默认图属于前端的表现层（src/config/site.ts 里的 person.avatarUrl），
+      不该由后端替它决定。前端拿到 null 自己兜底即可。
+
+    avatar 用 exclude=True：它对接口使用者没意义（avatarUrl 已经能拿到图），
+    但算 avatarUrl 必须读到它 —— 所以留在模型里、不进 JSON。
+    """
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    name: str
+    subtitle: str | None
+    bio: str | None
+    location: str | None
+    updated_at: datetime
+    avatar: str | None = Field(default=None, exclude=True, description="头像文件名，仅内部使用，不返回给前端")
+
+    @computed_field(description="头像地址，例如 /uploads/avatars/3f2b9c.png；还没设过头像时为 null")
+    @property
+    def avatarUrl(self) -> str | None:  # noqa: N802 —— 对外 JSON 用驼峰，和前端字段名对齐
+        if not self.avatar:
+            return None
+        # Path(...).name 挡一手：这一列是从库里读出来的，万一被手工改成 ../xxx，
+        # 拼出来的地址也不会跑出 /uploads/avatars/ 这一段（和 photos._photo_path 同理）。
+        return f"{AVATAR_URL_PATH}/{Path(self.avatar).name}"
