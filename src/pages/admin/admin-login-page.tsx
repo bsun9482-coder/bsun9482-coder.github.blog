@@ -33,9 +33,12 @@ export function AdminLoginPage() {
   const [submitting, setSubmitting] = useState(false)
 
   /* 登录成功后回到「你本来想去的地方」。
-     location.state 是 RequireAuth 塞进来的（见 require-auth.tsx），
-     直接打开 /admin/login 时它是 null，那就去 /admin。 */
-  const from = (location.state as { from?: string } | null)?.from ?? "/admin"
+     location.state 是 RequireAuth 塞进来的（见 require-auth.tsx）。
+     直接打开 /admin/login（不是被守卫弹过来的）时它是 null，那就去**工作台** ——
+     登录完先看总览，比一落地就面对一张文章表格更像「后台」。
+     想看文章列表，顶栏第一项点两下就到。 */
+  const from =
+    (location.state as { from?: string } | null)?.from ?? "/admin/dashboard"
 
   /* 已经登录了还来看登录页 → 直接送进后台。
      放在所有 hook 之后才 return，这是 React 的硬规则：

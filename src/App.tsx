@@ -40,12 +40,20 @@ const WorksPage = lazy(() =>
   import("@/pages/works-page").then((m) => ({ default: m.WorksPage }))
 )
 
-/* 后台的两个页面也必须拆包 —— 理由和上面两个不一样，但后果更严重：
+/* 后台的页面也必须拆包 —— 理由和上面两个不一样，但后果更严重：
    Markdown 编辑器（@uiw/react-md-editor）连带它依赖的一堆东西有 1.2MB 左右。
    不拆的话，**每个来看博客的访客**打开首页就得先下载完这个编辑器，
    而他一辈子都不会进后台。实测主包会从 591KB 涨到 1828KB。
    拆出去之后，只有真的进 /admin 才会下载它。
    （后台本身还要先过 RequireAuth，未登录根本走不到这一步。） */
+/* 工作台排在第一位：它是登录后的落地页，也是唯一一个「进来就一定用到」的后台页面。
+   单独拆包而不塞进 AdminLayout：它自己带着表单和三个计数请求，
+   和文章编辑器没有共享代码，合并只会让两边都变大。 */
+const AdminDashboardPage = lazy(() =>
+  import("@/pages/admin/admin-dashboard-page").then((m) => ({
+    default: m.AdminDashboardPage,
+  }))
+)
 const AdminPostsPage = lazy(() =>
   import("@/pages/admin/admin-posts-page").then((m) => ({
     default: m.AdminPostsPage,
@@ -154,6 +162,10 @@ export function App() {
               </RequireAuth>
             }
           >
+            {/* 工作台：登录成功后的落地页（见 admin-login-page.tsx 的 from 默认值）。
+                ⚠️ 它必须在 /admin 之前声明 —— 两条路由都是精确匹配，
+                    顺序其实不影响匹配结果，但放在前面读起来才符合「先总览后明细」。 */}
+            <Route element={<AdminDashboardPage />} path="/admin/dashboard" />
             <Route element={<AdminPostsPage />} path="/admin" />
             {/* 新建和编辑共用同一个页面组件 AdminPostFormPage：
                 「是新建还是编辑」不靠两个页面区分，靠地址里有没有 :slug 判断。

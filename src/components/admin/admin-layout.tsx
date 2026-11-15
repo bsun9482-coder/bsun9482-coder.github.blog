@@ -24,28 +24,48 @@ import { cn } from "@/lib/utils"
 
 const admin = siteContent.ui.admin
 
-/* 顶栏的三个模块入口。
+/* 顶栏的四个模块入口。
    为什么不直接用 NavLink 的 isActive：
    它按「地址前缀」判断，而 /admin/posts/new 既不等于 /admin 也不算 /admin/journal，
    两个都不亮 —— 待在新建页上却看不到自己在哪个模块，很别扭。
-   这里自己判一次，规则更好读：**在 /admin/journal 下就是日记，在 /admin/album 下
-   就是相册，其余都算文章**。 */
+   这里自己判一次，规则更好读：**在 /admin/dashboard 下就是工作台，
+   在 /admin/journal 下是日记，在 /admin/album 下是相册，其余都算文章**。
+
+   为什么「工作台」要放最前面：它是登录后的落地页，也是最常回的页面。
+   但它**不能成为兜底项** —— 兜底给文章，是因为 /admin/posts/new、/admin/posts/x/edit
+   这些地址都该亮「文章」；工作台只有 /admin/dashboard 一个地址。 */
 function ModuleNav() {
   const { pathname } = useLocation()
+  const onDashboard = pathname.startsWith("/admin/dashboard")
   const onJournal = pathname.startsWith("/admin/journal")
   const onAlbum = pathname.startsWith("/admin/album")
-  const onPosts = !onJournal && !onAlbum
+  const onPosts = !onDashboard && !onJournal && !onAlbum
 
   const linkClass = (active: boolean) =>
     cn(
-      "rounded-[7px] px-2.5 py-1 text-sm transition-colors",
+      /* whitespace-nowrap 是必需的：手机上顶栏只有 350px 左右，标题 + 四个模块 +
+         退出登录挤在一行，不加它「工作台」会被压成竖排（一个字一行）。
+         挤不下时宁可让整块横向滚动，也不能把字拆行。 */
+      "shrink-0 rounded-[7px] px-2.5 py-1 text-sm whitespace-nowrap transition-colors",
       active
         ? "bg-muted font-medium text-foreground"
         : "text-muted-foreground hover:text-foreground"
     )
 
   return (
-    <nav aria-label={admin.navLabel} className="flex items-center gap-1">
+    /* -mx-1 + overflow-x-auto：窄屏时导航自己横向滚，不撑破顶栏、不换行。
+       px-1 补回滚动容器的内边距，否则第一个和最后一个按钮的圆角会被裁掉一半。 */
+    <nav
+      aria-label={admin.navLabel}
+      className="-mx-1 flex max-w-full items-center gap-1 overflow-x-auto px-1 py-0.5"
+    >
+      <Link
+        aria-current={onDashboard ? "page" : undefined}
+        className={linkClass(onDashboard)}
+        to="/admin/dashboard"
+      >
+        {admin.navDashboard}
+      </Link>
       <Link
         aria-current={onPosts ? "page" : undefined}
         className={linkClass(onPosts)}
@@ -88,10 +108,13 @@ export function AdminLayout() {
   return (
     <div className="relative z-10 flex min-h-svh flex-col bg-background">
       <header className="sticky top-0 z-40 border-b border-border bg-background">
-        <Container className="flex h-14 items-center justify-between gap-4">
+        <Container className="flex h-14 items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-2.5">
-            <span aria-hidden="true" className="brand-dot" />
-            <span className="font-heading text-sm font-semibold tracking-tight">
+            <span aria-hidden="true" className="brand-dot shrink-0" />
+            {/* 标题和路径标签在手机上让位给导航：顶栏就那么宽，
+                四个模块名是「必须够得着」的，而「管理后台 /admin」这几个字
+                一眼就知道（你都进后台了）。sm 以上空间够，再显示出来。 */}
+            <span className="hidden font-heading text-sm font-semibold tracking-tight sm:inline">
               {admin.title}
             </span>
             <span className="hidden font-mono text-xs text-faint sm:inline">

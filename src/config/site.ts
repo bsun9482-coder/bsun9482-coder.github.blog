@@ -371,6 +371,7 @@ export const siteContent = {
       /* 顶栏的两块入口。放在顶栏而不是侧边栏：后台只有两个模块，
          一个侧边栏比内容还高，反而占地方。 */
       navLabel: "后台模块",
+      navDashboard: "工作台",
       navPosts: "文章",
       navJournal: "日记",
       navAlbum: "相册",
@@ -530,6 +531,69 @@ export const siteContent = {
       errAlbumSort: "排序号得是 0 到 9999 之间的整数",
       deleteAlbumTitle: "确认删掉这张照片？",
       deleteAlbumBody: "记录和服务器上的文件都会删掉，找不回来。",
+
+      /* ---------- 工作台（/admin/dashboard） ----------
+         登录后的第一屏：左边改「我是谁」，右边看「站里有多少东西」。
+         它取代了原来「登录完直接掉进文章列表」的做法 —— 进后台先看总览，
+         再决定去改什么，比一上来就面对一张表格清楚。 */
+      dashboardTitle: "工作台",
+      dashboardSubtitle:
+        "改自己的资料、看内容有多少。左边的卡片改完就影响前台。",
+      dashboardLoading: "正在读取资料…",
+      dashboardLoadFailed: "资料没读出来",
+
+      /* 个人资料卡。注意「保存」和「上传头像」是两条独立的路：
+         头像传完立刻生效（不需要再点保存），文字改完要点保存。
+         所以两条提示各自一份，别混用。 */
+      profileCardTitle: "个人资料",
+      profileCardDescription:
+        "名字、副标题、签名、城市会出现在前台；头像是圆形那一张。",
+      profileNameLabel: "名字",
+      profileNamePlaceholder: "旺仔冰子",
+      profileSubtitleLabel: "副标题",
+      profileSubtitlePlaceholder: "（恩师萧氏）",
+      profileBioLabel: "个性签名",
+      profileBioPlaceholder: "泪水打湿猪脚饭…",
+      profileLocationLabel: "地点",
+      profileLocationPlaceholder: "济南",
+      /* name 是必填的（后端 min_length=1），空着提交会回 422。
+         前端先拦一道，是为了给出「哪个框错了」这种一眼就能看懂的提示。 */
+      profileNameRequired: "名字不能空着",
+      profileSave: "保存更改",
+      profileSaving: "保存中…",
+      profileSaved: "已保存",
+      profileSaveFailed: "没保存成功",
+      /* 保存成功后右上角那行小字。有 updatedAt 就顺带显示时间，
+         新手最想知道的是「我刚才那下，服务器真的收到了吗」。 */
+      profileUpdatedAt: "上次改动 {time}",
+      profileAvatarUpload: "上传头像",
+      profileAvatarUploading: "上传中…",
+      profileAvatarHint: "jpg / png / webp / gif，不超过 5 MB，传完立刻生效。",
+      /* 卡片底部那句。专门讲「两种生效方式的区别」——
+         用户十有八九会以为传完头像还得点一次保存，或者改完名字不点保存就去看前台。 */
+      profileCardFooter:
+        "头像传完立刻生效；上面四个文字框改完要点「保存更改」才会写进数据库。",
+      profileAvatarFailed: "头像没传上去",
+      profileAvatarEmpty: "还没设过头像",
+
+      /* 内容概览卡。三个数字都能点，跳到对应的管理页。
+         数字口径统一成「后台看得见的总数」：文章含草稿（和文章管理页一致），
+         日记、相册没有草稿概念，就是全部。 */
+      overviewCardTitle: "内容概览",
+      overviewCardDescription: "点数字进对应的管理页。文章数含草稿。",
+      overviewPosts: "文章",
+      overviewJournals: "日记",
+      overviewPhotos: "相册",
+      overviewCountSuffixPosts: "篇",
+      overviewCountSuffixJournals: "则",
+      overviewCountSuffixPhotos: "张",
+      overviewGo: "去管理",
+      /* 某一项没数出来时，数字位置显示 ×，这个字符串只给读屏软件用。 */
+      overviewFailed: "这一项没数出来",
+      /* 概览卡底部的口径说明。写清楚「文章数含草稿」，
+         否则用户会拿这个数和前台文章列表对不上，以为丢了一篇。 */
+      overviewCardFooter:
+        "三个数字都是后台能看到的全部（文章含草稿），和前台访客看到的可能差几篇。",
     },
   },
 } as const
