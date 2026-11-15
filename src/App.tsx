@@ -8,6 +8,7 @@ import {
   useLocation,
 } from "react-router"
 
+import { SiteProfileProvider } from "@/lib/site-profile-context"
 import { AdminLayout } from "@/components/admin/admin-layout"
 import { AuthProvider } from "@/components/admin/auth-provider"
 import { RequireAuth } from "@/components/admin/require-auth"
@@ -148,58 +149,66 @@ export function App() {
       {/* AuthProvider 必须在 BrowserRouter 里面：它要用 useNavigate 做「401 就跳登录页」，
           而 useNavigate 只有被 Router 包住才有值。 */}
       <AuthProvider>
-        <Routes>
-          {/* ---------- 后台：两条路由都不套 SiteLayout ----------
+        {/* 作者资料（名字 / 头像 / 签名 / 城市）全站只在这里取一次。
+            位置讲究：在 Router 里面（它走 lib/api，遇到网络问题时可能跳登录页），
+            在 Routes 外面（页头页脚和后台都要用，包住全部路由才不会漏）。 */}
+        <SiteProfileProvider>
+          <Routes>
+            {/* ---------- 后台：两条路由都不套 SiteLayout ----------
               登录页是独立的（没有顶栏，没登录的人不该看到「退出登录」）；
               列表页外面套两层：RequireAuth 查登录态，AdminLayout 给顶栏 + 内容区。
               嵌套 Route 的写法：父级只给 element 不给 path，子级负责实际路径，
               子页面渲染在 AdminLayout 的 <Outlet /> 里。 */}
-          <Route element={<AdminLoginPage />} path="/admin/login" />
-          <Route
-            element={
-              <RequireAuth>
-                <AdminLayout />
-              </RequireAuth>
-            }
-          >
-            {/* 工作台：登录成功后的落地页（见 admin-login-page.tsx 的 from 默认值）。
+            <Route element={<AdminLoginPage />} path="/admin/login" />
+            <Route
+              element={
+                <RequireAuth>
+                  <AdminLayout />
+                </RequireAuth>
+              }
+            >
+              {/* 工作台：登录成功后的落地页（见 admin-login-page.tsx 的 from 默认值）。
                 ⚠️ 它必须在 /admin 之前声明 —— 两条路由都是精确匹配，
                     顺序其实不影响匹配结果，但放在前面读起来才符合「先总览后明细」。 */}
-            <Route element={<AdminDashboardPage />} path="/admin/dashboard" />
-            <Route element={<AdminPostsPage />} path="/admin" />
-            {/* 新建和编辑共用同一个页面组件 AdminPostFormPage：
+              <Route element={<AdminDashboardPage />} path="/admin/dashboard" />
+              <Route element={<AdminPostsPage />} path="/admin" />
+              {/* 新建和编辑共用同一个页面组件 AdminPostFormPage：
                 「是新建还是编辑」不靠两个页面区分，靠地址里有没有 :slug 判断。
                 两条路由都写出来，是因为它们要求的需求不一样 ——
                 /posts/new 不能有 slug，/posts/:slug/edit 必须有。 */}
-            <Route element={<AdminPostFormPage />} path="/admin/posts/new" />
-            <Route
-              element={<AdminPostFormPage />}
-              path="/admin/posts/:slug/edit"
-            />
-            {/* 日记只有一条后台路由：列表 + 输入区都在同一个页面里，
+              <Route element={<AdminPostFormPage />} path="/admin/posts/new" />
+              <Route
+                element={<AdminPostFormPage />}
+                path="/admin/posts/:slug/edit"
+              />
+              {/* 日记只有一条后台路由：列表 + 输入区都在同一个页面里，
                 不区分「新建」和「编辑」（见 admin-journal-page.tsx 顶部说明）。 */}
-            <Route element={<AdminJournalPage />} path="/admin/journal" />
-            {/* 相册管理：上传 + 列表 + 行内改描述，单页搞定（同日记页的思路）。
+              <Route element={<AdminJournalPage />} path="/admin/journal" />
+              {/* 相册管理：上传 + 列表 + 行内改描述，单页搞定（同日记页的思路）。
                 照片存在后端 /api/photos，后台传完前台 /album 立刻就能看到。 */}
-            <Route element={<AdminAlbumPage />} path="/admin/album" />
-          </Route>
+              <Route element={<AdminAlbumPage />} path="/admin/album" />
+            </Route>
 
-          <Route element={<SiteLayout />}>
-            <Route element={<HomePage />} path="/" />
-            <Route element={<ProfilePage />} path="/profile" />
-            <Route element={<WorksPage />} path="/works" />
-            <Route element={<ResourcesPage />} path="/resources" />
-            <Route element={<ArticlePage />} path="/resources/:slug" />
-            <Route element={<JournalPage />} path="/journal" />
-            {/* 相册只从首页入口和博客页的相册卡进，不占顶部导航 ——
+            <Route element={<SiteLayout />}>
+              <Route element={<HomePage />} path="/" />
+              <Route element={<ProfilePage />} path="/profile" />
+              <Route element={<WorksPage />} path="/works" />
+              <Route element={<ResourcesPage />} path="/resources" />
+              <Route element={<ArticlePage />} path="/resources/:slug" />
+              <Route element={<JournalPage />} path="/journal" />
+              {/* 相册只从首页入口和博客页的相册卡进，不占顶部导航 ——
                 导航五项已经够用，再加一项会把「文章 / 项目 / 日记」稀释掉。
                 第 42 轮从 /gallery 改名 /album（带分类筛选和灯箱）；
                 旧地址保留一条重定向：首页入口以前指向它，收藏夹里也可能有。 */}
-            <Route element={<AlbumPage />} path="/album" />
-            <Route element={<Navigate replace to="/album" />} path="/gallery" />
-            <Route element={<NotFoundRoute />} path="*" />
-          </Route>
-        </Routes>
+              <Route element={<AlbumPage />} path="/album" />
+              <Route
+                element={<Navigate replace to="/album" />}
+                path="/gallery"
+              />
+              <Route element={<NotFoundRoute />} path="*" />
+            </Route>
+          </Routes>
+        </SiteProfileProvider>
       </AuthProvider>
     </BrowserRouter>
   )

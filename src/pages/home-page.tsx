@@ -2,6 +2,7 @@ import { useCallback, useRef } from "react"
 import { ArrowRightIcon, ChevronDownIcon } from "lucide-react"
 import { Link } from "react-router"
 
+import { useSiteProfile } from "@/lib/site-profile-hook"
 import { TerminalTyper } from "@/components/fx/terminal-typer"
 import { Reveal } from "@/components/fx/reveal"
 import { HomeEntryCard } from "@/components/home/home-entry-card"
@@ -32,6 +33,9 @@ export function HomePage() {
   useDocumentTitle(siteContent.ui.header.home)
 
   const { focus, heroTitle } = siteContent.ui.home
+  /* 首屏左上角那个小头像跟页头、博客页共用同一份资料（名 + 图 + 首字），
+     在工作台换了头像，这里和页头一起变。 */
+  const profile = useSiteProfile()
 
   /* 首屏依次淡入：开启「减少动态效果」时直接是可见态，不播。
      双 rAF 的细节在 hooks/use-enter-transition.ts 里（那里有为什么）。 */
@@ -72,12 +76,9 @@ export function HomePage() {
                 不跟标题抢注意力。 */}
             <div className="flex items-center gap-2.5" style={rise(0)}>
               <Avatar className="size-7 ring-1 ring-border">
-                <AvatarImage
-                  alt={siteContent.person.name}
-                  src={siteContent.person.avatarUrl}
-                />
+                <AvatarImage alt={profile.name} src={profile.avatarUrl} />
                 <AvatarFallback className="text-xs">
-                  {siteContent.person.avatarInitial}
+                  {profile.initial}
                 </AvatarFallback>
               </Avatar>
               <span className="font-mono text-xs tracking-[0.14em] text-faint uppercase">
@@ -96,7 +97,12 @@ export function HomePage() {
               }}
             >
               {heroTitle.lead}
-              <span className="text-gradient-brand">{heroTitle.accent}</span>
+              {/* 标题中间那段渐变文字 = 作者名字，**跟工作台走**。
+                  以前这里写死 heroTitle.accent（"旺仔冰子"），后果是：
+                  站长在 /admin/dashboard 改了名字，首页最大的那行字还挂着旧名 ——
+                  比正文里漏掉一处更刺眼，因为它就在第一屏最中间。
+                  accent 现在只在兜底资料里还留着（site.ts），这里不再读它。 */}
+              <span className="text-gradient-brand">{profile.name}</span>
               {heroTitle.tail}
             </h1>
 

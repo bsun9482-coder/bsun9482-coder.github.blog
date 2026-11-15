@@ -88,12 +88,17 @@ export const siteContent = {
     home: {
       /* 首页 hero 左上角的小标签（等宽小字，用 · 分隔几个关键词） */
       eyebrow: "PYTHON · AI · 学习笔记",
-      /* 标题拆三段：只有 accent 那段渲染成蓝紫渐变。
+      /* 标题拆三段：lead + 名字 + tail。只有名字那段渲染成蓝紫渐变。
          拆开写而不是在组件里对整句做 split —— 那种写法换个字就悄悄失效，
-         而且看不出来为什么渐变没了。 */
+         而且看不出来为什么渐变没了。
+
+         ⚠️ accent 已经是**纯兜底文案**，页面上不再读它：第 48 轮起首页标题中间
+         那段改用 GET /api/profile 的 name（见 home-page.tsx），站长在工作台改名，
+         第一屏最大的那行字要跟着变。留着它是因为 site.ts 是一份「站点默认长相」，
+         真要脱离后端也能看出原本该长什么样。 */
       heroTitle: {
         lead: "欢迎来到",
-        accent: "旺仔冰子",
+        accent: "旺仔冰子", // health-allow-orphan 兜底文案，首页已改读 /api/profile
         tail: "的博客",
       },
       /* Hero 里那句引言（衬线体 + 左侧品牌蓝边条的引用卡） */
@@ -114,6 +119,11 @@ export const siteContent = {
       /* 终端卡下面那块：两个标签页（签名代码 / 聊一聊）。
          代码里的字段、对话里的问答全在这里改，组件只负责画 —— 别在 tsx 里写死文案。
 
+         ⚠️ 这里**故意没有 name / location 两项**：它们是作者的真实资料，
+         第 48 轮起由 GET /api/profile 提供，由组件按 key 覆盖进这段代码卡片
+         （见 home/profile-card-tabs.tsx 的 SignaturePanel）。写在这里只会变成
+         第二份「真相」，站长改了名字而这里没改，卡片上就会挂着旧名。
+
          字段值是联合类型：
          · 字符串 ⇒ 渲染成带引号的字符串
          · 字符串数组 ⇒ 渲染成多行数组
@@ -125,22 +135,24 @@ export const siteContent = {
         chatTab: "聊一聊",
         codeVariable: "developer",
         codeFields: [
-          { key: "name", value: "旺仔冰子" },
           { key: "role", value: "Python / AI 学习者" },
-          { key: "location", value: "济南" },
           { key: "stack", value: ["Python", "FastAPI", "React", "Tailwind"] },
           { key: "focus", value: "把 AI 接进自己的小项目" },
           { key: "openToWork", value: true },
         ],
         codeComment: "持续构建中...",
-        chatWelcome: "你好，我是冰子的 AI 助手，想了解点什么？",
+        /* ⚠️ 下面两条里的 {name} / {location} 是占位符，由组件用 GET /api/profile
+           的真实值填进去（fillTemplate）。为什么不用「把名字直接写进这句话」：
+           站长在工作台改了名字，这段对话就会变成「你好，我是旧名字的助手」——
+           助手自称和全站署名对不上，比不显示还怪。 */
+        chatWelcome: "你好，我是{name}的 AI 助手，想了解点什么？",
         /* 点问题 → 先出用户气泡，450ms 后出对应的回答。
            想加问题就往下加一项，按钮和回答会自动跟着出现。 */
         chatQuestions: [
           {
             question: "他是谁？",
             answer:
-              "旺仔冰子，在济南自学 Python 与 AI。把学到的东西写成文章，也做点小项目。",
+              "{name}，在{location}自学 Python 与 AI。把学到的东西写成文章，也做点小项目。",
           },
           {
             question: "技术栈？",

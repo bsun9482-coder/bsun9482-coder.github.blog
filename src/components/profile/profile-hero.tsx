@@ -1,5 +1,6 @@
 import { MapPinIcon } from "lucide-react"
 
+import { useSiteProfile } from "@/lib/site-profile-hook"
 import { PersonName } from "@/components/person-name"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -22,6 +23,10 @@ import { fillTemplate } from "@/lib/text"
 export function ProfileHero({ articleCount }: { articleCount: number | null }) {
   const now = useNow()
   const ui = siteContent.ui.profile
+  /* 名字 / 头像 / 签名 / 城市都来自 GET /api/profile（全站只请求一次）。
+     加载中和失败时拿到的是 site.ts 里的兜底值，所以这里的排版不会因为
+     「还没加载完」而空一块 —— 首帧就是完整的，只是可能在几百毫秒后换成新值。 */
+  const profile = useSiteProfile()
 
   return (
     <header className="relative overflow-hidden rounded-xl border border-border bg-linear-to-br from-brand/10 via-card to-card">
@@ -38,13 +43,13 @@ export function ProfileHero({ articleCount }: { articleCount: number | null }) {
           {/* 渐变环：外层 2px 蓝紫渐变，内层给头像套一圈卡片色（白）的 ring，
               两道环之间留出白缝，头像不会和渐变糊在一起。 */}
           <span className="to-brand-2 shrink-0 rounded-full bg-linear-to-br from-brand p-[2px]">
+            {/* AvatarImage 是 Radix 的组件：**加载失败会自动切到 AvatarFallback**，
+                所以我们不用自己监听 onError —— 「接口给了个坏地址」和
+                「文件被删了」都会退回首字，不会出现裂图。 */}
             <Avatar className="size-16 ring-2 ring-card sm:size-20">
-              <AvatarImage
-                alt={siteContent.person.name}
-                src={siteContent.person.avatarUrl}
-              />
+              <AvatarImage alt={profile.name} src={profile.avatarUrl} />
               <AvatarFallback className="text-2xl">
-                {siteContent.person.avatarInitial}
+                {profile.initial}
               </AvatarFallback>
             </Avatar>
           </span>
@@ -52,7 +57,9 @@ export function ProfileHero({ articleCount }: { articleCount: number | null }) {
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
               <h1 className="font-heading text-title font-semibold tracking-tight text-balance sm:text-display">
-                <PersonName />
+                {/* inline={false}：副标题另起一行，排在名字正下方。
+                    空的时候它整段不渲染，标题高度不会多出一块。 */}
+                <PersonName inline={false} />
               </h1>
               {/* Agent 标签比常规 Badge 高一档（h-6 / text-xs）：
                   旁边是 44px 的大标题，5px 高的小标签会显得像误触。 */}
@@ -61,16 +68,25 @@ export function ProfileHero({ articleCount }: { articleCount: number | null }) {
               </Badge>
             </div>
 
-            <p className="mt-2.5 max-w-xl text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">
-              {siteContent.person.introduction}
-            </p>
+            {/* 签名：作者可以在工作台清空它，清空了就不渲染这一行 ——
+                留一个 mt-2.5 的空段落会在名字和城市之间多出一块看不见的空隙。 */}
+            {profile.bio ? (
+              <p className="mt-2.5 max-w-xl text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">
+                {profile.bio}
+              </p>
+            ) : null}
 
             <p className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs text-faint">
-              <span className="inline-flex items-center gap-1.5">
-                <MapPinIcon aria-hidden="true" className="size-3.5" />
-                {siteContent.person.location}
-              </span>
-              <span aria-hidden="true">·</span>
+              {/* 城市同理：没填就不显示这一项，也不留下那个「·」 */}
+              {profile.location ? (
+                <>
+                  <span className="inline-flex items-center gap-1.5">
+                    <MapPinIcon aria-hidden="true" className="size-3.5" />
+                    {profile.location}
+                  </span>
+                  <span aria-hidden="true">·</span>
+                </>
+              ) : null}
               {/* aria-busy：读屏器在加载阶段会念「忙碌」，比等一个短横线更清楚 */}
               <span aria-busy={articleCount === null} className="tabular-nums">
                 {articleCount === null

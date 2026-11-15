@@ -1,9 +1,10 @@
+import { useSiteProfile } from "@/lib/site-profile-hook"
 import { Container } from "@/components/layout/container"
 
 /* 版权与备案信息集中在这里：换年份、换备案号只改这一处，别在页面里再写一遍。
-   备案号必须与备案主体一致，写错等于向访问者展示了错误的备案信息。 */
+   备案号必须与备案主体一致，写错等于向访问者展示了错误的备案信息。
+   ⚠️ 署名（作者名字）不在这里 —— 它跟着 GET /api/profile 走，见下面 useSiteProfile()。 */
 const COPYRIGHT_YEAR = 2026
-const COPYRIGHT_HOLDER = "旺仔冰子"
 const ICP_NUMBER = "豫ICP备2026051640号-1"
 const ICP_HREF = "https://beian.miit.gov.cn/"
 
@@ -23,6 +24,10 @@ function scrollToTop() {
 /* 全站页脚：靠最外层 flex 列撑到一屏底下（main 是 flex-1），不使用 fixed，
    所以不会盖住正文，也不会有「内容滚完了页脚还浮在上面」的重叠。 */
 export function SiteFooter() {
+  /* 版权署名跟着资料走：在工作台改了名字，页脚也要变。
+     接口没回来 / 失败时 useSiteProfile 给的是 site.ts 里的兜底名字（就是原来那个常量）。 */
+  const { name } = useSiteProfile()
+
   return (
     <footer className="border-t border-border bg-background py-5">
       <Container>
@@ -30,7 +35,7 @@ export function SiteFooter() {
           {/* 左侧两项：版权 · 备案号。窄屏用换行兜底，备案号整串不被截断。 */}
           <div className="flex flex-wrap items-center justify-center gap-x-2 text-note text-muted-foreground">
             <span className="inline-flex min-h-11 items-center sm:min-h-0">
-              © {COPYRIGHT_YEAR} {COPYRIGHT_HOLDER}
+              © {COPYRIGHT_YEAR} {name}
             </span>
             <span aria-hidden="true" className="text-faint">
               ·
