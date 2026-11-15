@@ -18,7 +18,7 @@ import { useEffect, useState } from "react"
 import { FileText, Plus, RefreshCw } from "lucide-react"
 import { Link, useLocation, useNavigate } from "react-router"
 
-import { Container } from "@/components/layout/container"
+import { AdminShell } from "@/components/admin/admin-shell"
 import { PageHeader } from "@/components/layout/page-header"
 import {
   AlertDialog,
@@ -132,22 +132,26 @@ export function AdminPostsPage() {
       : 0
 
   return (
-    <Container className="flex flex-col gap-8 py-10 sm:py-14">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <PageHeader
-          icon={FileText}
-          subtitle={admin.postsSubtitle}
-          title={admin.postsTitle}
-        />
-        {/* asChild：把 Button 的样式套到 <Link> 上，语义仍然是「链接」而不是按钮
-            （能右键新标签打开、能被读屏念成导航）。 */}
-        <Button asChild>
-          <Link to="/admin/posts/new">
-            <Plus aria-hidden="true" />
-            {admin.newPost}
-          </Link>
-        </Button>
-      </div>
+    <AdminShell>
+      {/* 大标题交给 PageHeader，靠 headingLevel=2 让出 h1（h1 在内容区顶部细栏），
+          「新建文章」按钮用 actions 塞进去 —— 以前是外面套一层 flex 并排，
+          副标题一长就把按钮挤到第二行。 */}
+      <PageHeader
+        actions={
+          /* asChild：把 Button 的样式套到 <Link> 上，语义仍然是「链接」而不是按钮
+              （能右键新标签打开、能被读屏念成导航）。 */
+          <Button asChild>
+            <Link to="/admin/posts/new">
+              <Plus aria-hidden="true" />
+              {admin.newPost}
+            </Link>
+          </Button>
+        }
+        headingLevel={2}
+        icon={FileText}
+        subtitle={admin.postsSubtitle}
+        title={admin.postsTitle}
+      />
 
       {notice && (
         <div
@@ -343,6 +347,6 @@ export function AdminPostsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </Container>
+    </AdminShell>
   )
 }

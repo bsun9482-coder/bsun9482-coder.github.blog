@@ -26,7 +26,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react"
 import { ImagesIcon, RefreshCw, Upload } from "lucide-react"
 
-import { Container } from "@/components/layout/container"
+import { AdminShell } from "@/components/admin/admin-shell"
 import { PageHeader } from "@/components/layout/page-header"
 import {
   AlertDialog,
@@ -242,8 +242,9 @@ export function AdminAlbumPage() {
   ]
 
   return (
-    <Container className="flex flex-col gap-8 py-10 sm:py-14">
+    <AdminShell>
       <PageHeader
+        headingLevel={2}
         icon={ImagesIcon}
         subtitle={admin.albumSubtitle}
         title={admin.albumTitle}
@@ -391,7 +392,7 @@ export function AdminAlbumPage() {
             aria-hidden="true"
             className="mx-auto mb-4 size-8 text-muted-foreground"
           />
-          <h2 className="text-base font-medium">{admin.albumEmpty}</h2>
+          <p className="text-base font-medium">{admin.albumEmpty}</p>
           <p className="mt-2 text-sm text-muted-foreground">
             {admin.albumEmptyDescription}
           </p>
@@ -542,6 +543,6 @@ export function AdminAlbumPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </Container>
+    </AdminShell>
   )
 }

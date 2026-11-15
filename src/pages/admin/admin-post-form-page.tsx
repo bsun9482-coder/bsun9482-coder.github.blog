@@ -18,8 +18,8 @@ import { useEffect, useState, type FormEvent, type ReactNode } from "react"
 import { PenLine } from "lucide-react"
 import { Link, useNavigate, useParams } from "react-router"
 
+import { AdminShell } from "@/components/admin/admin-shell"
 import { MarkdownEditor } from "@/components/admin/markdown-editor"
-import { Container } from "@/components/layout/container"
 import { PageHeader } from "@/components/layout/page-header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -266,17 +266,18 @@ export function AdminPostFormPage() {
   }
 
   return (
-    <Container className="flex flex-col gap-8 py-10 sm:py-14">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <PageHeader
-          icon={PenLine}
-          subtitle={isEdit ? admin.formSubtitleEdit : admin.formSubtitleNew}
-          title={isEdit ? admin.formTitleEdit : admin.formTitleNew}
-        />
-        <Button asChild size="sm" variant="outline">
-          <Link to="/admin">{admin.backToList}</Link>
-        </Button>
-      </div>
+    <AdminShell>
+      <PageHeader
+        actions={
+          <Button asChild size="sm" variant="outline">
+            <Link to="/admin">{admin.backToList}</Link>
+          </Button>
+        }
+        headingLevel={2}
+        icon={PenLine}
+        subtitle={isEdit ? admin.formSubtitleEdit : admin.formSubtitleNew}
+        title={isEdit ? admin.formTitleEdit : admin.formTitleNew}
+      />
 
       {loading && (
         <p aria-busy="true" className="font-mono text-xs text-faint">
@@ -482,6 +483,6 @@ export function AdminPostFormPage() {
           </div>
         </form>
       )}
-    </Container>
+    </AdminShell>
   )
 }

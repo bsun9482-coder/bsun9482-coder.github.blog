@@ -380,16 +380,39 @@ export const siteContent = {
       submit: "登录",
       submitting: "登录中…",
       logout: "退出登录",
-      /* 顶栏的两块入口。放在顶栏而不是侧边栏：后台只有两个模块，
-         一个侧边栏比内容还高，反而占地方。 */
+      /* ---------- 侧边栏外壳（第 46 轮） ----------
+         后台从「顶部一条横导航」改成「左侧固定侧边栏 + 右侧内容区」。
+         侧栏顶部是站点名（取接口里的 name，不写死），下面是四个模块，
+         底部是「返回站点」和「退出登录」—— 这两件事不该和模块混在一起。 */
+      sidebarLabel: "后台侧边栏",
+      sidebarOpen: "打开后台菜单",
+      sidebarClose: "关闭后台菜单",
+      /* 侧栏抽屉的标题。手机上侧栏默认藏起来，点汉堡后从左边滑出，
+         抽屉顶部需要一句话说明这是哪儿（否则只看图标会以为是访客菜单）。 */
+      sidebarMenuTitle: "后台菜单",
+      sidebarMenuDescription: "文章、日记、相册都在这里。",
+      /* 四个模块的一句话说明。侧栏里用 title 属性做原生提示，
+         鼠标停一下就大概知道里面是什么，不用先点进去。 */
+      navDashboardHint: "登录后的第一屏：改资料、看数量",
+      navPostsHint: "新建、编辑、删除文章",
+      navJournalHint: "两三句话记一条日记",
+      navAlbumHint: "传图、改标题和分类",
+      /* 内容区顶部那条细栏里的账号区。原来是顶栏中部那行小字（signedInAs），
+         现在贴在细栏右边，紧挨着退出登录。 */
+      accountLabel: "登录账号",
+      /* 被授权才显示的两个动作（工作台 Banner 右侧）。 */
+      hireBadge: "开放工作机会",
+      hireBadgeOff: "暂不接活",
+      /* 侧边栏顶部那块「站点名 + 副标题」的区域里，名字下面的小字（角色）。
+         副标题为空时用它兜底 —— 那块区域不能只剩一行名字，看着像没加载完。 */
+      brandRole: "站点作者",
       navLabel: "后台模块",
       navDashboard: "工作台",
       navPosts: "文章",
       navJournal: "日记",
       navAlbum: "相册",
       postsTitle: "文章管理",
-      postsSubtitle:
-        "数据来自 FastAPI + SQLite，和 src/content 里的 MDX 文件是两套数据源。",
+      postsSubtitle: "数据都来自数据库，改完保存，前台刷新就能看到。",
       loading: "加载中…",
       loadFailed: "列表没加载出来",
       retry: "重试",
@@ -545,7 +568,7 @@ export const siteContent = {
       deleteAlbumBody: "记录和服务器上的文件都会删掉，找不回来。",
 
       /* ---------- 工作台（/admin/dashboard） ----------
-         登录后的第一屏：左边改「我是谁」，右边看「站里有多少东西」。
+         登录后的第一屏：最上面是欢迎条，中间是四个功能入口，下面是「我是谁」。
          它取代了原来「登录完直接掉进文章列表」的做法 —— 进后台先看总览，
          再决定去改什么，比一上来就面对一张表格清楚。 */
       dashboardTitle: "工作台",
@@ -553,6 +576,23 @@ export const siteContent = {
         "改自己的资料、看内容有多少。左边的卡片改完就影响前台。",
       dashboardLoading: "正在读取资料…",
       dashboardLoadFailed: "资料没读出来",
+
+      /* 欢迎 Banner（浅蓝渐变，不是深色块）。
+         欢迎语按「几点」分三段：早上 / 下午 / 晚上。刻意不给「深夜」——
+         写博客的人半夜改稿是常态，那时候更需要一句「晚上好」而不是被提醒熬夜。 */
+      greetingMorning: "早上好",
+      greetingAfternoon: "下午好",
+      greetingEvening: "晚上好",
+      bannerWelcome: "{greeting}，{name}",
+      /* Banner 副标题。签名（bio）为空时用它兜底 —— 那块地方不能空着，
+         否则 Banner 只剩一个大名字，看着像加载失败。 */
+      bannerFallbackBio: "今天想写点什么？下面四个入口都能直接进去。",
+      bannerMetaHint: "资料来自 /api/profile，改完刷新前台就能看到。",
+
+      /* 功能宫格：一张卡 = 一个模块 + 一个数字。
+         卡片上的「数量」口径和侧栏不一样 —— 文章含草稿，见下面 overviewCardFooter。 */
+      gridTitle: "功能入口",
+      gridSubtitle: "点任意一张卡进对应的管理页。",
 
       /* 个人资料卡。注意「保存」和「上传头像」是两条独立的路：
          头像传完立刻生效（不需要再点保存），文字改完要点保存。

@@ -14,7 +14,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react"
 import { NotebookPen, RefreshCw } from "lucide-react"
 
-import { Container } from "@/components/layout/container"
+import { AdminShell } from "@/components/admin/admin-shell"
 import { PageHeader } from "@/components/layout/page-header"
 import {
   AlertDialog,
@@ -190,8 +190,9 @@ export function AdminJournalPage() {
   }
 
   return (
-    <Container className="flex flex-col gap-8 py-10 sm:py-14">
+    <AdminShell>
       <PageHeader
+        headingLevel={2}
         icon={NotebookPen}
         subtitle={admin.journalSubtitle}
         title={admin.journalTitle}
@@ -404,6 +405,6 @@ export function AdminJournalPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </Container>
+    </AdminShell>
   )
 }
