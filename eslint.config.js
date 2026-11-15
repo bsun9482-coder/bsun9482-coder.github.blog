@@ -6,7 +6,10 @@ import tseslint from "typescript-eslint"
 import { defineConfig, globalIgnores } from "eslint/config"
 
 export default defineConfig([
-  globalIgnores(["dist"]),
+  /* .workbuddy 是工作区私有目录（已 gitignore），里面的 tmp/ 放一次性探针脚本：
+     它们不进仓库、也不该因为「临时脚本里有个没用到的变量」把 npm run lint 弄红。
+     注意只排 tmp，不排整个 .workbuddy —— 万一以后这里有需要守着的配置，还能被检查到。 */
+  globalIgnores(["dist", ".workbuddy/tmp"]),
   {
     files: ["**/*.{ts,tsx}"],
     /* 构建侧（vite 配置）跑在 Node 里，下面单独给 node 全局。
