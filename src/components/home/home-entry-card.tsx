@@ -47,9 +47,14 @@ export function HomeEntryCard({
     /* 整卡可点：Card 自带 .card-lift（hover 上浮 3px + 描边泛蓝 + 淡蓝阴影，200ms），
        配色统一在 index.css 里管，这里别再加 border 的 hover 工具类（会把它盖掉）。
        减少动态时由那边的 media query 取消位移。
-       h-full 让同一行里说明文字长短不一的卡片高度一致。 */
+       h-full 让同一行里说明文字长短不一的卡片高度一致。
+
+       data-spotlight / spotlight-panel 挂在外层 <Link> 上而不是里面的 Card：
+       整卡可点，所以「一张卡」就是整个链接。挂里面的话取景框只会框住白卡、
+       把外圈那 9px 留白排除在外，看着比邻卡小一圈。 */
     <Link
-      className="group block h-full rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+      className="spotlight-panel group block h-full rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+      data-spotlight
       to={href}
     >
       <Card className="h-full gap-0" size="sm">

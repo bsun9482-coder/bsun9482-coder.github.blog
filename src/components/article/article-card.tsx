@@ -44,7 +44,8 @@ export function ArticleCard({ post }: ArticleCardProps) {
          才不会掉到卡片白底后面（.card-fx 本来也有 isolation，这里写明白）。 */
       /* 内边距交给 Card 的 --card-spacing（默认 24px）：根节点给上下、header/content 给左右。
          这里只保留 gap-5 —— 卡内各块的间距要比 24px 紧一点（20px），是这张卡自己的调子。 */
-      className="group relative isolate gap-5 overflow-hidden [&::before]:hidden"
+      className="spotlight-panel group relative isolate gap-5 overflow-hidden [&::before]:hidden"
+      data-spotlight
       onMouseMove={handleGlowMove}
     >
       {/* 1. 鼠标跟随高光：圆心跟着 --mx/--my 跑，默认透明，hover 才显形。

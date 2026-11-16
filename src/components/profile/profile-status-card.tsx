@@ -12,7 +12,7 @@ export function ProfileStatusCard() {
   const ui = siteContent.ui.profile
 
   return (
-    <Card>
+    <Card className="spotlight-panel" data-spotlight>
       <CardContent className="flex flex-col gap-3">
         <p className="font-mono text-[11px] tracking-[0.18em] text-faint uppercase">
           {ui.statusLabel}

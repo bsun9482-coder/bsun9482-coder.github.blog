@@ -36,7 +36,10 @@ export function ProfileAlbumCard() {
   const preview = photos.slice(0, PREVIEW_COUNT)
 
   return (
-    <Card className="group relative flex flex-1 flex-col">
+    <Card
+      className="spotlight-panel group relative flex flex-1 flex-col"
+      data-spotlight
+    >
       <CardContent className="flex flex-1 flex-col gap-3">
         <div className="flex items-baseline justify-between gap-3">
           <p className="font-mono text-[11px] tracking-[0.18em] text-faint uppercase">

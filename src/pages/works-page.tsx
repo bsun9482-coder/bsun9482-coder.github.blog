@@ -30,7 +30,10 @@ export function WorksPage() {
           {siteContent.ui.works.listTitle}
         </h2>
         <Reveal delay={100}>
-          <TiltCard className="border-dashed py-16 text-center">
+          <TiltCard
+            className="spotlight-panel border-dashed py-16 text-center"
+            data-spotlight
+          >
             <CardContent>
               <FolderGit2Icon className="mx-auto size-10 text-muted-foreground" />
               <h3 className="mt-5 text-lg font-medium">

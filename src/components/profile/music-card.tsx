@@ -15,7 +15,7 @@ export function MusicCard() {
   if (!firstTrack) return null
 
   return (
-    <TiltCard className="h-full">
+    <TiltCard className="spotlight-panel h-full" data-spotlight>
       <CardContent className="flex h-full flex-col">
         <div className="flex items-center gap-4">
           <div className="size-16 shrink-0 rounded-full bg-secondary" />

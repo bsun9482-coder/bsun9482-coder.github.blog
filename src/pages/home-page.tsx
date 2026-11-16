@@ -174,7 +174,8 @@ export function HomePage() {
         className="pb-16 sm:pb-24"
       >
         <Reveal>
-          <div className="focus-card p-6 sm:p-10">
+          {/* data-dark-surface：让取景框光标走到这块上时角线与角标自动翻成白色系 */}
+          <div className="focus-card p-6 sm:p-10" data-dark-surface>
             <p className="font-mono text-xs tracking-[0.16em] text-(--brand-soft) uppercase">
               {focus.label}
             </p>

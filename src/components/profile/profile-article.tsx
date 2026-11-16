@@ -40,13 +40,21 @@ export function FeaturedPostCard({
   total: number
 }) {
   return (
-    <Card className="group relative grid h-full w-full gap-0 overflow-hidden p-0 sm:grid-cols-[168px_minmax(0,1fr)]">
+    <Card
+      className="spotlight-panel group relative grid h-full w-full gap-0 overflow-hidden p-0 sm:grid-cols-[168px_minmax(0,1fr)]"
+      data-spotlight
+    >
       {/* 深色块：手机上是顶部一条横的，桌面变左半边。
           背景渐变与 `</>` 符号是**所有 slide 共用的一套**，写在组件里只此一处 ——
           不要在调用点额外塞样式，否则某一张会跟别人不一样（规格明确要求整齐划一）。
           用 [background-image:...] 而不是 bg-[...] 任意值：前者不依赖猜测
-          这个值该落到哪个属性上。 */}
-      <div className="relative flex items-center justify-center gap-3 [background-image:linear-gradient(160deg,#1e293b,#0f172a)] px-5 py-5 sm:flex-col sm:gap-3 sm:py-0">
+          这个值该落到哪个属性上。
+          data-dark-surface：取景框压在这半边上时要转成白色系，否则品牌蓝
+          在 #1e293b 上几乎看不见（对比度 1.6:1）。 */}
+      <div
+        className="relative flex items-center justify-center gap-3 [background-image:linear-gradient(160deg,#1e293b,#0f172a)] px-5 py-5 sm:flex-col sm:gap-3 sm:py-0"
+        data-dark-surface
+      >
         <span
           aria-hidden="true"
           className="font-mono text-2xl leading-none font-bold tracking-tighter text-(--brand-soft)"
@@ -129,7 +137,7 @@ export function TagCloudCard({
   tags: { tag: string; count: number }[]
 }) {
   return (
-    <Card>
+    <Card className="spotlight-panel" data-spotlight>
       <CardContent className="flex flex-col gap-4">
         <p className="font-mono text-[11px] tracking-[0.18em] text-faint uppercase">
           {ui.tagCloudLabel}

@@ -36,7 +36,7 @@ export function ProfileAside() {
     <>
       {/* 1. 今日说说：左侧一条品牌蓝竖线 + 衬线体。
           衬线体是全站唯一的例外（首页那句引言也在用），一眼就能和正文区分开。 */}
-      <Card>
+      <Card className="spotlight-panel" data-spotlight>
         <CardContent className="flex flex-col gap-3">
           <p className="font-mono text-[11px] tracking-[0.18em] text-faint uppercase">
             {ui.quoteLabel}
@@ -52,7 +52,7 @@ export function ProfileAside() {
 
       {/* 3. 实时信息：天气 / 湿度 / 日期。数据源是 useWeather + useNow，
           自然高度、不拉伸（理由见文件顶部）。 */}
-      <Card>
+      <Card className="spotlight-panel" data-spotlight>
         <CardContent className="flex flex-col gap-5">
           <p className="font-mono text-[11px] tracking-[0.18em] text-faint uppercase">
             {ui.liveLabel}

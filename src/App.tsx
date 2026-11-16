@@ -16,6 +16,7 @@ import { SiteAmbience } from "@/components/layout/site-ambience"
 import { SiteFooter } from "@/components/layout/site-footer"
 import { SiteHeader } from "@/components/layout/site-header"
 import { ScrollProgress } from "@/components/layout/scroll-progress"
+import { PointerEffects } from "@/components/PointerEffects"
 import { ErrorBoundary } from "@/components/system/error-boundary"
 import { PageLoading } from "@/components/system/page-loading"
 import { siteContent } from "@/config/site"
@@ -137,6 +138,11 @@ function SiteLayout() {
           内容超过一屏时它就是最后一块，紧跟正文。首页以前的整屏吸附已去掉，
           所以首页也照常挂页脚。 */}
       <SiteFooter />
+      {/* 指针特效（取景框光标 + 舞台追光 + 点击涟漪）。
+          ⚠️ 挂在这里而不是 App 最外层：这个位置就决定了「只有前台有」——
+          后台那几条路由（/admin/*）根本不套 SiteLayout，所以 /admin 天然没有特效，
+          不用在组件里再判一次路径（那种判断迟早会漏掉某条新路由）。 */}
+      <PointerEffects />
     </div>
   )
 }

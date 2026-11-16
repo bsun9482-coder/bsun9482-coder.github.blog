@@ -19,7 +19,10 @@ export function JournalEntryCard({ entry }: JournalEntryCardProps) {
   const weekday = formatJournalWeekday(entry.date)
 
   return (
-    <article className="rounded-xl border border-border bg-card px-4 py-4 transition-[border-color,box-shadow] duration-200 hover:border-brand/45 hover:shadow-[0_8px_24px_color-mix(in_srgb,var(--brand)_8%,transparent)] motion-reduce:transition-none sm:px-5">
+    <article
+      className="spotlight-panel relative rounded-xl border border-border bg-card px-4 py-4 transition-[border-color,box-shadow] duration-200 hover:border-brand/45 hover:shadow-[0_8px_24px_color-mix(in_srgb,var(--brand)_8%,transparent)] motion-reduce:transition-none sm:px-5"
+      data-spotlight
+    >
       <header className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
         <time
           className="font-mono text-xs tracking-tight text-faint tabular-nums"

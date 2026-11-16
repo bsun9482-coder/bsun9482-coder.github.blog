@@ -770,3 +770,347 @@
   font-size: 13px;
   line-height: 1.6;
 }
+
+/* ==========================================================================
+   指针特效（第 51 轮）：取景框光标 + 舞台追光
+   --------------------------------------------------------------------------
+   全部写在所有 @layer 之外，理由和 .card-lift / .article-content .hljs 一样：
+   组件身上的 border-* / shadow-* / transition-* 都在 utilities 层里，
+   而「层序优先于选择器优先级」—— 只要这些规则待在某层里，就永远输给工具类，
+   于是「改了没反应」。未分层的样式胜出，这是唯一可靠的落点。
+
+   ⚠️ 光斑为什么不用 ::after 而用子元素 .spotlight-glow
+   规格里写的是 ::after，但站内已有的 .card-fx 把 ::after 给了「流动边光」，
+   文章卡、项目卡、404 卡都带着 .card-fx。同一个伪元素只能有一套样式，
+   真按 ::after 写，卡片一挂上 spotlight 边光就会消失（或被边光顶掉光斑）。
+   所以光斑改由 PointerEffects 在每个 [data-spotlight] 里插一块
+   div.spotlight-glow 承载 —— 效果、层叠位置、pointer-events 全部一致，
+   只是换了载体，两种特效可以共存。
+   ========================================================================== */
+
+/* ---------- 1. 全局隐藏系统光标 ----------
+   ⚠️ 只由 PointerEffects 在「真启用」时往 <html> 上加这一个 class，
+   组件一卸载/降级就摘掉。不写死 body { cursor: none }，否则
+   触屏设备、reduced-motion 关闭特效之后，指针会连影子都没有。 */
+.cursor-none,
+.cursor-none *,
+.cursor-none *::before,
+.cursor-none *::after {
+  cursor: none !important;
+}
+
+/* ---------- 2. 取景框 ----------
+   54×54 的容器，translate(-50%,-50%) 让它以「中心」对准坐标；
+   JS 每帧写的是 x / y（未取整的浮点），才能做 0.26 的缓动跟踪。
+   will-change 只在启用期间存在，用完随元素一起消失，不会常驻。 */
+.cursor-finder {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9997;
+  width: 54px;
+  height: 54px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  will-change: transform, width, height;
+  /* ⚠️ 刻意**不**给 width / height 做过渡。
+     锁定态要求「框扣到元素上」，而带过渡时浏览器会把宽高当成可动画值，
+     进入锁定的那一帧量到的仍是旧的 54×54（探针实测），
+     后续若 JS 再补写一次又会重置过渡、永远到不了位。
+     对焦该有的「一下收拢」交给颜色与角标那 0.25s 的淡入即可。 */
+  transition: opacity 0.2s ease;
+}
+
+/* 跟随模式：容器永远 54×54，只移动位置（位置由 transform 直接写，不参与过渡，
+   否则缓动会被 CSS 过渡再拖一层，手感变成「粘滞」）。
+   角线和角标都绝对定位在这个盒子里，位置固定，不随锁定态移动。 */
+.cursor-finder__corner {
+  position: absolute;
+  width: 13px;
+  height: 13px;
+  border-style: solid;
+  border-width: 0;
+  border-radius: 3px;
+  /* ⚠️ 颜色不在这里给：四个方向修饰类各自写 border-*-color，
+     这里再写一次 border-color 会和它们抢（同优先级、后者按顺序生效），
+     结果就是某个角颜色不对。方向类里已经逐个写全了。 */
+  transition: border-color 0.25s ease;
+}
+
+/* 四个 L 形：每个只画两条边，圆角落在拐角那一侧 */
+.cursor-finder__corner--tl {
+  top: 0;
+  left: 0;
+  border-color: rgba(37, 99, 235, 0.9);
+  border-top-width: 2px;
+  border-left-width: 2px;
+  border-top-left-radius: 3px;
+}
+
+.cursor-finder__corner--tr {
+  top: 0;
+  right: 0;
+  border-color: rgba(37, 99, 235, 0.9);
+  border-top-width: 2px;
+  border-right-width: 2px;
+  border-top-right-radius: 3px;
+}
+
+.cursor-finder__corner--bl {
+  bottom: 0;
+  left: 0;
+  border-color: rgba(37, 99, 235, 0.9);
+  border-bottom-width: 2px;
+  border-left-width: 2px;
+  border-bottom-left-radius: 3px;
+}
+
+.cursor-finder__corner--br {
+  bottom: 0;
+  right: 0;
+  border-color: rgba(37, 99, 235, 0.9);
+  border-bottom-width: 2px;
+  border-right-width: 2px;
+  border-bottom-right-radius: 3px;
+}
+
+/* 正中心那个 4px 实心点：对焦标记的「目标点」 */
+.cursor-finder__dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background-color: rgba(37, 99, 235, 0.8);
+  transform: translate(-50%, -50%);
+  transition:
+    background-color 0.25s ease,
+    opacity 0.25s ease;
+}
+
+/* 角标：贴在框下方 19px 处，不挤占框内空间。
+   中心对齐用 translateX(-50%)，否则框一放宽字就跑偏。 */
+.cursor-finder__label {
+  position: absolute;
+  top: calc(100% + 19px);
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  color: rgba(37, 99, 235, 0.85);
+  transition:
+    color 0.25s ease,
+    opacity 0.25s ease;
+}
+
+/* ---------- 3. 锁定态 ----------
+   ⚠️ 尺寸不能全交给 CSS 过渡：进入锁定时宽高是从「跟随态的 auto」变成
+   「元素矩形 + 18」，如果这一步走 transition，JS 刚写进去的那一帧量到的
+   还是旧值（探针实测：框在导航上仍是 54×54）。
+   所以宽度/高度本身不做过渡（见 .cursor-finder 的 transition 只有 opacity），
+   只让描边颜色和角标淡入淡出 —— 视觉上「框一下就扣上去」，反而更像对焦。
+
+   ⚠️ 为什么四个方向类要一个个点名（.cursor-finder__corner--tl 等）：
+   那四个类在白底态里各自写了 border-color（0,1,0），锁定时这条是 (0,2,0)，
+   本来能赢。但只写 `.cursor-finder--locked .cursor-finder__corner` 时，
+   如果将来有人把方向类追加写进更靠后的位置、或者加个 !important，
+   又是「改了没反应」。点名写全，谁都压不过。 */
+.cursor-finder--locked .cursor-finder__corner--tl,
+.cursor-finder--locked .cursor-finder__corner--tr,
+.cursor-finder--locked .cursor-finder__corner--bl,
+.cursor-finder--locked .cursor-finder__corner--br {
+  border-color: #2563eb;
+}
+
+.cursor-finder--locked .cursor-finder__dot {
+  background-color: #2563eb;
+}
+
+.cursor-finder--locked .cursor-finder__label {
+  color: #2563eb;
+  animation: finder-focus 0.28s ease-in-out infinite alternate;
+}
+
+/* 合焦闪烁：模拟对焦时取景器里那一下呼吸。只改透明度，不碰几何。 */
+@keyframes finder-focus {
+  from {
+    opacity: 0.55;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ---------- 4. 深色面自适应 ----------
+   由 JS 判断「指针此刻压在哪块 [data-dark-surface] 上」，命中的那一帧
+   给取景框加 --on-dark。用类而不是 JS 改内联色，一是避免和锁定态抢属性，
+   二是这里能一次性把角线、中心点、角标三处都换掉。 */
+.cursor-finder--on-dark .cursor-finder__corner--tl,
+.cursor-finder--on-dark .cursor-finder__corner--tr,
+.cursor-finder--on-dark .cursor-finder__corner--bl,
+.cursor-finder--on-dark .cursor-finder__corner--br {
+  border-color: rgba(255, 255, 255, 0.9);
+}
+
+.cursor-finder--on-dark .cursor-finder__dot {
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+.cursor-finder--on-dark .cursor-finder__label {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* 深色 + 锁定同时成立时，白色优先（深色底上用品牌蓝几乎看不见）。
+   ⚠️ 同样要点名到方向类：上面锁定那条也是 (0,2,0) 且写在前面，
+   这里 (0,3,0) 更高，但方向类如果只靠继承的 border-color 又会被锁定态盖掉，
+   所以这三条都得落到「—corner--xx」这一层。 */
+.cursor-finder--on-dark.cursor-finder--locked .cursor-finder__corner--tl,
+.cursor-finder--on-dark.cursor-finder--locked .cursor-finder__corner--tr,
+.cursor-finder--on-dark.cursor-finder--locked .cursor-finder__corner--bl,
+.cursor-finder--on-dark.cursor-finder--locked .cursor-finder__corner--br {
+  border-color: rgba(255, 255, 255, 0.95);
+}
+
+.cursor-finder--on-dark.cursor-finder--locked .cursor-finder__dot {
+  background-color: rgba(255, 255, 255, 0.95);
+}
+
+.cursor-finder--on-dark.cursor-finder--locked .cursor-finder__label {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+/* ---------- 5. 舞台追光 ----------
+   卡片默认态：只声明过渡，不改任何视觉属性。
+   ⚠️ 过渡属性里必须有 translate —— lit 态的 -2px 抬升用它实现，
+   用 transform 会跟 lib/tilt.ts 写的 inline transform 打架。 */
+.spotlight-panel {
+  position: relative;
+  transition:
+    opacity 0.25s ease,
+    filter 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    translate 0.25s ease;
+}
+
+/* 被点亮的卡：描边泛蓝 + 一圈内描边 + 大范围柔光 + 抬 2px */
+.spotlight-panel.lit {
+  border-color: rgba(37, 99, 235, 0.55);
+  box-shadow:
+    0 0 0 1px rgba(37, 99, 235, 0.14),
+    0 14px 38px rgba(37, 99, 235, 0.16);
+  translate: 0 -2px;
+}
+
+/* 其余卡片：压暗 + 降饱和。0.88 是能看出「退到后面」又不会显得脏的临界值 */
+.spotlight-panel.dimmed {
+  opacity: 0.88;
+  filter: saturate(0.88);
+}
+
+/* 卡内跟随光斑：由 PointerEffects 插入的 div，圆心坐标走 --mx / --my（px）。
+   z-index: 0 而不是负值 —— 负 z 要靠父级 isolation 兜底才不掉到白底后面，
+   而卡片（.card-lift / .card-fx）未必都有 isolation；用 0 并让内容层保持
+   默认可绘制顺序即可，光斑自然垫在文字下面（文字是非定位元素，会画在它之后
+   —— 所以这里必须 pointer-events: none，且不能用 z-index 去压内容）。 */
+.spotlight-glow {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  background-image: radial-gradient(
+    300px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(37, 99, 235, 0.13),
+    rgba(37, 99, 235, 0.04) 45%,
+    transparent 72%
+  );
+}
+
+/* 只有 lit 的卡才显示光斑：dimmed 的卡即使鼠标扫过也不该有光 */
+.spotlight-panel.lit > .spotlight-glow {
+  opacity: 1;
+}
+
+/* ---------- 6. 点击涟漪 ----------
+   一次性元素，JS 在 0.55s 后自己删掉，所以这里不用管「清理」，
+   只管画一遍动画。pointer-events: none 保证它不吃下一次点击。 */
+.pointer-ripple {
+  position: fixed;
+  z-index: 9996;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border-radius: 999px;
+  border: 2px solid rgba(37, 99, 235, 0.45);
+  background-color: rgba(37, 99, 235, 0.12);
+  pointer-events: none;
+  animation: pointer-ripple 0.55s ease-out forwards;
+}
+
+@keyframes pointer-ripple {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(5.5);
+  }
+}
+
+/* ---------- 7. 减少动态效果 ----------
+   规格要求：关掉缓动、合焦闪烁、涟漪、translateY 位移；
+   只保留静态取景框 + 静态边框高亮，**不做 dim 压暗**。
+   ⚠️ dimmed 在这里被整条 neutralize：不降透明度、不降饱和。
+   那样「其它卡片退后」的层次感就没了，但这是用户明确选择「少动」时该付的代价 ——
+   宁可少一层视觉层次，也不要满屏东西在轻微地变来变去。 */
+@media (prefers-reduced-motion: reduce) {
+  .cursor-finder {
+    transition: none;
+  }
+
+  .cursor-finder__corner,
+  .cursor-finder__dot,
+  .cursor-finder__label {
+    transition: none;
+  }
+
+  /* 闪烁彻底停掉，固定在「亮」的那一帧，而不是停在半透明 */
+  .cursor-finder--locked .cursor-finder__label {
+    animation: none;
+    opacity: 1;
+  }
+
+  .spotlight-panel {
+    transition: none;
+  }
+
+  /* 保留描边高亮，去掉抬升 */
+  .spotlight-panel.lit {
+    translate: none;
+  }
+
+  /* 压暗与降饱和整条关掉 */
+  .spotlight-panel.dimmed {
+    opacity: 1;
+    filter: none;
+  }
+
+  /* 光斑本身是静态的（跟着指针但不自己动），保留；只是不要淡入过渡 */
+  .spotlight-glow {
+    transition: none;
+  }
+
+  /* 涟漪不属于「静态」，整个不要 */
+  .pointer-ripple {
+    display: none;
+    animation: none;
+  }
+}
